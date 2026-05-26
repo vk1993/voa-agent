@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VOXA — The AI Sales Agent That Speaks Every Industry's Language</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#090B10;--surf:#13151C;--surf2:#15151A;
+  --bdr:rgba(255,255,255,.06);--bdr2:rgba(255,255,255,.04);
+  --gold:#C9A14A;--blue:#638CFF;--green:#22C55E;--teal:#14B8A6;
+  --txt:#F0EFE8;--txt2:#8A8A92;--txt3:#6E6E78;
+  --mono:'JetBrains Mono',monospace;--body:'Inter',sans-serif;
+}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--txt);font-family:var(--body);overflow-x:hidden;line-height:1.6}
+body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9998;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)'/%3E%3C/svg%3E");
+  opacity:.028}
+.wrap{max-width:1200px;margin:0 auto;padding:0 40px}
+@keyframes pulseRing{0%,100%{transform:scale(1);opacity:.7}50%{transform:scale(2.2);opacity:0}}
+@keyframes waveBar{0%,100%{height:4px}50%{height:20px}}
+@keyframes floatUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+@keyframes spin{to{transform:rotate(360deg)}}
+.fade-in{opacity:0;transform:translateY(22px);transition:opacity .6s ease,transform .6s ease}
+.fade-in.on{opacity:1;transform:none}
+a{color:inherit}
+</style>
+</head>
+<body style="background-color: rgb(0, 0, 0)">
+<div id="root"></div>
+<script type="text/babel" src="tweaks-panel.jsx"></script>
+<script type="text/babel">
+const {useState,useEffect,useRef,useCallback}=React;
+
+/* ── TWEAK DEFAULTS ── */
+const TWEAK_DEFAULTS=/*EDITMODE-BEGIN*/{
+  "accent": "#C9A14A",
+  "heroCTA": "Start free trial →",
+  "badge": "LIVE IN 23 COUNTRIES  ·  147 ACTIVE TENANTS",
+  "annualPricing": true
+}/*EDITMODE-END*/;
+
+/* ── FADE UP HOOK ── */
+function useFade(delay=0){
+  const ref=useRef(null);
+  const [visible,setVisible]=useState(false);
+  useEffect(()=>{
+    const el=ref.current; if(!el) return;
+    const show=()=>setVisible(true);
+    const ob=new IntersectionObserver(([e])=>{
+      if(e.isIntersecting){show();ob.disconnect();}
+    },{threshold:.12});
+    const t=setTimeout(()=>{
+      ob.observe(el);
+      requestAnimationFrame(()=>{
+        const r=el.getBoundingClientRect();
+        if(r.top<window.innerHeight&&r.bottom>0){show();ob.disconnect();}
+      });
+    },delay);
+    return()=>{clearTimeout(t);ob.disconnect();};
+  },[delay]);
+  return [ref,visible];
+}
+function F({delay=0,children,style={}}){
+  const [r,visible]=useFade(delay);
+  return <div ref={r} className={`fade-in${visible?' on':''}`} style={style}>{children}</div>;
+}
+
+/* ── NAV ── */
+function Nav({acc}){
+  const [scrolled,setScrolled]=useState(false);
+  useEffect(()=>{
+    const h=()=>setScrolled(window.scrollY>40);
+    window.addEventListener('scroll',h);return()=>window.removeEventListener('scroll',h);
+  },[]);
+  return(
+    <nav style={{position:'fixed',top:0,left:0,right:0,zIndex:200,
+      background:scrolled?'rgba(9,11,16,.92)':'transparent',
+      backdropFilter:scrolled?'blur(20px)':'none',
+      borderBottom:scrolled?'1px solid rgba(255,255,255,.05)':'none',
+      transition:'all .3s ease'}}>
+      <div className="wrap" style={{display:'flex',alignItems:'center',justifyContent:'space-between',height:64}}>
+        <div style={{display:'flex',alignItems:'center',gap:11}}>
+          <div style={{width:36,height:36,borderRadius:10,background:acc,display:'flex',alignItems:'center',justifyContent:'center',
+            color:'#0F0F12',fontFamily:'var(--mono)',fontWeight:700,fontSize:17,flexShrink:0}}>V</div>
+          <span style={{fontFamily:'var(--mono)',fontWeight:700,fontSize:17,letterSpacing:'.06em'}}>VOXA</span>
+        </div>
+        <div style={{display:'flex',gap:28,alignItems:'center'}}>
+          {['Skill Packs','How It Works','Pricing','API Docs'].map(l=>(
+            <NavLink key={l}>{l}</NavLink>
+          ))}
+        </div>
+        <div style={{display:'flex',gap:10,alignItems:'center'}}>
+          <NavLink>Sign in</NavLink>
+          <Btn acc={acc} size="sm">Get started</Btn>
+        </div>
+      </div>
+    </nav>
+  );
+}
+function NavLink({children}){
+  const [h,setH]=useState(false);
+  return <span onMouseEnter={()=>setH(true)} onMouseLeave={()=>setH(false)}
+    style={{fontSize:14,color:h?'var(--txt)':'var(--txt2)',cursor:'pointer',transition:'color .2s'}}>{children}</span>;
+}
+function Btn({acc,children,ghost=false,size='md',onClick}){
+  const [h,setH]=useState(false);
+  const p=size==='sm'?'0 18px':'0 24px';
+  const height=size==='sm'?38:48;
+  return(
+    <button onClick={onClick} onMouseEnter={()=>setH(true)} onMouseLeave={()=>setH(false)} style={{
+      height,padding:p,borderRadius:10,border:ghost?'1px solid rgba(255,255,255,.15)':'none',
+      background:ghost?'transparent':acc,color:ghost?'var(--txt)':'#0F0F12',
+      fontSize:14,fontWeight:600,cursor:'pointer',fontFamily:'var(--body)',
+      transition:'all .2s',display:'inline-flex',alignItems:'center',gap:8,
+      opacity:h&&!ghost?.85:1,
+      transform:h&&!ghost?'translateY(-1px)':'none',
+      boxShadow:h&&!ghost?`0 8px 24px ${acc}44`:'none',
+      borderColor:h&&ghost?'rgba(255,255,255,.3)':'rgba(255,255,255,.15)'
+    }}>{children}</button>
+  );
+}
+
+/* ── PULSE DOT ── */
+function Pulse({color='var(--green)',size=8}){
+  return(
+    <div style={{position:'relative',width:size,height:size,flexShrink:0}}>
+      <div style={{width:size,height:size,borderRadius:'50%',background:color}}/>
+      <div style={{position:'absolute',inset:-3,borderRadius:'50%',background:color,opacity:.3,
+        animation:'pulseRing 2s ease infinite'}}/>
+    </div>
+  );
+}
+
+/* ── WAVEFORM ── */
+function Waveform({acc,bars=36}){
+  const heights=[4,6,8,12,16,20,18,14,10,8,6,10,14,20,18,12,8,6,4,8,12,16,20,16,12,8,6,4,8,12,16,14,10,7,5,4];
+  return(
+    <div style={{display:'flex',alignItems:'center',gap:2.5,height:24,paddingLeft:2}}>
+      {Array.from({length:bars}).map((_,i)=>(
+        <div key={i} style={{width:2,borderRadius:2,background:acc,opacity:.55,
+          height:`${heights[i%heights.length]}px`,
+          animation:`waveBar ${.7+.3*(i%4)}s ease-in-out infinite`,
+          animationDelay:`${(i*0.05)%1}s`}}/>
+      ))}
+    </div>
+  );
+}
+
+/* ── HERO CARD ── */
+function HeroCard({acc}){
+  const [secs,setSecs]=useState(167);
+  useEffect(()=>{const id=setInterval(()=>setSecs(s=>s+1),1000);return()=>clearInterval(id);},[]);
+  const fmt=s=>`${String(Math.floor(s/60)).padStart(2,'0')}:${String(s%60).padStart(2,'0')}`;
+  const lines=[
+    {role:'AI',text:'Hi Priya — I saw you enquired about our 3BHK design package. Are you still looking?'},
+    {role:'USER',text:'Yes, we just got possession last week actually.'},
+    {role:'AI',text:'Perfect timing! Most clients in Whitefield budget around 8-10 lakhs for a full interior. Does that range work?'},
+  ];
+  const facts=['📍 Whitefield','🏠 3BHK','💰 8-10L budget'];
+  return(
+    <div style={{position:'relative'}}>
+      {/* Ambient glow */}
+      <div style={{position:'absolute',inset:'-80px',
+        background:`radial-gradient(ellipse 55% 55% at 50% 45%, ${acc}0F 0%, transparent 68%)`,
+        pointerEvents:'none'}}/>
+      {/* Card */}
+      <div style={{position:'relative',background:'#15151A',borderRadius:16,overflow:'hidden',
+        border:'1px solid rgba(255,255,255,.05)',borderTop:`2px solid ${acc}`,
+        boxShadow:'0 40px 80px rgba(0,0,0,.65),0 8px 16px rgba(0,0,0,.4)'}}>
+        {/* Header */}
+        <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',
+          padding:'13px 18px',borderBottom:'1px solid rgba(255,255,255,.05)',background:'rgba(0,0,0,.18)'}}>
+          <div style={{display:'flex',alignItems:'center',gap:8}}>
+            <Pulse/>
+            <span style={{fontFamily:'var(--mono)',fontSize:11.5,color:'var(--green)',letterSpacing:'.05em'}}>
+              LIVE CALL · {fmt(secs)}
+            </span>
+          </div>
+          <span style={{fontFamily:'var(--mono)',fontSize:10.5,color:'var(--txt2)'}}>Aurora-7 · VOXA</span>
+        </div>
+        {/* Transcript */}
+        <div style={{padding:'18px 18px 12px',display:'flex',flexDirection:'column',gap:13}}>
+          {lines.map((l,i)=>(
+            <div key={i} style={{display:'flex',gap:9,alignItems:'flex-start'}}>
+              <span style={{flexShrink:0,fontFamily:'var(--mono)',fontSize:9,fontWeight:600,
+                padding:'3px 6px',borderRadius:4,marginTop:2,
+                background:i%2===0?`${acc}1A`:'rgba(255,255,255,.05)',
+                color:i%2===0?acc:'var(--txt2)',letterSpacing:'.04em'}}>{l.role}</span>
+              <p style={{fontSize:12.5,color:i%2===0?'var(--txt)':'var(--txt2)',lineHeight:1.55}}>{l.text}</p>
+            </div>
+          ))}
+        </div>
+        {/* Waveform row */}
+        <div style={{padding:'4px 18px 14px',display:'flex',alignItems:'center',gap:10}}>
+          <Waveform acc={acc}/>
+          <span style={{fontFamily:'var(--mono)',fontSize:10,color:'var(--txt3)'}}>Speaking…</span>
+        </div>
+        {/* Facts extracted */}
+        <div style={{padding:'12px 18px 14px',borderTop:'1px solid rgba(255,255,255,.05)',background:'rgba(0,0,0,.15)'}}>
+          <div style={{fontFamily:'var(--mono)',fontSize:9,color:'var(--txt3)',letterSpacing:'.09em',marginBottom:8}}>FACTS EXTRACTED</div>
+          <div style={{display:'flex',gap:7,flexWrap:'wrap'}}>
+            {facts.map(f=>(
+              <span key={f} style={{fontFamily:'var(--mono)',fontSize:11,color:acc,padding:'4px 10px',
+                background:`${acc}12`,border:`0.5px solid ${acc}`,borderRadius:20}}>{f}</span>
+            ))}
+          </div>
+        </div>
+      </div>
+      {/* Metric chips */}
+      <div style={{display:'flex',gap:11,marginTop:14,justifyContent:'center'}}>
+        {[{v:'$0.09 / call',s:'vs human $23/call'},{v:'572ms',s:'avg response'}].map(m=>(
+          <div key={m.v} style={{background:'rgba(21,21,26,.85)',border:'1px solid rgba(255,255,255,.08)',
+            borderRadius:10,padding:'10px 16px',backdropFilter:'blur(12px)'}}>
+            <div style={{fontFamily:'var(--mono)',fontSize:14,fontWeight:600,color:acc}}>{m.v}</div>
+            <div style={{fontFamily:'var(--mono)',fontSize:10,color:'var(--txt3)',marginTop:2}}>{m.s}</div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/* ── SECTION 1: HERO ── */
+function Hero({acc,badge,cta}){
+  return(
+    <section style={{minHeight:'100vh',display:'flex',alignItems:'center',position:'relative',
+      overflow:'hidden',paddingTop:120,paddingBottom:80}}>
+      {/* Grid */}
+      <div style={{position:'absolute',inset:0,
+        backgroundImage:'linear-gradient(rgba(255,255,255,.024) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.024) 1px,transparent 1px)',
+        backgroundSize:'40px 40px',
+        maskImage:'radial-gradient(ellipse 75% 90% at 50% 40%,black 25%,transparent 78%)',
+        WebkitMaskImage:'radial-gradient(ellipse 75% 90% at 50% 40%,black 25%,transparent 78%)',
+        pointerEvents:'none'}}/>
+      <div className="wrap" style={{position:'relative',zIndex:1,width:'100%'}}>
+        <div style={{display:'flex',gap:70,alignItems:'center'}}>
+          {/* Left */}
+          <div style={{flex:'0 0 55%',maxWidth:'55%'}}>
+            <F delay={0}>
+              <div style={{display:'inline-flex',alignItems:'center',gap:8,
+                background:'rgba(255,255,255,.04)',border:'1px solid rgba(255,255,255,.08)',
+                borderRadius:40,padding:'6px 14px',marginBottom:28}}>
+                <div style={{width:6,height:6,borderRadius:'50%',background:acc,flexShrink:0}}/>
+                <span style={{fontFamily:'var(--mono)',fontSize:10.5,color:'var(--txt2)',letterSpacing:'.06em'}}>{badge}</span>
+              </div>
+            </F>
+            <F delay={70}>
+              <h1 style={{fontSize:'clamp(38px,3.8vw,56px)',fontWeight:700,letterSpacing:'-.032em',
+                lineHeight:1.08,marginBottom:22,color:'var(--txt)'}}>
+                The AI sales agent<br/>
+                that speaks every<br/>
+                <span style={{color:acc}}>industry's language.</span>
+              </h1>
+            </F>
+            <F delay={140}>
+              <p style={{fontSize:16,color:'var(--txt2)',maxWidth:480,lineHeight:1.72,marginBottom:34}}>
+                VOXA makes outbound calls, qualifies leads, books appointments, and sends follow-up messages — all powered by plug-and-play domain skill packs built for your industry.
+              </p>
+            </F>
+            <F delay={210}>
+              <div style={{display:'flex',gap:13,marginBottom:22,alignItems:'center',flexWrap:'wrap'}}>
+                <Btn acc={acc}>{cta}</Btn>
+                <Btn acc={acc} ghost>
+                  <svg width="15" height="15" viewBox="0 0 15 15" fill="none">
+                    <circle cx="7.5" cy="7.5" r="6.5" stroke="currentColor" strokeWidth="1.2"/>
+                    <path d="M6 5l5 2.5L6 10V5Z" fill="currentColor"/>
+                  </svg>
+                  Watch a live call
+                </Btn>
+              </div>
+              <div style={{fontFamily:'var(--mono)',fontSize:11,color:'var(--txt3)'}}>
+                No credit card · 14-day trial · 5 min setup · Cancel anytime
+              </div>
+            </F>
+          </div>
+          {/* Right */}
+          <div style={{flex:'0 0 45%',maxWidth:'45%'}}>
+            <F delay={280}><HeroCard acc={acc}/></F>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ── SECTION 4: METRICS (shown early for social proof) ── */
+function Metrics({acc}){
+  const stats=[
+    {v:'147M+',l:'Calls handled'},{v:'$0.09',l:'Avg cost per call'},
+    {v:'572ms',l:'P95 response time'},{v:'23',l:'Countries live'},
+    {v:'4.8×',l:'More bookings vs human team'},
+  ];
+  return(
+    <section style={{background:'#0A0C12',borderTop:'1px solid var(--bdr2)',borderBottom:'1px solid var(--bdr2)',padding:'56px 0'}}>
+      <div className="wrap">
+        <div style={{display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+          {stats.map((s,i)=>(
+            <React.Fragment key={i}>
+              <F delay={i*60} style={{textAlign:'center',flex:1,padding:'0 16px'}}>
+                <div style={{display:'inline-block',position:'relative',marginBottom:4}}>
+                  <div style={{fontFamily:'var(--mono)',fontSize:38,fontWeight:700,color:acc,lineHeight:1}}>{s.v}</div>
+                  <div style={{position:'absolute',bottom:-5,left:0,right:0,height:1,background:`${acc}44`}}/>
+                </div>
+                <div style={{fontFamily:'var(--mono)',fontSize:11.5,color:'var(--txt2)',marginTop:14,lineHeight:1.4}}>{s.l}</div>
+              </F>
+              {i<4&&<div style={{width:1,height:52,background:'rgba(255,255,255,.07)',flexShrink:0}}/>}
+            </React.Fragment>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ── SECTION 2: SKILL PACKS ── */
+const PACKS=[
+  {icon:'🏠',name:'Interior Design',status:'LIVE',sc:'var(--green)',
+   desc:'Modular kitchens, wardrobes, full-home. RAG: 12K product SKUs, 340 objection scripts.',
+   foot:'4,200 calls / day across 18 tenants'},
+  {icon:'🏗️',name:'Real Estate',status:'LIVE',sc:'var(--green)',
+   desc:'Site visits, project launches, resale leads. RAG: Builder inventory, RERA compliance scripts.',
+   foot:'8,100 calls / day across 31 tenants'},
+  {icon:'🚗',name:'Automotive',status:'LIVE',sc:'var(--green)',
+   desc:'Test drive bookings, EMI qualification, trade-in. RAG: Trim specs, on-road pricing, dealer inventory.',
+   foot:'2,900 calls / day across 12 tenants'},
+  {icon:'🏥',name:'Healthcare / Clinics',status:'BETA',sc:'var(--blue)',
+   desc:'Appointment setting, symptom pre-screening, insurance pre-auth. HIPAA-aligned prompts.',
+   foot:'Beta — 6 pilot tenants'},
+  {icon:'📚',name:'EdTech / Admissions',status:'BETA',sc:'var(--blue)',
+   desc:'Course counselling, demo class booking, scholarship qualification. Multi-language.',
+   foot:'Beta — 4 pilot tenants'},
+  {icon:'⚡',name:'Custom Skill Pack',status:'BUILD',sc:'#F59E0B',
+   desc:'Upload your product catalog, pricing sheets, and objection library. Auto-indexed in 24hrs.',
+   foot:null,custom:true},
+];
+
+function PackCard({p,acc}){
+  const [h,setH]=useState(false);
+  return(
+    <div onMouseEnter={()=>setH(true)} onMouseLeave={()=>setH(false)} style={{
+      background:'var(--surf)',borderRadius:14,padding:24,
+      border:`1px solid ${h?acc+'40':'rgba(255,255,255,.05)'}`,
+      transform:h?'translateY(-3px)':'none',
+      boxShadow:h?`0 16px 40px rgba(0,0,0,.35)`:'none',
+      transition:'all .25s ease',display:'flex',flexDirection:'column',gap:12,minHeight:185,cursor:'default'}}>
+      <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start'}}>
+        <div style={{display:'flex',alignItems:'center',gap:10}}>
+          <span style={{fontSize:20}}>{p.icon}</span>
+          <span style={{fontWeight:600,fontSize:14.5}}>{p.name}</span>
+        </div>
+        <span style={{fontFamily:'var(--mono)',fontSize:9.5,fontWeight:600,padding:'3px 7px',borderRadius:5,
+          color:p.sc,background:`color-mix(in srgb,${p.sc} 12%,transparent)`,
+          border:`0.5px solid color-mix(in srgb,${p.sc} 35%,transparent)`,letterSpacing:'.06em'}}>{p.status}</span>
+      </div>
+      <p style={{fontSize:12.5,color:'var(--txt2)',lineHeight:1.6,flex:1}}>{p.desc}</p>
+      <div style={{paddingTop:12,borderTop:'1px solid rgba(255,255,255,.04)',fontFamily:'var(--mono)',fontSize:10.5,color:'var(--txt3)'}}>
+        {p.custom?<span style={{color:acc,cursor:'pointer'}}>+ Add your domain →</span>:p.foot}
+      </div>
+    </div>
+  );
+}
+
+function SkillPacks({acc}){
+  return(
+    <section style={{padding:'100px 0'}}>
+      <div className="wrap">
+        <F><div style={{textAlign:'center',marginBottom:60}}>
+          <div style={{fontFamily:'var(--mono)',fontSize:11,color:acc,letterSpacing:'.1em',marginBottom:14,textTransform:'uppercase'}}>Domain Skill Packs</div>
+          <h2 style={{fontSize:42,fontWeight:700,letterSpacing:'-.03em',lineHeight:1.1,marginBottom:16}}>One platform. Every industry.</h2>
+          <p style={{fontSize:16,color:'var(--txt2)',maxWidth:560,margin:'0 auto',lineHeight:1.72}}>
+            Switch your AI agent's domain expertise in one click. Each skill pack bundles the RAG catalog, objection scripts, qualification trees, and post-call actions for that vertical.
+          </p>
+        </div></F>
+        <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:16}}>
+          {PACKS.map((p,i)=><F key={i} delay={i*55}><PackCard p={p} acc={acc}/></F>)}
+        </div>
+        <F delay={200}><div style={{textAlign:'center',marginTop:40}}>
+          <div style={{display:'inline-block',fontFamily:'var(--mono)',fontSize:11.5,color:'var(--txt3)',
+            padding:'10px 22px',border:'1px solid rgba(255,255,255,.06)',borderRadius:40,letterSpacing:'.025em'}}>
+            All packs share the same voice pipeline · STT · LLM · TTS · Post-call intelligence layer
+          </div>
+        </div></F>
+      </div>
+    </section>
+  );
+}
+
+/* ── SECTION 3: HOW IT WORKS ── */
+const STEPS=[
+  {n:'01',lbl:'TRIGGER',col:'#C9A14A',desc:'Upload a CSV or sync your CRM. VOXA queues contacts, checks DND compliance, and schedules the campaign.'},
+  {n:'02',lbl:'CALL',col:'#638CFF',desc:'AI dials the lead. Deepgram STT + Claude LLM + ElevenLabs TTS run in parallel. Sub-800ms response time.'},
+  {n:'03',lbl:'QUALIFY',col:'#14B8A6',desc:'Agent asks the right questions for your domain. RAG skill pack retrieves real product data mid-conversation.'},
+  {n:'04',lbl:'BOOK',col:'#22C55E',desc:'Appointment booked live on the call. Calendly integration. Salesperson assigned by nearest location.'},
+  {n:'05',lbl:'FOLLOW UP',col:'#C9A14A',desc:'WhatsApp sent in <60 seconds: portfolio images, showroom link, personalized voucher code.'},
+];
+
+function HowItWorks({acc}){
+  return(
+    <section style={{padding:'100px 0',background:'rgba(0,0,0,.12)'}}>
+      <div className="wrap">
+        <F><div style={{textAlign:'center',marginBottom:64}}>
+          <h2 style={{fontSize:42,fontWeight:700,letterSpacing:'-.03em',lineHeight:1.1,marginBottom:14}}>From contact list to booked appointment.</h2>
+          <p style={{fontSize:16,color:'var(--txt2)',lineHeight:1.72}}>Five steps. Fully automated. Under 800ms per response.</p>
+        </div></F>
+        <div style={{display:'flex',gap:8,justifyContent:'space-between',position:'relative'}}>
+          {/* Connector line */}
+          <div style={{position:'absolute',top:35,left:'10%',right:'10%',height:1,
+            background:'linear-gradient(90deg,transparent,rgba(255,255,255,.08) 20%,rgba(255,255,255,.08) 80%,transparent)',
+            pointerEvents:'none'}}/>
+          {STEPS.map((s,i)=>(
+            <F key={i} delay={i*70} style={{flex:1}}>
+              <div style={{display:'flex',flexDirection:'column',alignItems:'center',textAlign:'center',padding:'0 8px'}}>
+                <div style={{width:70,height:70,borderRadius:'50%',flexShrink:0,marginBottom:18,
+                  background:`color-mix(in srgb,${s.col} 10%,transparent)`,
+                  border:`1.5px solid color-mix(in srgb,${s.col} 32%,transparent)`,
+                  display:'flex',alignItems:'center',justifyContent:'center',position:'relative'}}>
+                  <span style={{fontFamily:'var(--mono)',fontSize:18,fontWeight:700,color:s.col}}>{s.n}</span>
+                  {i<4&&<div style={{position:'absolute',right:-20,top:'50%',transform:'translateY(-50%)',
+                    color:'rgba(255,255,255,.18)',fontSize:13,pointerEvents:'none'}}>→</div>}
+                </div>
+                <div style={{fontFamily:'var(--mono)',fontSize:9.5,fontWeight:600,color:s.col,
+                  letterSpacing:'.1em',marginBottom:10}}>{s.lbl}</div>
+                <p style={{fontSize:12.5,color:'var(--txt2)',lineHeight:1.6}}>{s.desc}</p>
+              </div>
+            </F>
+          ))}
+        </div>
+        <F delay={350}><div style={{textAlign:'center',marginTop:50,
+          padding:'18px 28px',background:'rgba(255,255,255,.02)',
+          border:'1px solid rgba(255,255,255,.05)',borderRadius:12,maxWidth:640,margin:'50px auto 0'}}>
+          <p style={{fontSize:14,color:'var(--txt2)',fontStyle:'italic',lineHeight:1.6}}>
+            Then it scores the call, tags the lead, and updates your CRM — all before you hang up.
+          </p>
+        </div></F>
+      </div>
+    </section>
+  );
+}
+
+/* ── SECTION 5: TESTIMONIAL ── */
+function Testimonial({acc}){
+  const funnel=[
+    {l:'5,200 calls',w:100,col:acc},
+    {l:'3,120 answered',w:60,col:'var(--blue)'},
+    {l:'250 booked',w:25,col:'var(--teal)'},
+    {l:'187 showroom visits',w:18,col:'var(--green)'},
+  ];
+  return(
+    <section style={{padding:'100px 0'}}>
+      <div className="wrap">
+        <F>
+          <div style={{display:'flex',gap:32,alignItems:'stretch'}}>
+            {/* Quote card */}
+            <div style={{flex:'0 0 56%',background:'#15151A',borderLeft:`3px solid ${acc}`,
+              borderRadius:'0 14px 14px 0',padding:'36px 40px',display:'flex',flexDirection:'column',gap:22}}>
+              <svg width="30" height="22" viewBox="0 0 30 22" fill="none">
+                <path d="M0 14C0 6 4.5 1.5 11 0L13 4C8.5 5.5 7 8.5 7 12H12V22H0V14ZM17 14C17 6 21.5 1.5 28 0L30 4C25.5 5.5 24 8.5 24 12H29V22H17V14Z" fill={acc} fillOpacity=".35"/>
+              </svg>
+              <blockquote style={{fontSize:19,fontWeight:500,lineHeight:1.5,color:'var(--txt)',letterSpacing:'-.01em',flex:1}}>
+                "We replaced our 4-person telecalling team with VOXA in one weekend. Cost dropped 61%. Appointments up 40%."
+              </blockquote>
+              <div>
+                <div style={{fontSize:13.5,color:'var(--txt2)',marginBottom:16}}>
+                  — Priya Nair, Operations Lead · Prestige Interiors, Bangalore
+                </div>
+                <div style={{display:'flex',flexWrap:'wrap',gap:7}}>
+                  {['41% more bookings','61% cost reduction','Interior Design skill pack','India · Hindi + English'].map(c=>(
+                    <span key={c} style={{fontFamily:'var(--mono)',fontSize:10.5,color:'var(--txt2)',
+                      padding:'4px 10px',background:'rgba(255,255,255,.04)',
+                      border:'1px solid rgba(255,255,255,.08)',borderRadius:20}}>{c}</span>
+                  ))}
+                </div>
+              </div>
+            </div>
+            {/* Funnel */}
+            <div style={{flex:1,background:'#15151A',border:'1px solid rgba(255,255,255,.06)',
+              borderTop:`2px solid ${acc}`,borderRadius:14,padding:'26px 30px'}}>
+              <div style={{fontFamily:'var(--mono)',fontSize:9.5,color:'var(--txt3)',letterSpacing:'.09em',marginBottom:22}}>CONVERSION FUNNEL · LAST 30 DAYS</div>
+              <div style={{display:'flex',flexDirection:'column',gap:18}}>
+                {funnel.map((r,i)=>(
+                  <div key={i}>
+                    <div style={{display:'flex',justifyContent:'space-between',marginBottom:7}}>
+                      <span style={{fontSize:13,color:'var(--txt2)'}}>{r.l}</span>
+                      <span style={{fontFamily:'var(--mono)',fontSize:11.5,color:r.col}}>{r.w}%</span>
+                    </div>
+                    <div style={{height:5,background:'rgba(255,255,255,.06)',borderRadius:3,overflow:'hidden'}}>
+                      <div style={{height:'100%',width:`${r.w}%`,background:r.col,borderRadius:3}}/>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <div style={{marginTop:22,padding:'13px 15px',background:`${acc}0D`,
+                borderRadius:10,border:`1px solid ${acc}22`}}>
+                <div style={{fontFamily:'var(--mono)',fontSize:11,color:acc}}>3.6% end-to-end conversion</div>
+                <div style={{fontFamily:'var(--mono)',fontSize:10,color:'var(--txt3)',marginTop:3}}>Industry avg: 0.8% · 4.5× above benchmark</div>
+              </div>
+            </div>
+          </div>
+        </F>
+      </div>
+    </section>
+  );
+}
+
+/* ── SECTION 6: PRICING ── */
+const PLANS=[
+  {name:'STARTER',priceM:'$0.09',priceA:'$0.07',unit:'/ call',sub:'Pay as you go',featured:false,
+   features:['1 domain skill pack','500 calls / month included','WhatsApp post-call messages','Basic analytics dashboard','Email support'],
+   cta:'Start free trial'},
+  {name:'GROWTH',priceM:'$0.07',priceA:'$0.05',unit:'/ call',sub:'Up to 10,000 calls/month',featured:true,
+   features:['3 domain skill packs','Custom RAG catalog upload','Real-time dashboard + call monitor','HubSpot / Zoho CRM sync','Multi-language (Hindi, Arabic, Spanish)','Priority support + onboarding call'],
+   cta:'Get started →'},
+  {name:'ENTERPRISE',priceM:'Custom',priceA:'Custom',unit:'',sub:'Unlimited calls · SLA guaranteed',featured:false,
+   features:['Unlimited skill packs + custom build','White-label + custom domain','On-premise deployment option','Fine-tuned LLM on your call data','Dedicated success manager','99.9% uptime SLA'],
+   cta:'Talk to sales →'},
+];
+
+function Pricing({acc,annualPricing:initAnnual}){
+  const [annual,setAnnual]=useState(initAnnual);
+  useEffect(()=>setAnnual(initAnnual),[initAnnual]);
+  return(
+    <section style={{padding:'100px 0'}}>
+      <div className="wrap">
+        <F><div style={{textAlign:'center',marginBottom:48}}>
+          <h2 style={{fontSize:42,fontWeight:700,letterSpacing:'-.03em',lineHeight:1.1,marginBottom:14}}>Transparent pricing. No surprises.</h2>
+          <p style={{fontSize:16,color:'var(--txt2)',lineHeight:1.72,marginBottom:28}}>You pay for calls made. We handle the infrastructure.</p>
+          <div style={{display:'inline-flex',background:'rgba(255,255,255,.04)',border:'1px solid rgba(255,255,255,.08)',borderRadius:11,padding:4,gap:0}}>
+            {['Monthly','Annual (save 20%)'].map((l,i)=>(
+              <button key={i} onClick={()=>setAnnual(i===1)} style={{
+                padding:'8px 20px',borderRadius:8,border:'none',cursor:'pointer',fontFamily:'var(--body)',
+                background:annual===(i===1)?acc:'transparent',
+                color:annual===(i===1)?'#0F0F12':'var(--txt2)',
+                fontSize:13,fontWeight:500,transition:'all .2s'}}>
+                {l}
+              </button>
+            ))}
+          </div>
+        </div></F>
+        <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:20,alignItems:'center'}}>
+          {PLANS.map((p,i)=>(
+            <F key={i} delay={i*70}>
+              <div style={{
+                background:p.featured?'linear-gradient(155deg,#1C1A13 0%,#16151A 100%)':'var(--surf)',
+                border:`1px solid ${p.featured?acc:'rgba(255,255,255,.06)'}`,
+                borderRadius:16,padding:'28px',position:'relative',
+                transform:p.featured?'scale(1.035)':'none',
+                boxShadow:p.featured?`0 0 70px ${acc}18`:'none'}}>
+                {p.featured&&<div style={{position:'absolute',top:-12,left:'50%',transform:'translateX(-50%)',
+                  background:acc,color:'#0F0F12',fontFamily:'var(--mono)',fontSize:9.5,fontWeight:700,
+                  padding:'4px 12px',borderRadius:20,letterSpacing:'.08em',whiteSpace:'nowrap'}}>MOST POPULAR</div>}
+                <div style={{fontFamily:'var(--mono)',fontSize:10.5,fontWeight:600,letterSpacing:'.1em',
+                  color:p.featured?acc:'var(--txt3)',marginBottom:16}}>{p.name}</div>
+                <div style={{display:'flex',alignItems:'baseline',gap:4,marginBottom:4}}>
+                  <span style={{fontFamily:'var(--mono)',fontSize:36,fontWeight:700,color:'var(--txt)',lineHeight:1}}>
+                    {annual?p.priceA:p.priceM}
+                  </span>
+                  <span style={{fontFamily:'var(--mono)',fontSize:13,color:'var(--txt2)'}}>{p.unit}</span>
+                </div>
+                <div style={{fontSize:13,color:'var(--txt2)',marginBottom:22}}>{p.sub}</div>
+                <div style={{height:1,background:'rgba(255,255,255,.06)',marginBottom:20}}/>
+                <div style={{display:'flex',flexDirection:'column',gap:11,marginBottom:26}}>
+                  {p.features.map((f,j)=>(
+                    <div key={j} style={{display:'flex',gap:9,alignItems:'flex-start'}}>
+                      <span style={{color:acc,flexShrink:0,marginTop:1,fontSize:13}}>✓</span>
+                      <span style={{fontSize:13,color:'var(--txt2)',lineHeight:1.45}}>{f}</span>
+                    </div>
+                  ))}
+                </div>
+                <button style={{width:'100%',height:44,borderRadius:10,border:p.featured?'none':'1px solid rgba(255,255,255,.14)',
+                  background:p.featured?acc:'transparent',cursor:'pointer',
+                  color:p.featured?'#0F0F12':'var(--txt)',
+                  fontSize:14,fontWeight:p.featured?600:400,fontFamily:'var(--body)',
+                  transition:'all .2s'}}>
+                  {p.cta}
+                </button>
+              </div>
+            </F>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ── FOOTER ── */
+function Footer({acc}){
+  const cols=[
+    {t:'Product',l:['Features','Pricing','Skill Packs','Changelog']},
+    {t:'Developers',l:['API Docs','SDKs','Status page','GitHub']},
+    {t:'Company',l:['About','Careers','Blog','Contact']},
+  ];
+  return(
+    <footer style={{background:'#0A0C12',borderTop:'1px solid rgba(255,255,255,.04)',padding:'64px 0 32px'}}>
+      <div className="wrap">
+        <div style={{display:'grid',gridTemplateColumns:'2fr 1fr 1fr 1fr',gap:44,marginBottom:48}}>
+          <div>
+            <div style={{display:'flex',alignItems:'center',gap:11,marginBottom:16}}>
+              <div style={{width:36,height:36,borderRadius:10,background:acc,display:'flex',alignItems:'center',justifyContent:'center',
+                color:'#0F0F12',fontFamily:'var(--mono)',fontWeight:700,fontSize:17}}>V</div>
+              <span style={{fontFamily:'var(--mono)',fontWeight:700,fontSize:17,letterSpacing:'.06em'}}>VOXA</span>
+            </div>
+            <p style={{fontSize:13,color:'var(--txt2)',lineHeight:1.7,maxWidth:250,marginBottom:20}}>
+              The AI sales agent that speaks every industry's language.
+            </p>
+            <div style={{display:'flex',gap:9}}>
+              {['tw','li','gh','yt'].map(s=>(
+                <a key={s} href="#" style={{width:32,height:32,borderRadius:8,background:'rgba(255,255,255,.04)',
+                  border:'1px solid rgba(255,255,255,.08)',display:'flex',alignItems:'center',justifyContent:'center',
+                  textDecoration:'none',color:'var(--txt2)',fontFamily:'var(--mono)',fontSize:10}}>{s}</a>
+              ))}
+            </div>
+          </div>
+          {cols.map(c=>(
+            <div key={c.t}>
+              <div style={{fontFamily:'var(--mono)',fontSize:10.5,fontWeight:600,color:'var(--txt3)',
+                letterSpacing:'.1em',marginBottom:16,textTransform:'uppercase'}}>{c.t}</div>
+              <div style={{display:'flex',flexDirection:'column',gap:11}}>
+                {c.l.map(l=>(
+                  <NavLink key={l}><span style={{fontSize:13}}>{l}</span></NavLink>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+        <div style={{borderTop:'1px solid rgba(255,255,255,.04)',paddingTop:24,
+          display:'flex',justifyContent:'space-between',alignItems:'center',flexWrap:'wrap',gap:12}}>
+          <span style={{fontFamily:'var(--mono)',fontSize:11,color:'var(--txt3)'}}>© 2026 VOXA Technologies</span>
+          <div style={{display:'flex',gap:18,flexWrap:'wrap'}}>
+            {['Privacy','Terms','SOC 2 Type II','GDPR','TRAI Compliant'].map(i=>(
+              <a key={i} href="#" style={{fontFamily:'var(--mono)',fontSize:11,color:'var(--txt3)',textDecoration:'none'}}>{i}</a>
+            ))}
+          </div>
+        </div>
+      </div>
+    </footer>
+  );
+}
+
+/* ── APP ── */
+function App(){
+  const [t,setTweak]=useTweaks(TWEAK_DEFAULTS);
+  return(
+    <>
+      <Nav acc={t.accent}/>
+      <Hero acc={t.accent} badge={t.badge} cta={t.heroCTA}/>
+      <Metrics acc={t.accent}/>
+      <SkillPacks acc={t.accent}/>
+      <HowItWorks acc={t.accent}/>
+      <Testimonial acc={t.accent}/>
+      <Pricing acc={t.accent} annualPricing={t.annualPricing}/>
+      <Footer acc={t.accent}/>
+      <TweaksPanel>
+        <TweakSection title="Brand">
+          <TweakColor id="accent" label="Accent color" value={t.accent}
+            options={['#C9A14A','#638CFF','#22C55E','#E85D5D']}
+            onChange={v=>setTweak('accent',v)}/>
+        </TweakSection>
+        <TweakSection title="Hero">
+          <TweakText id="heroCTA" label="Primary CTA" value={t.heroCTA} onChange={v=>setTweak('heroCTA',v)}/>
+          <TweakText id="badge" label="Badge text" value={t.badge} onChange={v=>setTweak('badge',v)}/>
+        </TweakSection>
+        <TweakSection title="Pricing">
+          <TweakToggle id="annualPricing" label="Show annual pricing" value={t.annualPricing} onChange={v=>setTweak('annualPricing',v)}/>
+        </TweakSection>
+      </TweaksPanel>
+    </>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+</script>
+</body>
+</html>

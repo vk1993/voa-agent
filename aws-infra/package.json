@@ -1,0 +1,26 @@
+{
+  "name": "voxa-aws-infra",
+  "version": "1.0.0",
+  "bin": {
+    "voxa-infra": "bin/voxa-infra.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc -w",
+    "test": "echo \"No tests defined\" && exit 0",
+    "cdk": "cdk"
+  },
+  "devDependencies": {
+    "@types/aws-lambda": "^8.10.145",
+    "@types/node": "^20",
+    "aws-cdk": "^2.173.0",
+    "typescript": "^5"
+  },
+  "dependencies": {
+    "@aws-sdk/client-bedrock-runtime": "^3.712.0",
+    "@aws-sdk/client-sqs": "^3.712.0",
+    "aws-cdk-lib": "^2.173.0",
+    "constructs": "^10.4.2",
+    "openai": "^6.39.0"
+  }
+}

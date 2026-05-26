@@ -1,0 +1,19 @@
+version: '3.8'
+
+services:
+  localstack:
+    container_name: voxa-localstack
+    image: localstack/localstack:latest
+    ports:
+      - "4566:4566"            # LocalStack Edge Port (Unified API endpoint)
+      - "4510-4559:4510-4559"  # External services port range
+    environment:
+      - SERVICES=sqs,secretsmanager,dynamodb
+      - DEBUG=1
+      - AWS_DEFAULT_REGION=us-east-1
+      - DOCKER_HOST=unix:///var/run/docker.sock
+    volumes:
+      - "./scripts/localstack-init.sh:/etc/localstack/init/ready.d/init.sh:ro"
+      - "./.localstack:/var/lib/localstack"
+      - "/var/run/docker.sock:/var/run/docker.sock"
+    restart: unless-stopped

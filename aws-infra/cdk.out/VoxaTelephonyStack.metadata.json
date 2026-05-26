@@ -1,0 +1,519 @@
+{
+  "/VoxaTelephonyStack": [
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "<anonymous> (/Users/turbo/Developer/AntiGravity/voa-agent/aws-infra/bin/voxa-infra.ts:8:1)",
+        "...node internals, ts-node, ts-node..."
+      ]
+    }
+  ],
+  "/VoxaTelephonyStack/ApiUrl": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "ApiUrl"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "new VoxaTelephonyStack (/Users/turbo/Developer/AntiGravity/voa-agent/aws-infra/lib/voxa-telephony-stack.ts:125:5)",
+        "<anonymous> (/Users/turbo/Developer/AntiGravity/voa-agent/aws-infra/bin/voxa-infra.ts:8:1)",
+        "...node internals, ts-node, ts-node..."
+      ]
+    }
+  ],
+  "/VoxaTelephonyStack/QueueUrl": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "QueueUrl"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "new VoxaTelephonyStack (/Users/turbo/Developer/AntiGravity/voa-agent/aws-infra/lib/voxa-telephony-stack.ts:129:5)",
+        "<anonymous> (/Users/turbo/Developer/AntiGravity/voa-agent/aws-infra/bin/voxa-infra.ts:8:1)",
+        "...node internals, ts-node, ts-node..."
+      ]
+    }
+  ],
+  "/VoxaTelephonyStack/BootstrapVersion": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "BootstrapVersion"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "...aws-cdk-lib...",
+        "(no user code in 10 frames, use --stack-trace-limit to capture more)"
+      ]
+    }
+  ],
+  "/VoxaTelephonyStack/CheckBootstrapVersion": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "CheckBootstrapVersion"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "...aws-cdk-lib...",
+        "(no user code in 10 frames, use --stack-trace-limit to capture more)"
+      ]
+    }
+  ],
+  "/VoxaTelephonyStack/CallEndedDeadLetterQueue/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "CallEndedDeadLetterQueueE3ABFF08"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "...new Queue2 in aws-cdk-lib...",
+        "new VoxaTelephonyStack (/Users/turbo/Developer/AntiGravity/voa-agent/aws-infra/lib/voxa-telephony-stack.ts:15:29)",
+        "<anonymous> (/Users/turbo/Developer/AntiGravity/voa-agent/aws-infra/bin/voxa-infra.ts:8:1)",
+        "...node internals, ts-node, ts-node..."
+      ]
+    }
+  ],
+  "/VoxaTelephonyStack/CallEndedQueue/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "CallEndedQueueA53EB50A"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "...new Queue2 in aws-cdk-lib...",
+        "new VoxaTelephonyStack (/Users/turbo/Developer/AntiGravity/voa-agent/aws-infra/lib/voxa-telephony-stack.ts:20:28)",
+        "<anonymous> (/Users/turbo/Developer/AntiGravity/voa-agent/aws-infra/bin/voxa-infra.ts:8:1)",
+        "...node internals, ts-node, ts-node..."
+      ]
+    }
+  ],
+  "/VoxaTelephonyStack/MidCallRAGHandler/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "MidCallRAGHandlerB24091AB"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "...new Function2 in aws-cdk-lib...",
+        "new VoxaTelephonyStack (/Users/turbo/Developer/AntiGravity/voa-agent/aws-infra/lib/voxa-telephony-stack.ts:34:31)",
+        "<anonymous> (/Users/turbo/Developer/AntiGravity/voa-agent/aws-infra/bin/voxa-infra.ts:8:1)",
+        "...node internals, ts-node, ts-node..."
+      ]
+    }
+  ],
+  "/VoxaTelephonyStack/IngestWebhookHandler/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "IngestWebhookHandler3A8B9890"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "...new Function2 in aws-cdk-lib...",
+        "new VoxaTelephonyStack (/Users/turbo/Developer/AntiGravity/voa-agent/aws-infra/lib/voxa-telephony-stack.ts:46:34)",
+        "<anonymous> (/Users/turbo/Developer/AntiGravity/voa-agent/aws-infra/bin/voxa-infra.ts:8:1)",
+        "...node internals, ts-node, ts-node..."
+      ]
+    }
+  ],
+  "/VoxaTelephonyStack/PostCallProcessor/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "PostCallProcessor4DA9858A"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "...new Function2 in aws-cdk-lib...",
+        "new VoxaTelephonyStack (/Users/turbo/Developer/AntiGravity/voa-agent/aws-infra/lib/voxa-telephony-stack.ts:62:31)",
+        "<anonymous> (/Users/turbo/Developer/AntiGravity/voa-agent/aws-infra/bin/voxa-infra.ts:8:1)",
+        "...node internals, ts-node, ts-node..."
+      ]
+    }
+  ],
+  "/VoxaTelephonyStack/VoxaVoiceWebhookApi/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "VoxaVoiceWebhookApiCED59353"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "...new RestApi2 in aws-cdk-lib...",
+        "new VoxaTelephonyStack (/Users/turbo/Developer/AntiGravity/voa-agent/aws-infra/lib/voxa-telephony-stack.ts:98:17)",
+        "<anonymous> (/Users/turbo/Developer/AntiGravity/voa-agent/aws-infra/bin/voxa-infra.ts:8:1)",
+        "...node internals, ts-node, ts-node..."
+      ]
+    }
+  ],
+  "/VoxaTelephonyStack/VoxaVoiceWebhookApi/Account": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "VoxaVoiceWebhookApiAccount4AB17ECB"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "...new RestApi2 in aws-cdk-lib...",
+        "new VoxaTelephonyStack (/Users/turbo/Developer/AntiGravity/voa-agent/aws-infra/lib/voxa-telephony-stack.ts:98:17)",
+        "<anonymous> (/Users/turbo/Developer/AntiGravity/voa-agent/aws-infra/bin/voxa-infra.ts:8:1)",
+        "...node internals, ts-node, ts-node..."
+      ]
+    }
+  ],
+  "/VoxaTelephonyStack/VoxaVoiceWebhookApi/Endpoint": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "VoxaVoiceWebhookApiEndpointAA3A0228"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "...new RestApi2 in aws-cdk-lib...",
+        "new VoxaTelephonyStack (/Users/turbo/Developer/AntiGravity/voa-agent/aws-infra/lib/voxa-telephony-stack.ts:98:17)",
+        "<anonymous> (/Users/turbo/Developer/AntiGravity/voa-agent/aws-infra/bin/voxa-infra.ts:8:1)",
+        "...node internals, ts-node, ts-node..."
+      ]
+    }
+  ],
+  "/VoxaTelephonyStack/CDKMetadata/Default": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "CDKMetadata"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "...aws-cdk-lib, node internals...",
+        "(no user code in 10 frames, use --stack-trace-limit to capture more)"
+      ]
+    }
+  ],
+  "/VoxaTelephonyStack/MidCallRAGHandler/ServiceRole/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "MidCallRAGHandlerServiceRoleF313902B"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "...new Function2 in aws-cdk-lib...",
+        "new VoxaTelephonyStack (/Users/turbo/Developer/AntiGravity/voa-agent/aws-infra/lib/voxa-telephony-stack.ts:34:31)",
+        "<anonymous> (/Users/turbo/Developer/AntiGravity/voa-agent/aws-infra/bin/voxa-infra.ts:8:1)",
+        "...node internals, ts-node, ts-node..."
+      ]
+    }
+  ],
+  "/VoxaTelephonyStack/IngestWebhookHandler/ServiceRole/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "IngestWebhookHandlerServiceRole887759E5"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "...new Function2 in aws-cdk-lib...",
+        "new VoxaTelephonyStack (/Users/turbo/Developer/AntiGravity/voa-agent/aws-infra/lib/voxa-telephony-stack.ts:46:34)",
+        "<anonymous> (/Users/turbo/Developer/AntiGravity/voa-agent/aws-infra/bin/voxa-infra.ts:8:1)",
+        "...node internals, ts-node, ts-node..."
+      ]
+    }
+  ],
+  "/VoxaTelephonyStack/PostCallProcessor/ServiceRole/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "PostCallProcessorServiceRole39DAA913"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "...new Function2 in aws-cdk-lib...",
+        "new VoxaTelephonyStack (/Users/turbo/Developer/AntiGravity/voa-agent/aws-infra/lib/voxa-telephony-stack.ts:62:31)",
+        "<anonymous> (/Users/turbo/Developer/AntiGravity/voa-agent/aws-infra/bin/voxa-infra.ts:8:1)",
+        "...node internals, ts-node, ts-node..."
+      ]
+    }
+  ],
+  "/VoxaTelephonyStack/PostCallProcessor/SqsEventSource:VoxaTelephonyStackCallEndedQueue2BA4EE76/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "PostCallProcessorSqsEventSourceVoxaTelephonyStackCallEndedQueue2BA4EE76BED95E56"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "...WrappedClass.addEventSource in aws-cdk-lib...",
+        "new VoxaTelephonyStack (/Users/turbo/Developer/AntiGravity/voa-agent/aws-infra/lib/voxa-telephony-stack.ts:75:23)",
+        "<anonymous> (/Users/turbo/Developer/AntiGravity/voa-agent/aws-infra/bin/voxa-infra.ts:8:1)",
+        "...node internals, ts-node..."
+      ]
+    }
+  ],
+  "/VoxaTelephonyStack/VoxaVoiceWebhookApi/CloudWatchRole/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "VoxaVoiceWebhookApiCloudWatchRoleC0122980"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "...new RestApi2 in aws-cdk-lib...",
+        "new VoxaTelephonyStack (/Users/turbo/Developer/AntiGravity/voa-agent/aws-infra/lib/voxa-telephony-stack.ts:98:17)",
+        "<anonymous> (/Users/turbo/Developer/AntiGravity/voa-agent/aws-infra/bin/voxa-infra.ts:8:1)",
+        "...node internals, ts-node..."
+      ]
+    }
+  ],
+  "/VoxaTelephonyStack/VoxaVoiceWebhookApi/Deployment/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "VoxaVoiceWebhookApiDeploymentD46B5DA5778a7bb7b773a6176a4aa346e67eef90"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "...new RestApi2 in aws-cdk-lib...",
+        "new VoxaTelephonyStack (/Users/turbo/Developer/AntiGravity/voa-agent/aws-infra/lib/voxa-telephony-stack.ts:98:17)",
+        "<anonymous> (/Users/turbo/Developer/AntiGravity/voa-agent/aws-infra/bin/voxa-infra.ts:8:1)",
+        "...node internals, ts-node..."
+      ]
+    }
+  ],
+  "/VoxaTelephonyStack/VoxaVoiceWebhookApi/DeploymentStage.prod/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "VoxaVoiceWebhookApiDeploymentStageprodD0E9640E"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "...new RestApi2 in aws-cdk-lib...",
+        "new VoxaTelephonyStack (/Users/turbo/Developer/AntiGravity/voa-agent/aws-infra/lib/voxa-telephony-stack.ts:98:17)",
+        "<anonymous> (/Users/turbo/Developer/AntiGravity/voa-agent/aws-infra/bin/voxa-infra.ts:8:1)",
+        "...node internals, ts-node..."
+      ]
+    }
+  ],
+  "/VoxaTelephonyStack/IngestWebhookHandler/ServiceRole/DefaultPolicy/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "IngestWebhookHandlerServiceRoleDefaultPolicy5057C3E2"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "...aws-cdk-lib...",
+        "(no user code in 10 frames, use --stack-trace-limit to capture more)"
+      ]
+    }
+  ],
+  "/VoxaTelephonyStack/PostCallProcessor/ServiceRole/DefaultPolicy/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "PostCallProcessorServiceRoleDefaultPolicy848B331C"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "...aws-cdk-lib...",
+        "(no user code in 10 frames, use --stack-trace-limit to capture more)"
+      ]
+    }
+  ],
+  "/VoxaTelephonyStack/VoxaVoiceWebhookApi/Default/OPTIONS/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "VoxaVoiceWebhookApiOPTIONS7967B1EB"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "...new RestApi2 in aws-cdk-lib...",
+        "new VoxaTelephonyStack (/Users/turbo/Developer/AntiGravity/voa-agent/aws-infra/lib/voxa-telephony-stack.ts:98:17)"
+      ]
+    }
+  ],
+  "/VoxaTelephonyStack/VoxaVoiceWebhookApi/Default/webhook/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "VoxaVoiceWebhookApiwebhook490C2AAF"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "...RootResource.addResource in aws-cdk-lib...",
+        "new VoxaTelephonyStack (/Users/turbo/Developer/AntiGravity/voa-agent/aws-infra/lib/voxa-telephony-stack.ts:114:34)",
+        "<anonymous> (/Users/turbo/Developer/AntiGravity/voa-agent/aws-infra/bin/voxa-infra.ts:8:1)",
+        "...node internals, ts-node, ts-node..."
+      ]
+    }
+  ],
+  "/VoxaTelephonyStack/VoxaVoiceWebhookApi/Default/webhook/OPTIONS/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "VoxaVoiceWebhookApiwebhookOPTIONSD1FDC395"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "...RootResource.addResource in aws-cdk-lib...",
+        "new VoxaTelephonyStack (/Users/turbo/Developer/AntiGravity/voa-agent/aws-infra/lib/voxa-telephony-stack.ts:114:34)",
+        "<anonymous> (/Users/turbo/Developer/AntiGravity/voa-agent/aws-infra/bin/voxa-infra.ts:8:1)"
+      ]
+    }
+  ],
+  "/VoxaTelephonyStack/VoxaVoiceWebhookApi/Default/webhook/mid-call/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "VoxaVoiceWebhookApiwebhookmidcall4A19C6EC"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "...WrappedClass.addResource in aws-cdk-lib...",
+        "new VoxaTelephonyStack (/Users/turbo/Developer/AntiGravity/voa-agent/aws-infra/lib/voxa-telephony-stack.ts:117:41)",
+        "<anonymous> (/Users/turbo/Developer/AntiGravity/voa-agent/aws-infra/bin/voxa-infra.ts:8:1)",
+        "...node internals, ts-node, ts-node..."
+      ]
+    }
+  ],
+  "/VoxaTelephonyStack/VoxaVoiceWebhookApi/Default/webhook/call-ended/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "VoxaVoiceWebhookApiwebhookcallendedB314A791"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "...WrappedClass.addResource in aws-cdk-lib...",
+        "new VoxaTelephonyStack (/Users/turbo/Developer/AntiGravity/voa-agent/aws-infra/lib/voxa-telephony-stack.ts:121:43)",
+        "<anonymous> (/Users/turbo/Developer/AntiGravity/voa-agent/aws-infra/bin/voxa-infra.ts:8:1)",
+        "...node internals, ts-node, ts-node..."
+      ]
+    }
+  ],
+  "/VoxaTelephonyStack/VoxaVoiceWebhookApi/Default/webhook/mid-call/OPTIONS/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "VoxaVoiceWebhookApiwebhookmidcallOPTIONS199EA3B1"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "...WrappedClass.addResource in aws-cdk-lib...",
+        "new VoxaTelephonyStack (/Users/turbo/Developer/AntiGravity/voa-agent/aws-infra/lib/voxa-telephony-stack.ts:117:41)",
+        "<anonymous> (/Users/turbo/Developer/AntiGravity/voa-agent/aws-infra/bin/voxa-infra.ts:8:1)"
+      ]
+    }
+  ],
+  "/VoxaTelephonyStack/VoxaVoiceWebhookApi/Default/webhook/mid-call/POST/ApiPermission.VoxaTelephonyStackVoxaVoiceWebhookApi39F9B4FF.POST..webhook.mid-call": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "VoxaVoiceWebhookApiwebhookmidcallPOSTApiPermissionVoxaTelephonyStackVoxaVoiceWebhookApi39F9B4FFPOSTwebhookmidcall1D709F2B"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "...WrappedClass.addMethod in aws-cdk-lib...",
+        "new VoxaTelephonyStack (/Users/turbo/Developer/AntiGravity/voa-agent/aws-infra/lib/voxa-telephony-stack.ts:118:21)",
+        "<anonymous> (/Users/turbo/Developer/AntiGravity/voa-agent/aws-infra/bin/voxa-infra.ts:8:1)",
+        "...node internals, ts-node..."
+      ]
+    }
+  ],
+  "/VoxaTelephonyStack/VoxaVoiceWebhookApi/Default/webhook/mid-call/POST/ApiPermission.Test.VoxaTelephonyStackVoxaVoiceWebhookApi39F9B4FF.POST..webhook.mid-call": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "VoxaVoiceWebhookApiwebhookmidcallPOSTApiPermissionTestVoxaTelephonyStackVoxaVoiceWebhookApi39F9B4FFPOSTwebhookmidcall8B75F5D3"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "...WrappedClass.addMethod in aws-cdk-lib...",
+        "new VoxaTelephonyStack (/Users/turbo/Developer/AntiGravity/voa-agent/aws-infra/lib/voxa-telephony-stack.ts:118:21)",
+        "<anonymous> (/Users/turbo/Developer/AntiGravity/voa-agent/aws-infra/bin/voxa-infra.ts:8:1)",
+        "...node internals, ts-node..."
+      ]
+    }
+  ],
+  "/VoxaTelephonyStack/VoxaVoiceWebhookApi/Default/webhook/mid-call/POST/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "VoxaVoiceWebhookApiwebhookmidcallPOST60D34E41"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "...WrappedClass.addMethod in aws-cdk-lib...",
+        "new VoxaTelephonyStack (/Users/turbo/Developer/AntiGravity/voa-agent/aws-infra/lib/voxa-telephony-stack.ts:118:21)",
+        "<anonymous> (/Users/turbo/Developer/AntiGravity/voa-agent/aws-infra/bin/voxa-infra.ts:8:1)",
+        "...node internals, ts-node, ts-node..."
+      ]
+    }
+  ],
+  "/VoxaTelephonyStack/VoxaVoiceWebhookApi/Default/webhook/call-ended/OPTIONS/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "VoxaVoiceWebhookApiwebhookcallendedOPTIONSD9F3095D"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "...WrappedClass.addResource in aws-cdk-lib...",
+        "new VoxaTelephonyStack (/Users/turbo/Developer/AntiGravity/voa-agent/aws-infra/lib/voxa-telephony-stack.ts:121:43)",
+        "<anonymous> (/Users/turbo/Developer/AntiGravity/voa-agent/aws-infra/bin/voxa-infra.ts:8:1)"
+      ]
+    }
+  ],
+  "/VoxaTelephonyStack/VoxaVoiceWebhookApi/Default/webhook/call-ended/POST/ApiPermission.VoxaTelephonyStackVoxaVoiceWebhookApi39F9B4FF.POST..webhook.call-ended": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "VoxaVoiceWebhookApiwebhookcallendedPOSTApiPermissionVoxaTelephonyStackVoxaVoiceWebhookApi39F9B4FFPOSTwebhookcallended63FD6CA8"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "...WrappedClass.addMethod in aws-cdk-lib...",
+        "new VoxaTelephonyStack (/Users/turbo/Developer/AntiGravity/voa-agent/aws-infra/lib/voxa-telephony-stack.ts:122:23)",
+        "<anonymous> (/Users/turbo/Developer/AntiGravity/voa-agent/aws-infra/bin/voxa-infra.ts:8:1)",
+        "...node internals, ts-node..."
+      ]
+    }
+  ],
+  "/VoxaTelephonyStack/VoxaVoiceWebhookApi/Default/webhook/call-ended/POST/ApiPermission.Test.VoxaTelephonyStackVoxaVoiceWebhookApi39F9B4FF.POST..webhook.call-ended": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "VoxaVoiceWebhookApiwebhookcallendedPOSTApiPermissionTestVoxaTelephonyStackVoxaVoiceWebhookApi39F9B4FFPOSTwebhookcallendedFA09FB9F"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "...WrappedClass.addMethod in aws-cdk-lib...",
+        "new VoxaTelephonyStack (/Users/turbo/Developer/AntiGravity/voa-agent/aws-infra/lib/voxa-telephony-stack.ts:122:23)",
+        "<anonymous> (/Users/turbo/Developer/AntiGravity/voa-agent/aws-infra/bin/voxa-infra.ts:8:1)",
+        "...node internals, ts-node..."
+      ]
+    }
+  ],
+  "/VoxaTelephonyStack/VoxaVoiceWebhookApi/Default/webhook/call-ended/POST/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "VoxaVoiceWebhookApiwebhookcallendedPOST83253E44"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "...WrappedClass.addMethod in aws-cdk-lib...",
+        "new VoxaTelephonyStack (/Users/turbo/Developer/AntiGravity/voa-agent/aws-infra/lib/voxa-telephony-stack.ts:122:23)",
+        "<anonymous> (/Users/turbo/Developer/AntiGravity/voa-agent/aws-infra/bin/voxa-infra.ts:8:1)",
+        "...node internals, ts-node, ts-node..."
+      ]
+    }
+  ]
+}
