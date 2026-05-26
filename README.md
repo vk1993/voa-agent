@@ -81,23 +81,23 @@ graph TD
     end
 
     %% Data Flow Connections
-    Dashboard -->|Trigger Outbound / Manage Keys| ApiGW
-    Telephony -->|POST /webhook/mid-call (Real-time Stream)| ApiGW
-    Telephony -->|POST /webhook/call-ended (Payload Ingestion)| ApiGW
+    Dashboard -->|Trigger Outbound and Manage Keys| ApiGW
+    Telephony -->|POST to mid-call endpoint| ApiGW
+    Telephony -->|POST to call-ended endpoint| ApiGW
 
     usagePlan -->|Forward API Key Validated Campaigns| ingestLambda
     usagePlan -->|Direct Mid-Call POST| midCallLambda
     usagePlan -->|Direct Ingest POST| ingestLambda
 
     ingestLambda -->|Asynchronously Publish Payload| activeQueue
-    activeQueue -->|SQS Trigger (Batch size: 5)| postCallLambda
+    activeQueue -->|SQS Trigger with Batch Size 5| postCallLambda
 
     midCallLambda -->|Query Context| pinecone
     midCallLambda -->|Resolve Current Objections| memoryDb
-    midCallLambda -->|Inference (Bedrock Models)| bedrock
+    midCallLambda -->|Inference via Bedrock Models| bedrock
 
     postCallLambda -->|Fetch Secret Tokens| secretsManager["AWS Secrets Manager"]:::gateway
-    postCallLambda -->|Extract Timeline & Insights (Claude 3 Haiku)| bedrock
+    postCallLambda -->|Extract Timeline and Insights via Claude 3 Haiku| bedrock
     postCallLambda -->|Immutable Event Record| auditDb
     postCallLambda -->|Chronological Timeline Update| memoryDb
     postCallLambda -->|Schedule Call| Calendly
