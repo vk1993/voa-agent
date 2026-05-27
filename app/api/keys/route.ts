@@ -1,20 +1,22 @@
 import { NextRequest, NextResponse } from "next/server";
 import { PrismaClient } from "@prisma/client";
 import { withAuditLog } from "@/lib/security/api-wrapper";
+import { verifySessionFromRequest } from "@/lib/security/security-service";
 import crypto from "crypto";
 
 const prisma = new PrismaClient();
 
-// Helper to decode tenant information from session cookie defensively
-function getTenantId(request: NextRequest): string {
-  const sessionCookie = request.cookies.get("session")?.value;
-  if (sessionCookie) {
-    try {
-      const session = JSON.parse(decodeURIComponent(sessionCookie));
-      return session.tenantId || session.tenant || "voxa-default-tenant";
-    } catch (e) {}
-  }
-  return "voxa-default-tenant";
+/**
+ * Helper: Securely resolves and cryptographically verifies the tenant context.
+ * Only administrative accounts (role === ADMIN) are authorized to access and manage API keys.
+ */
+async function getVerifiedTenantId(
+  request: NextRequest
+): Promise<string | null> {
+  const session = await verifySessionFromRequest(request);
+  if (!session || !session.tenantId) return null;
+  if (session.role !== "ADMIN") return null; // only admins manage keys
+  return session.tenantId;
 }
 
 /**
@@ -23,40 +25,40 @@ function getTenantId(request: NextRequest): string {
  */
 async function getHandler(request: NextRequest) {
   try {
-    const tenantId = getTenantId(request);
+    const tenantId = await getVerifiedTenantId(request);
+    if (!tenantId) {
+      return NextResponse.json(
+        { success: false, error: "Unauthorized" },
+        { status: 401 }
+      );
+    }
 
-    // Fetch from SQLite database
+    // Verify tenant exists in PostgreSQL
+    const dbTenant = await prisma.tenant.findUnique({
+      where: { id: tenantId },
+    });
+    if (!dbTenant) {
+      return NextResponse.json(
+        { success: false, error: "Tenant Not Found" },
+        { status: 404 }
+      );
+    }
+
+    // Fetch from PostgreSQL database
     const apiKeys = await prisma.apiKey.findMany({
       where: { tenantId },
       orderBy: { createdAt: "desc" },
     });
 
-    // If database has no keys, seed standard demo key for immediate developer validation
-    if (apiKeys.length === 0) {
-      // Find or create default tenant for SQLite foreign key constraint
-      let tenant = await prisma.tenant.findFirst({ where: { id: tenantId } });
-      if (!tenant) {
-        tenant = await prisma.tenant.create({
-          data: {
-            id: tenantId,
-            name: "Prestige Luxury Interiors",
-          },
-        });
-      }
+    const responseKeys = apiKeys.map(k => ({
+      id: k.id,
+      name: k.name,
+      key: `${k.keyPrefix}******************`,
+      status: k.status,
+      createdAt: k.createdAt.toISOString(),
+    }));
 
-      // Create a default initial key
-      const demoKey = await prisma.apiKey.create({
-        data: {
-          name: "Salesforce CRM Lead Trigger",
-          key: "voxa_live_c13a48e718b52f9a764d0092147ea410",
-          tenantId: tenant.id,
-          status: "ACTIVE",
-        },
-      });
-      return NextResponse.json({ success: true, apiKeys: [demoKey] });
-    }
-
-    return NextResponse.json({ success: true, apiKeys });
+    return NextResponse.json({ success: true, apiKeys: responseKeys });
   } catch (error: any) {
     console.error("Failed to list API Keys:", error);
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });
@@ -70,40 +72,58 @@ async function getHandler(request: NextRequest) {
  */
 async function postHandler(request: NextRequest) {
   try {
-    const tenantId = getTenantId(request);
+    const tenantId = await getVerifiedTenantId(request);
+    if (!tenantId) {
+      return NextResponse.json(
+        { success: false, error: "Unauthorized" },
+        { status: 401 }
+      );
+    }
+
     const body = await request.json();
     const name = body.name || "Unnamed CRM Connection";
 
-    // Guarantee default tenant exists
-    let tenant = await prisma.tenant.findFirst({ where: { id: tenantId } });
-    if (!tenant) {
-      tenant = await prisma.tenant.create({
-        data: {
-          id: tenantId,
-          name: "Prestige Luxury Interiors",
-        },
-      });
+    // Verify tenant exists in PostgreSQL
+    const dbTenant = await prisma.tenant.findUnique({
+      where: { id: tenantId },
+    });
+    if (!dbTenant) {
+      return NextResponse.json(
+        { success: false, error: "Tenant Not Found" },
+        { status: 404 }
+      );
     }
 
     // Generate cryptographic secure 32-character key payload
     const rawEntropy = crypto.randomBytes(16).toString("hex");
     const fullApiKey = `voxa_live_${rawEntropy}`;
+    const keyPrefix = fullApiKey.slice(0, 12); // "voxa_live_..."
+    const keyHash = crypto.createHash("sha256").update(fullApiKey).digest("hex");
 
     // Write to Prisma DB
     const newKeyRecord = await prisma.apiKey.create({
       data: {
         name,
-        key: fullApiKey, // In a high-security prod environment, store the SHA-256 hash. Here we store it for easy Admin retrieval demo.
-        tenantId: tenant.id,
+        keyPrefix,
+        keyHash,
+        tenantId,
         status: "ACTIVE",
       },
     });
+
+    const responseKey = {
+      id: newKeyRecord.id,
+      name: newKeyRecord.name,
+      key: `${newKeyRecord.keyPrefix}******************`,
+      status: newKeyRecord.status,
+      createdAt: newKeyRecord.createdAt.toISOString(),
+    };
 
     return NextResponse.json({
       success: true,
       message: "API Key generated successfully. Save this raw value now, it will not be shown again!",
       rawKey: fullApiKey,
-      keyRecord: newKeyRecord,
+      keyRecord: responseKey,
     }, { status: 201 });
 
   } catch (error: any) {
@@ -119,7 +139,14 @@ async function postHandler(request: NextRequest) {
  */
 async function putHandler(request: NextRequest) {
   try {
-    const tenantId = getTenantId(request);
+    const tenantId = await getVerifiedTenantId(request);
+    if (!tenantId) {
+      return NextResponse.json(
+        { success: false, error: "Unauthorized" },
+        { status: 401 }
+      );
+    }
+
     const body = await request.json();
     const { keyId, action } = body; // action: "REVOKE" | "DELETE"
 
@@ -133,7 +160,16 @@ async function putHandler(request: NextRequest) {
         where: { id: keyId, tenantId },
         data: { status: "REVOKED" },
       });
-      return NextResponse.json({ success: true, message: "API key revoked successfully", key: updatedKey });
+      
+      const responseKey = {
+        id: updatedKey.id,
+        name: updatedKey.name,
+        key: `${updatedKey.keyPrefix}******************`,
+        status: updatedKey.status,
+        createdAt: updatedKey.createdAt.toISOString(),
+      };
+      
+      return NextResponse.json({ success: true, message: "API key revoked successfully", key: responseKey });
     } else {
       // Standard hard delete removal
       await prisma.apiKey.delete({

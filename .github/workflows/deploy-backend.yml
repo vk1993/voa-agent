@@ -25,7 +25,7 @@ jobs:
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ secrets.AWS_REGION || 'us-east-1' }}
+          aws-region: ${{ secrets.AWS_REGION || 'ap-south-1' }}
 
       - name: Install CDK Stack Dependencies
         run: |
@@ -36,6 +36,13 @@ jobs:
         run: |
           cd aws-infra
           npm run build
+
+      - name: Verify AWS Region
+        run: |
+          echo "Deploying to region: ${{ env.AWS_DEFAULT_REGION }}"
+          if [ "${{ secrets.AWS_REGION }}" == "" ]; then
+            echo "⚠️  AWS_REGION secret not set. Defaulting to ap-south-1."
+          fi
 
       - name: Deploy Serverless Stack
         run: |

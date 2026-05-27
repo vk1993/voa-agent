@@ -1,106 +1,472 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
+  previewFeatures = ["postgresqlExtensions"]
 }
 
 datasource db {
-  provider = "sqlite"
-  url      = env("DATABASE_URL")
+  provider   = "postgresql"
+  url        = env("DATABASE_URL")
+  directUrl  = env("DIRECT_DATABASE_URL")
+  extensions = [pgcrypto, pg_trgm]
 }
 
+// ─── TENANT ─────────────────────────────────────
 model Tenant {
-  id        String     @id @default(uuid())
-  name      String
-  users     User[]
-  campaigns Campaign[]
-  contacts  Contact[]
-  apiKeys   ApiKey[]
-  createdAt DateTime   @default(now())
-  updatedAt DateTime   @updatedAt
+  id           String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name         String
+  slug         String       @unique
+  plan         Plan         @default(STARTER)
+  status       TenantStatus @default(PROVISIONING)
+  customDomain String?      @unique
+  config       Json?
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+
+  users        User[]
+  campaigns    Campaign[]
+  contacts     Contact[]
+  apiKeys      ApiKey[]
+  scripts      Script[]
+  showrooms    Showroom[]
+  skillPacks   TenantSkillPack[]
+  usage        TenantUsage[]
+
+  @@map("tenants")
 }
 
+enum TenantStatus {
+  PROVISIONING
+  ACTIVE
+  SUSPENDED
+  CANCELLED
+  ARCHIVED
+}
+
+enum Plan {
+  STARTER
+  GROWTH
+  ENTERPRISE
+}
+
+// ─── USER ─────────────────────────────────────
 model User {
-  id        String    @id @default(uuid())
-  email     String    @unique
-  name      String?
-  role      Role      @default(SALES_AGENT)
-  tenantId  String
-  tenant    Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  contacts  Contact[] @relation("AssignedAgent")
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  id           String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  cognitoSub   String    @unique
+  email        String    @unique
+  name         String?
+  role         Role      @default(SALES_AGENT)
+  isActive     Boolean   @default(true)
+  tenantId     String    @db.Uuid
+  tenant       Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  lastLoginAt  DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  assignedContacts Contact[] @relation("AssignedAgent")
+  auditLogs    AuditLog[]
+
+  @@index([tenantId])
+  @@index([cognitoSub])
+  @@map("users")
 }
 
 enum Role {
+  SUPER_ADMIN
   ADMIN
   SALES_AGENT
+  READ_ONLY
 }
 
-model Campaign {
-  id          String         @id @default(uuid())
-  name        String
-  status      CampaignStatus @default(DRAFT)
-  scriptId    String
-  skillPackId String
-  tenantId    String
-  tenant      Tenant         @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  callLogs    CallLog[]
-  createdAt   DateTime       @default(now())
-  updatedAt   DateTime       @updatedAt
-}
-
-enum CampaignStatus {
-  DRAFT
-  ACTIVE
-  PAUSED
-  COMPLETED
-}
-
+// ─── CONTACT ─────────────────────────────────────
 model Contact {
-  id              String        @id @default(uuid())
-  name            String
-  phone           String
-  status          ContactStatus @default(NEW)
-  tags            String        // SQLite compatibility: store tags as a comma-separated list or serialized JSON string
-  assignedAgentId String?
-  assignedAgent   User?         @relation("AssignedAgent", fields: [assignedAgentId], references: [id], onDelete: SetNull)
-  tenantId        String
-  tenant          Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  callLogs        CallLog[]
-  createdAt       DateTime      @default(now())
-  updatedAt       DateTime      @updatedAt
+  id                   String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenantId             String        @db.Uuid
+  tenant               Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  name                 String
+  phone                String
+  email                String?
+  status               ContactStatus @default(NEW)
+  leadScore            Int           @default(0)
+  location             String?
+  bhkType              String?
+  budgetMin            Int?
+  budgetMax            Int?
+  assignedAgentId      String?       @db.Uuid
+  assignedAgent        User?         @relation("AssignedAgent", fields: [assignedAgentId], references: [id], onDelete: SetNull)
+  assignedShowroomId   String?       @db.Uuid
+  assignedShowroom     Showroom?     @relation(fields: [assignedShowroomId], references: [id], onDelete: SetNull)
+  importedFrom         String?
+  notes                String?
+  createdAt            DateTime      @default(now())
+  updatedAt            DateTime      @updatedAt
+
+  callLogs     CallLog[]
+  tags         ContactTag[]
+  actions      PostCallAction[]
+  vouchers     Voucher[]
+
+  @@index([tenantId])
+  @@index([tenantId, status])
+  @@index([tenantId, leadScore])
+  @@index([tenantId, assignedAgentId])
+  @@map("contacts")
 }
 
 enum ContactStatus {
   NEW
-  QUALIFIED
-  UNQUALIFIED
+  QUEUED
+  CALLED
+  BOOKED
+  CONVERTED
   DND
+  DELETION_REQUESTED
+  ARCHIVED
 }
 
+// ─── CONTACT TAG ─────────────────────────────────────
+model ContactTag {
+  id         String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  contactId  String    @db.Uuid
+  contact    Contact   @relation(fields: [contactId], references: [id], onDelete: Cascade)
+  tenantId   String    @db.Uuid
+  tagKey     String
+  tagValue   String
+  source     TagSource @default(AI_EXTRACTED)
+  createdAt  DateTime  @default(now())
+
+  @@unique([contactId, tagKey, tagValue])
+  @@index([tenantId, tagKey, tagValue])
+  @@map("contact_tags")
+}
+
+enum TagSource {
+  AI_EXTRACTED
+  MANUAL
+  SYSTEM
+}
+
+// ─── CALL LOG ─────────────────────────────────────
 model CallLog {
-  id              String    @id @default(uuid())
-  duration        Int       // call duration in seconds
-  transcript      String
-  intentExtracted String?
-  sentimentScore  Float?
-  campaignId      String?
-  campaign        Campaign? @relation(fields: [campaignId], references: [id], onDelete: SetNull)
-  contactId       String
-  contact         Contact   @relation(fields: [contactId], references: [id], onDelete: Cascade)
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
+  id                String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenantId          String      @db.Uuid
+  contactId         String      @db.Uuid
+  contact           Contact     @relation(fields: [contactId], references: [id], onDelete: Cascade)
+  campaignId        String?     @db.Uuid
+  campaign          Campaign?   @relation(fields: [campaignId], references: [id], onDelete: SetNull)
+  callSid           String?
+  durationSeconds   Int         @default(0)
+  sentimentScore    Float?
+  intentScore       Int?
+  outcomeType       CallOutcome @default(NO_ANSWER)
+  leadScore         Int         @default(0)
+  transcript        String?
+  transcriptSummary String?
+  extractedEntities Json?
+  objectionsRaised  Json?
+  recordingS3Path   String?
+  assignedAgentId   String?     @db.Uuid
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
+
+  postCallActions PostCallAction[]
+
+  @@index([tenantId])
+  @@index([tenantId, contactId])
+  @@index([tenantId, createdAt])
+  @@index([tenantId, leadScore])
+  @@map("call_logs")
 }
 
+enum CallOutcome {
+  BOOKED
+  CALLBACK_REQUESTED
+  THINKING
+  NOT_INTERESTED
+  DND
+  NO_ANSWER
+  VOICEMAIL
+  ESCALATED
+  ERROR
+}
+
+// ─── POST CALL ACTION ─────────────────────────────────────
+model PostCallAction {
+  id              String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenantId        String     @db.Uuid
+  contactId       String     @db.Uuid
+  contact         Contact    @relation(fields: [contactId], references: [id], onDelete: Cascade)
+  callLogId       String?    @db.Uuid
+  callLog         CallLog?   @relation(fields: [callLogId], references: [id], onDelete: SetNull)
+  actionType      PostCallActionType
+  channel         MessageChannel
+  contentSnapshot Json?
+  deliveredAt     DateTime?
+  readAt          DateTime?
+  createdAt       DateTime   @default(now())
+
+  @@index([tenantId, contactId])
+  @@map("post_call_actions")
+}
+
+enum PostCallActionType {
+  WHATSAPP_SHOWROOM
+  WHATSAPP_PORTFOLIO
+  SMS_OFFER
+  VOUCHER_SENT
+  CALLBACK_SCHEDULED
+  SALESPERSON_ALERT
+}
+
+enum MessageChannel {
+  WHATSAPP
+  SMS
+  EMAIL
+  INTERNAL
+}
+
+// ─── CAMPAIGN ─────────────────────────────────────
+model Campaign {
+  id               String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenantId         String         @db.Uuid
+  tenant           Tenant         @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  name             String
+  status           CampaignStatus @default(DRAFT)
+  scriptId         String?        @db.Uuid
+  script           Script?        @relation(fields: [scriptId], references: [id], onDelete: SetNull)
+  skillPackId      String?        @db.Uuid
+  maxConcurrency   Int            @default(5)
+  dailyStartTime   String         @default("09:00")
+  dailyEndTime     String         @default("21:00")
+  retryUnanswered  Boolean        @default(true)
+  retryDelayHours  Int            @default(2)
+  scheduledStart   DateTime?
+  scheduledEnd     DateTime?
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+
+  callLogs CallLog[]
+
+  @@index([tenantId])
+  @@index([tenantId, status])
+  @@map("campaigns")
+}
+
+enum CampaignStatus {
+  DRAFT
+  SCHEDULED
+  RUNNING
+  PAUSED
+  COMPLETED
+  ARCHIVED
+}
+
+// ─── SCRIPT ─────────────────────────────────────
+model Script {
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenantId    String   @db.Uuid
+  tenant      Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  name        String
+  version     Int      @default(1)
+  isActive    Boolean  @default(false)
+  sections    Json
+  systemPrompt String?
+  guardrails  Json?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  campaigns Campaign[]
+
+  @@index([tenantId])
+  @@map("scripts")
+}
+
+// ─── SHOWROOM ─────────────────────────────────────
+model Showroom {
+  id           String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenantId     String   @db.Uuid
+  tenant       Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  name         String
+  address      String
+  lat          Float?
+  lng          Float?
+  phone        String?
+  operatingHours Json?
+  servicePincodes String[]
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+
+  assignedContacts Contact[]
+
+  @@index([tenantId])
+  @@map("showrooms")
+}
+
+// ─── VOUCHER ─────────────────────────────────────
+model Voucher {
+  id                    String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenantId              String    @db.Uuid
+  code                  String    @unique
+  contactId             String?   @db.Uuid
+  contact               Contact?  @relation(fields: [contactId], references: [id], onDelete: SetNull)
+  campaignId            String?   @db.Uuid
+  discountType          String
+  discountValue         Decimal   @db.Decimal(10, 2)
+  expiresAt             DateTime?
+  redeemedAt            DateTime?
+  redeemedByAgentId     String?   @db.Uuid
+  revenueAttributed     Decimal?  @db.Decimal(12, 2)
+  createdAt             DateTime  @default(now())
+
+  @@index([tenantId])
+  @@index([code])
+  @@map("vouchers")
+}
+
+// ─── SKILL PACK ─────────────────────────────────────
+model SkillPack {
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  slug        String   @unique
+  name        String
+  description String?
+  isPublished Boolean  @default(false)
+  config      Json?
+  createdAt   DateTime @default(now())
+
+  tenants TenantSkillPack[]
+
+  @@map("skill_packs")
+}
+
+model TenantSkillPack {
+  tenantId    String    @db.Uuid
+  tenant      Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  skillPackId String    @db.Uuid
+  skillPack   SkillPack @relation(fields: [skillPackId], references: [id], onDelete: Cascade)
+  isActive    Boolean   @default(true)
+  customConfig Json?
+  indexedAt   DateTime?
+  vectorCount Int       @default(0)
+  activatedAt DateTime  @default(now())
+
+  @@id([tenantId, skillPackId])
+  @@index([tenantId])
+  @@map("tenant_skill_packs")
+}
+
+// ─── RAG DOCUMENT ─────────────────────────────────────
+model RagDocument {
+  id          String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenantId    String    @db.Uuid
+  docType     String
+  sourceFile  String
+  s3Key       String
+  vectorCount Int       @default(0)
+  status      String    @default("PENDING")
+  indexedAt   DateTime?
+  errorMsg    String?
+  createdAt   DateTime  @default(now())
+
+  @@index([tenantId])
+  @@index([tenantId, docType])
+  @@map("rag_documents")
+}
+
+// ─── AUDIT LOG ─────────────────────────────────────
+model AuditLog {
+  id           String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenantId     String        @db.Uuid
+  userId       String?       @db.Uuid
+  user         User?         @relation(fields: [userId], references: [id], onDelete: SetNull)
+  userEmail    String?
+  userRole     String?
+  action       AuditAction
+  resourceType String
+  resourceId   String?
+  metadata     Json?
+  ipAddress    String?
+  userAgent    String?
+  requestId    String?
+  severity     AuditSeverity @default(INFO)
+  createdAt    DateTime      @default(now())
+
+  @@index([tenantId, createdAt])
+  @@index([tenantId, action])
+  @@index([userId, createdAt])
+  @@map("audit_logs")
+}
+
+enum AuditAction {
+  USER_LOGIN
+  USER_LOGOUT
+  USER_LOGIN_FAILED
+  USER_INVITED
+  USER_DEACTIVATED
+  TOKEN_REVOKED
+  USER_ROLE_CHANGED
+  CONTACT_VIEWED
+  CONTACT_CREATED
+  CONTACT_UPDATED
+  CONTACT_DELETED
+  CONTACT_EXPORTED
+  CONTACTS_BULK_IMPORTED
+  CALL_INITIATED
+  CALL_COMPLETED
+  CALL_RECORDING_ACCESSED
+  CALL_TRANSCRIPT_ACCESSED
+  CAMPAIGN_CREATED
+  CAMPAIGN_LAUNCHED
+  CAMPAIGN_PAUSED
+  CAMPAIGN_DELETED
+  PRESIGNED_URL_GENERATED
+  DATA_EXPORT_REQUESTED
+  SENSITIVE_FIELD_ACCESSED
+  SKILL_PACK_UPLOADED
+  RAG_REINDEX_TRIGGERED
+  TENANT_SETTINGS_CHANGED
+  RATE_LIMIT_EXCEEDED
+  UNAUTHORIZED_TENANT_ACCESS_ATTEMPT
+  INVALID_TOKEN_USED
+}
+
+enum AuditSeverity {
+  INFO
+  WARNING
+  CRITICAL
+}
+
+// ─── TENANT USAGE ─────────────────────────────────────
+model TenantUsage {
+  id             String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenantId       String   @db.Uuid
+  tenant         Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  periodStart    DateTime
+  callMinutes    Decimal  @db.Decimal(10, 3)
+  costCogs       Decimal  @db.Decimal(10, 4)
+  costBilled     Decimal  @db.Decimal(10, 4)
+  inputTokens    BigInt   @default(0)
+  outputTokens   BigInt   @default(0)
+  cacheHits      Int      @default(0)
+  whatsappSent   Int      @default(0)
+  smsSent        Int      @default(0)
+  createdAt      DateTime @default(now())
+
+  @@index([tenantId, periodStart])
+  @@map("tenant_usage")
+}
+
+// ─── API KEY ─────────────────────────────────────
 model ApiKey {
-  id        String   @id @default(uuid())
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   name      String
-  key       String   @unique
-  tenantId  String
+  keyHash   String   @unique
+  keyPrefix String
+  tenantId  String   @db.Uuid
   tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  status    String   @default("ACTIVE") // ACTIVE | REVOKED
+  status    String   @default("ACTIVE")
+  lastUsedAt DateTime?
+  expiresAt DateTime?
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+
+  @@index([tenantId])
+  @@map("api_keys")
 }

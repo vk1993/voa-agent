@@ -1,4 +1,20 @@
 import OpenAI from "openai";
+import { NextRequest } from "next/server";
+import { verifySessionJwt } from "../../proxy";
+
+/**
+ * 4. Verify Session Claims from NextRequest
+ * Decodes the incoming session cookie using edge-verified JWT helper keys.
+ */
+export async function verifySessionFromRequest(request: NextRequest): Promise<{
+  sub: string;
+  tenantId: string;
+  role: "ADMIN" | "SALES_AGENT" | "READ_ONLY";
+} | null> {
+  const sessionCookie = request.cookies.get("session")?.value;
+  if (!sessionCookie) return null;
+  return verifySessionJwt(sessionCookie);
+}
 
 /**
  * 1. LLM Observability Client Wrapper

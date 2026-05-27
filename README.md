@@ -190,6 +190,8 @@ Below is the high-level project organization detailing the separation of concern
 
 ## Getting Started (Local Development)
 
+⚠️ Never commit .db files. Local databases are gitignored. Use `docker compose up -d postgres` for local dev.
+
 Follow these steps to run a fully functional VOXA development environment locally, complete with mock AWS serverless backend infrastructure:
 
 ### Prerequisites
@@ -224,10 +226,26 @@ Follow these steps to run a fully functional VOXA development environment locall
    ./scripts/localstack-init.sh
    ```
 
-5. **Generate Database Client & Run Relational Migrations:**
-   Set up your local SQLite database for campaign and tenant configurations managed by Next.js and Prisma:
+5. **Database Setup (PostgreSQL required):**
+   VOXA requires PostgreSQL 16. For local development, start it via Docker:
    ```bash
-   npx prisma db push
+   docker compose up -d postgres
+   ```
+   
+   Then set your `.env` DATABASE_URL:
+   ```env
+   DATABASE_URL="postgresql://voxa:voxa@localhost:5432/voxa_dev"
+   DIRECT_DATABASE_URL="postgresql://voxa:voxa@localhost:5432/voxa_dev"
+   ```
+   
+   Run migrations:
+   ```bash
+   npx prisma migrate dev
+   ```
+   
+   Seed RLS policies:
+   ```bash
+   psql $DATABASE_URL -f prisma/migrations/rls/migration.sql
    ```
 
 6. **Start the Next.js Development Server:**
@@ -240,15 +258,16 @@ Follow these steps to run a fully functional VOXA development environment locall
 
 ## Environment Variables
 
-Copy the content below and save it as `.env` in the root of the project. These values are configured for local development targeting SQLite and LocalStack out of the box:
+Copy the content below and save it as `.env` in the root of the project. These values are configured for local development targeting PostgreSQL and LocalStack out of the box:
 
 ```env
 # ==============================================================================
 # VOXA Local Environment Configuration
 # ==============================================================================
 
-# Relational SQLite Database Configuration (Prisma)
-DATABASE_URL="file:./dev.db"
+# Relational PostgreSQL Database Configuration (Prisma)
+DATABASE_URL="postgresql://voxa:voxa@localhost:5432/voxa_dev"
+DIRECT_DATABASE_URL="postgresql://voxa:voxa@localhost:5432/voxa_dev"
 
 # NextAuth JWT Signing Secret
 NEXTAUTH_SECRET="f69ea6bc92040c1157bc1de15858cfd795b28d085ee5b31bf4e963bc15db642a"

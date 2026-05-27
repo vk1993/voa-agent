@@ -8,11 +8,7 @@ const client_bedrock_runtime_1 = require("@aws-sdk/client-bedrock-runtime");
 const openai_1 = __importDefault(require("openai"));
 const bedrock = new client_bedrock_runtime_1.BedrockRuntimeClient({ region: process.env.AWS_REGION || "us-east-1" });
 const MODEL_SONNET = "anthropic.claude-3-5-sonnet-20240620-v1:0";
-const OPENAI_API_KEY = process.env.OPENAI_API_KEY || "";
 let openai = null;
-if (OPENAI_API_KEY) {
-    openai = new openai_1.default({ apiKey: OPENAI_API_KEY });
-}
 /**
  * High-Availability Resilient LLM Calling Service.
  * Attempts OpenAI primary model first. If it throws a 5XX error or exceeds
@@ -20,6 +16,10 @@ if (OPENAI_API_KEY) {
  * the exact same prompt to Amazon Bedrock invoking Claude 3.5 Sonnet.
  */
 async function invokeLLMWithFallback(prompt, systemPrompt, isComplex = false) {
+    const OPENAI_API_KEY = process.env.OPENAI_API_KEY || "";
+    if (!openai && OPENAI_API_KEY) {
+        openai = new openai_1.default({ apiKey: OPENAI_API_KEY });
+    }
     const primaryModel = isComplex ? "gpt-4o" : "gpt-4o-mini";
     console.log(`[LLM SERVICE] Invoking primary provider: [OpenAI ${primaryModel}]`);
     // If OpenAI is not configured, fallback to Bedrock instantly

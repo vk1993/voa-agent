@@ -3,6 +3,7 @@ version: '3.8'
 services:
   localstack:
     container_name: voxa-localstack
+    platform: linux/arm64
     image: localstack/localstack:latest
     ports:
       - "4566:4566"            # LocalStack Edge Port (Unified API endpoint)
@@ -17,3 +18,22 @@ services:
       - "./.localstack:/var/lib/localstack"
       - "/var/run/docker.sock:/var/run/docker.sock"
     restart: unless-stopped
+
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: voxa
+      POSTGRES_PASSWORD: voxa
+      POSTGRES_DB: voxa_dev
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U voxa"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  postgres_data:

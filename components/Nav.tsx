@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, ViewTransition } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 
 interface NavProps {
@@ -134,7 +134,6 @@ export function Nav({ acc }: NavProps) {
           transitionTypes={["nav-back"]}
           style={{ display: "flex", alignItems: "center", gap: 11, textDecoration: "none" }}
         >
-          <ViewTransition name="logo-shield" share="morph">
             <div
               style={{
                 width: 34,
@@ -154,7 +153,6 @@ export function Nav({ acc }: NavProps) {
             >
               V
             </div>
-          </ViewTransition>
           <span
             style={{
               fontFamily: "var(--font-sans)",

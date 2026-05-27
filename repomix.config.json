@@ -1,0 +1,12 @@
+{
+  "output": {
+    "filePath": "code-context.md",
+    "style": "markdown",
+    "removeComments": false,
+    "removeEmptyLines": false,
+    "topFilesLength": 5,
+    "showLineNumbers": false,
+    "copyToClipboard": false,
+    "parsableStyle": true
+  }
+}

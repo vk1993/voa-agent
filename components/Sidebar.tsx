@@ -14,11 +14,18 @@ import {
   Users,
   Shield,
   PhoneForwarded,
+  Home,
+  Activity,
+  Layers,
+  BarChart2,
+  Award,
 } from "lucide-react";
 
 interface SidebarProps {
-  role: "ADMIN" | "SALES_AGENT";
-  userEmail?: string;
+  role: "ADMIN" | "SALES_AGENT" | "READ_ONLY";
+  userEmail: string;
+  userName: string;
+  tenantName: string;
 }
 
 interface MenuItem {
@@ -27,25 +34,42 @@ interface MenuItem {
   icon: React.ComponentType<any>;
 }
 
-export function Sidebar({ role, userEmail = "priya.nair@voxa.ai" }: SidebarProps) {
+export function Sidebar({ role, userEmail, userName, tenantName }: SidebarProps) {
   const pathname = usePathname() || "";
 
   // Menu lists based on user role
   const adminMenu: MenuItem[] = [
+    { name: "Overview", href: "/admin", icon: Home },
+    { name: "Live Monitor", href: "/admin/live", icon: Activity },
+    { name: "Contacts", href: "/admin/contacts", icon: Users },
     { name: "Campaigns", href: "/admin/campaigns", icon: Megaphone },
-    { name: "Contacts & Leads", href: "/admin/contacts", icon: Users },
-    { name: "Objection Scripts", href: "/admin/scripts", icon: FileText },
-    { name: "Developer Integrations", href: "/admin/settings/api-keys", icon: Shield },
-    { name: "System Settings", href: "/admin/settings", icon: Settings },
+    { name: "Scripts", href: "/admin/scripts", icon: FileText },
+    { name: "Skill Packs", href: "/admin/skill-packs", icon: Layers },
+    { name: "Analytics", href: "/admin/analytics", icon: BarChart2 },
+    { name: "Call Review", href: "/admin/call-review", icon: PhoneCall },
+    { name: "Team", href: "/admin/team", icon: Users },
+    { name: "Settings", href: "/admin/settings", icon: Settings },
   ];
 
   const agentMenu: MenuItem[] = [
     { name: "My Pipeline", href: "/sp/pipeline", icon: FolderKanban },
     { name: "My Calls", href: "/sp/calls", icon: PhoneCall },
     { name: "My Appointments", href: "/sp/appointments", icon: Calendar },
+    { name: "My Performance", href: "/sp/performance", icon: Award },
   ];
 
-  const currentMenu = role === "ADMIN" ? adminMenu : agentMenu;
+  const readOnlyMenu: MenuItem[] = [
+    { name: "Analytics", href: "/analytics", icon: BarChart2 },
+    { name: "Call Review", href: "/call-review", icon: PhoneCall },
+    { name: "Contacts (view)", href: "/contacts", icon: Users },
+  ];
+
+  const currentMenu =
+    role === "ADMIN"
+      ? adminMenu
+      : role === "SALES_AGENT"
+      ? agentMenu
+      : readOnlyMenu;
 
   return (
     <aside
@@ -64,7 +88,8 @@ export function Sidebar({ role, userEmail = "priya.nair@voxa.ai" }: SidebarProps
       }}
     >
       {/* Sidebar Header */}
-      <div
+      <Link
+        href="/"
         style={{
           height: 64,
           padding: "0 24px",
@@ -72,7 +97,11 @@ export function Sidebar({ role, userEmail = "priya.nair@voxa.ai" }: SidebarProps
           alignItems: "center",
           gap: 10,
           borderBottom: "1px solid rgba(255, 255, 255, 0.03)",
+          textDecoration: "none",
+          transition: "opacity 0.2s ease",
         }}
+        onMouseEnter={(e) => (e.currentTarget.style.opacity = "0.85")}
+        onMouseLeave={(e) => (e.currentTarget.style.opacity = "1")}
       >
         <div
           style={{
@@ -105,13 +134,13 @@ export function Sidebar({ role, userEmail = "priya.nair@voxa.ai" }: SidebarProps
           </span>
           <span style={{ fontSize: 9, color: "var(--txt3)", fontWeight: 500, display: "flex", alignItems: "center", gap: 3 }}>
             <Shield size={9} style={{ color: role === "ADMIN" ? "var(--gold)" : "var(--blue)" }} />
-            {role === "ADMIN" ? "ADMIN MODE" : "SALES AGENT"}
+            {role === "ADMIN" ? "ADMIN MODE" : role === "SALES_AGENT" ? "SALES AGENT" : "READ ONLY"}
           </span>
         </div>
-      </div>
+      </Link>
 
       {/* Sidebar Navigation */}
-      <nav style={{ flex: 1, padding: "24px 16px", display: "flex", flexDirection: "column", gap: 6 }}>
+      <nav style={{ flex: 1, padding: "24px 16px", display: "flex", flexDirection: "column", gap: 6, overflowY: "auto" }}>
         <div
           style={{
             fontFamily: "var(--font-mono)",
@@ -126,7 +155,8 @@ export function Sidebar({ role, userEmail = "priya.nair@voxa.ai" }: SidebarProps
         </div>
         {currentMenu.map((item) => {
           const Icon = item.icon;
-          const isActive = pathname === item.href || (item.href !== "/admin/campaigns" && pathname.startsWith(item.href));
+          // Clean, dynamic active path validation covering nested routing
+          const isActive = pathname === item.href || pathname.startsWith(item.href + "/");
 
           return (
             <Link
@@ -170,40 +200,48 @@ export function Sidebar({ role, userEmail = "priya.nair@voxa.ai" }: SidebarProps
           borderTop: "1px solid rgba(255, 255, 255, 0.03)",
           background: "rgba(0,0,0,0.15)",
           display: "flex",
-          alignItems: "center",
+          flexDirection: "column",
           gap: 12,
         }}
       >
-        <div
-          style={{
-            width: 32,
-            height: 32,
-            borderRadius: "50%",
-            background: "rgba(255,255,255,0.04)",
-            border: "1px solid rgba(255,255,255,0.08)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-          }}
-        >
-          <User size={14} style={{ color: "var(--txt2)" }} />
-        </div>
-        <div style={{ display: "flex", flexDirection: "column", minWidth: 0 }}>
-          <span style={{ fontSize: 11.5, fontWeight: 600, color: "var(--txt)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
-            Priya Nair
-          </span>
-          <span
+        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+          <div
             style={{
-              fontSize: 10,
-              color: "var(--txt3)",
-              fontFamily: "var(--font-mono)",
-              whiteSpace: "nowrap",
-              overflow: "hidden",
-              textOverflow: "ellipsis",
+              width: 32,
+              height: 32,
+              borderRadius: "50%",
+              background: "rgba(255,255,255,0.04)",
+              border: "1px solid rgba(255,255,255,0.08)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              flexShrink: 0,
             }}
           >
-            {userEmail}
-          </span>
+            <User size={14} style={{ color: "var(--txt2)" }} />
+          </div>
+          <div style={{ display: "flex", flexDirection: "column", minWidth: 0 }}>
+            <span style={{ fontSize: 11.5, fontWeight: 600, color: "var(--txt)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+              {userName}
+            </span>
+            <span
+              style={{
+                fontSize: 10,
+                color: "var(--txt3)",
+                fontFamily: "var(--font-mono)",
+                whiteSpace: "nowrap",
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+              }}
+            >
+              {userEmail}
+            </span>
+          </div>
+        </div>
+        
+        {/* Active Tenant Label */}
+        <div style={{ fontSize: 9, color: "var(--gold)", fontWeight: 600, fontFamily: "var(--font-mono)", display: "flex", alignItems: "center", gap: 4, paddingLeft: 4 }}>
+          🏢 {tenantName.toUpperCase()}
         </div>
       </div>
     </aside>

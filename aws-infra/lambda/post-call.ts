@@ -4,14 +4,58 @@ import { WhatsAppService } from "./services/whatsapp";
 import { appendLeadEvent } from "./services/memory-service";
 import { maskPII } from "./services/pii-service";
 import { invokeLLMWithFallback } from "./services/llm-service";
+import { SecretsManagerClient, GetSecretValueCommand } from "@aws-sdk/client-secrets-manager";
 
-// Instantiate third-party action services using environment tokens
-const CALENDLY_TOKEN = process.env.CALENDLY_TOKEN || "mock_calendly_pat_token";
-const WHATSAPP_TOKEN = process.env.WHATSAPP_TOKEN || "mock_whatsapp_cloud_token";
-const WHATSAPP_PHONE_ID = process.env.WHATSAPP_PHONE_ID || "109876543210";
+// Create Secrets Manager Client
+const secretsClient = new SecretsManagerClient({
+  region: process.env.AWS_REGION || "us-east-1",
+});
 
-const calendly = new CalendlyService(CALENDLY_TOKEN);
-const whatsapp = new WhatsAppService(WHATSAPP_PHONE_ID, WHATSAPP_TOKEN);
+let cachedSecrets: any = null;
+
+async function getSecrets(): Promise<any> {
+  if (cachedSecrets) {
+    return cachedSecrets;
+  }
+  const secretArn = process.env.SECRETS_ARN;
+  if (!secretArn) {
+    console.warn("SECRETS_ARN environment variable not defined. Falling back to env/mock values.");
+    return {
+      CALENDLY_TOKEN: process.env.CALENDLY_TOKEN || "mock_calendly_pat_token",
+      WHATSAPP_TOKEN: process.env.WHATSAPP_TOKEN || "mock_whatsapp_cloud_token",
+      WHATSAPP_PHONE_ID: process.env.WHATSAPP_PHONE_ID || "109876543210",
+      PINECONE_API_KEY: process.env.PINECONE_API_KEY || "",
+      TWILIO_AUTH_TOKEN: process.env.TWILIO_AUTH_TOKEN || "",
+      TWILIO_ACCOUNT_SID: process.env.TWILIO_ACCOUNT_SID || "",
+      OPENAI_API_KEY: process.env.OPENAI_API_KEY || "",
+    };
+  }
+
+  try {
+    const data = await secretsClient.send(
+      new GetSecretValueCommand({ SecretId: secretArn })
+    );
+    if (data.SecretString) {
+      cachedSecrets = JSON.parse(data.SecretString);
+      return cachedSecrets;
+    }
+  } catch (error) {
+    console.error("Failed to load secrets from Secrets Manager:", error);
+  }
+
+  return {
+    CALENDLY_TOKEN: process.env.CALENDLY_TOKEN || "mock_calendly_pat_token",
+    WHATSAPP_TOKEN: process.env.WHATSAPP_TOKEN || "mock_whatsapp_cloud_token",
+    WHATSAPP_PHONE_ID: process.env.WHATSAPP_PHONE_ID || "109876543210",
+    PINECONE_API_KEY: process.env.PINECONE_API_KEY || "",
+    TWILIO_AUTH_TOKEN: process.env.TWILIO_AUTH_TOKEN || "",
+    TWILIO_ACCOUNT_SID: process.env.TWILIO_ACCOUNT_SID || "",
+    OPENAI_API_KEY: process.env.OPENAI_API_KEY || "",
+  };
+}
+
+let calendly: CalendlyService | null = null;
+let whatsapp: WhatsAppService | null = null;
 
 interface ExtractedLeadData {
   budget: number;
@@ -22,6 +66,27 @@ interface ExtractedLeadData {
 
 export const handler: SQSHandler = async (event: SQSEvent) => {
   console.log(`Processing SQS trigger batch of ${event.Records.length} records`);
+
+  const secrets = await getSecrets();
+
+  // Set secrets in environment so other modules can access them via process.env if needed
+  if (secrets.PINECONE_API_KEY) process.env.PINECONE_API_KEY = secrets.PINECONE_API_KEY;
+  if (secrets.TWILIO_AUTH_TOKEN) process.env.TWILIO_AUTH_TOKEN = secrets.TWILIO_AUTH_TOKEN;
+  if (secrets.TWILIO_ACCOUNT_SID) process.env.TWILIO_ACCOUNT_SID = secrets.TWILIO_ACCOUNT_SID;
+  if (secrets.OPENAI_API_KEY) process.env.OPENAI_API_KEY = secrets.OPENAI_API_KEY;
+
+  if (!calendly) {
+    calendly = new CalendlyService(secrets.CALENDLY_TOKEN || "mock_calendly_pat_token");
+  }
+  if (!whatsapp) {
+    whatsapp = new WhatsAppService(
+      secrets.WHATSAPP_PHONE_ID || "109876543210",
+      secrets.WHATSAPP_TOKEN || "mock_whatsapp_cloud_token"
+    );
+  }
+
+  const activeCalendly = calendly;
+  const activeWhatsapp = whatsapp;
 
   for (const record of event.Records) {
     try {
@@ -123,7 +188,7 @@ Target JSON Schema Structure:
 
           // WhatsApp: Send pre-approved templates message immediately
           console.log(`Triggering WhatsApp portfolio and voucher pack to: ${customerName} (${customerPhone})`);
-          await whatsapp.sendTemplateMessage(
+          await activeWhatsapp.sendTemplateMessage(
             customerPhone,
             "portfolio_and_voucher",
             [customerName, discussedStyle]
@@ -131,7 +196,7 @@ Target JSON Schema Structure:
 
           // Calendly: Query designer scheduling availability
           const designerUri = "https://api.calendly.com/users/prestige-lead-architect";
-          const schedulingUrl = await calendly.getSchedulingLink(designerUri);
+          const schedulingUrl = await activeCalendly.getSchedulingLink(designerUri);
           console.log(`Calendly booking URL successfully prepared and logged: ${schedulingUrl}`);
         } else {
           console.log("requires_booking is FALSE. Skipping action automation layer for this lead.");

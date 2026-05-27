@@ -41,3 +41,13 @@ yarn-error.log*
 next-env.d.ts
 
 /app/generated/prisma
+
+# SQLite databases — never commit
+*.db
+*.sqlite
+*.sqlite3
+prisma/dev.db
+
+# Repomix outputs
+repomix-output.xml
+code-context.md

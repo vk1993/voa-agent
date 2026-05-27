@@ -2,14 +2,9 @@ import { BedrockRuntimeClient, InvokeModelCommand } from "@aws-sdk/client-bedroc
 import OpenAI from "openai";
 
 const bedrock = new BedrockRuntimeClient({ region: process.env.AWS_REGION || "us-east-1" });
-const MODEL_SONNET = "anthropic.claude-3-5-sonnet-20240620-v1:0";
+const MODEL_SONNET = "anthropic.claude-3-5-sonnet-20241022-v2:0";
 
-const OPENAI_API_KEY = process.env.OPENAI_API_KEY || "";
 let openai: OpenAI | null = null;
-
-if (OPENAI_API_KEY) {
-  openai = new OpenAI({ apiKey: OPENAI_API_KEY });
-}
 
 /**
  * High-Availability Resilient LLM Calling Service.
@@ -22,6 +17,11 @@ export async function invokeLLMWithFallback(
   systemPrompt: string,
   isComplex: boolean = false
 ): Promise<string> {
+  const OPENAI_API_KEY = process.env.OPENAI_API_KEY || "";
+  if (!openai && OPENAI_API_KEY) {
+    openai = new OpenAI({ apiKey: OPENAI_API_KEY });
+  }
+
   const primaryModel = isComplex ? "gpt-4o" : "gpt-4o-mini";
   console.log(`[LLM SERVICE] Invoking primary provider: [OpenAI ${primaryModel}]`);
 
@@ -34,7 +34,7 @@ export async function invokeLLMWithFallback(
   try {
     // 1. Establish 1.2-second strict SLA timeout promise
     const timeoutPromise = new Promise<never>((_, reject) =>
-      setTimeout(() => reject(new Error("Timeout: Primary LLM exceeded 1.2-second SLA limit")), 1200)
+      setTimeout(() => reject(new Error("Timeout: Primary LLM exceeded 3-second SLA limit")), 3000)
     );
 
     // 2. Establish primary OpenAI API completion call
