@@ -88,11 +88,15 @@ export async function POST(request: NextRequest) {
     const token = exchangeData.token;
 
     // Store JWT in an HttpOnly cookie via Set-Cookie response header (never client JS)
+    // Omit `Secure` on localhost (http) so the browser actually stores the cookie.
+    // In production (HTTPS) the Secure flag is always added.
+    const isProduction = process.env.NODE_ENV === "production";
+    const cookieFlags = isProduction
+      ? "HttpOnly; Secure; SameSite=Strict; Path=/; Max-Age=86400"
+      : "HttpOnly; SameSite=Lax; Path=/; Max-Age=86400";
+
     const response = NextResponse.json({ success: true, role, email });
-    response.headers.set(
-      "Set-Cookie",
-      `session=${token}; HttpOnly; Secure; SameSite=Strict; Path=/; Max-Age=86400`
-    );
+    response.headers.set("Set-Cookie", `session=${token}; ${cookieFlags}`);
 
     return response;
   } catch (error: any) {

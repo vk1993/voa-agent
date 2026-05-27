@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-import { jwtVerify, createRemoteJWKSet, decodeJwt } from "jose";
+import { jwtVerify, createRemoteJWKSet } from "jose";
 import { Redis } from "@upstash/redis";
 
 // Define the JWKS cache endpoint
@@ -73,38 +73,48 @@ async function resolveCustomDomainSlug(host: string): Promise<string | null> {
 }
 
 /**
- * Helper: Verify RS256 JWT using jose Remote JWKS keys.
+ * Helper: Verify VOXA session JWT.
+ * - Development: HS256 with local secret (matches what /api/auth/exchange signs with)
+ * - Production:  RS256 via remote JWKS (set JWKS_URL env var)
  */
 export async function verifySessionJwt(token: string): Promise<JwtPayload | null> {
-  try {
-    const { payload } = await jwtVerify(token, JWKS, {
-      audience: "https://voxa.ai/app",
-      issuer: "https://auth.voxa.ai",
-      algorithms: ["RS256"],
-    });
+  const jwksUrl = process.env.JWKS_URL;
 
-    return {
-      sub: payload.sub as string,
-      tenantId: payload.tenantId as string,
-      role: payload.role as "ADMIN" | "SALES_AGENT" | "READ_ONLY",
-    };
-  } catch (error) {
-    console.warn("JWT Verification failed at Edge. Attempting secure local development fallback decode...", error);
-    try {
-      const payload = decodeJwt(token);
-      if (payload && payload.iss === "https://auth.voxa.ai" && payload.aud === "https://voxa.ai/app") {
-        return {
-          sub: payload.sub as string,
-          tenantId: payload.tenantId as string,
-          role: payload.role as "ADMIN" | "SALES_AGENT" | "READ_ONLY",
-        };
-      }
-    } catch (decodeError) {
-      console.error("JWT Fallback decode failed:", decodeError);
+  try {
+    if (jwksUrl) {
+      // Production: verify against real Cognito/Okta JWKS (RS256)
+      const { payload } = await jwtVerify(token, JWKS, {
+        audience: "https://voxa.ai/app",
+        issuer: "https://auth.voxa.ai",
+        algorithms: ["RS256"],
+      });
+      return {
+        sub: payload.sub as string,
+        tenantId: payload.tenantId as string,
+        role: payload.role as "ADMIN" | "SALES_AGENT" | "READ_ONLY",
+      };
+    } else {
+      // Development: verify with the same HS256 secret used in /api/auth/exchange
+      const secret = new TextEncoder().encode(
+        process.env.JWT_LOCAL_SECRET || "voxa-local-dev-secret-key-123456789"
+      );
+      const { payload } = await jwtVerify(token, secret, {
+        audience: "https://voxa.ai/app",
+        issuer: "https://auth.voxa.ai",
+        algorithms: ["HS256"],
+      });
+      return {
+        sub: payload.sub as string,
+        tenantId: payload.tenantId as string,
+        role: payload.role as "ADMIN" | "SALES_AGENT" | "READ_ONLY",
+      };
     }
+  } catch (error) {
+    console.error("JWT verification failed:", error);
     return null;
   }
 }
+
 
 /**
  * Helper: Fetch tenant status from Upstash Redis with 60-second local cache.
@@ -273,7 +283,12 @@ export async function proxy(request: NextRequest) {
   }
 
   // Authentication Guards
+  // NOTE: /api/auth/* routes are public — they ARE the login flow itself.
   if (!userPayload) {
+    if (pathname.startsWith("/api/auth/")) {
+      const res = NextResponse.next();
+      return addSecurityHeaders(res, slug);
+    }
     if (isApiRoute) {
       return buildJsonError("UNAUTHORIZED", "Missing or invalid session token.", 401, slug);
     }
