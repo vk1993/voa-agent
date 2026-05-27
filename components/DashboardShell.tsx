@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, ViewTransition } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import Sidebar from "./Sidebar";
 import { Bell, Sparkles, LogOut, ChevronDown } from "lucide-react";
@@ -47,7 +47,7 @@ export function DashboardShell({ children }: DashboardShellProps) {
     setShowRoleMenu(false);
 
     if (typeof document !== "undefined") {
-      const user = { role: newRole, email: "priya.nair@voxa.ai" };
+      const user = { role: newRole, email: newRole === "ADMIN" ? "priya.nair@voxa.ai" : "visal.kumar@voxa.ai" };
       // Set the session cookie so that proxy.ts correctly identifies the role
       document.cookie = `session=${encodeURIComponent(JSON.stringify(user))}; path=/`;
       
@@ -71,7 +71,7 @@ export function DashboardShell({ children }: DashboardShellProps) {
   return (
     <div style={{ minHeight: "100vh", background: "var(--bg)", color: "var(--txt)" }}>
       {/* Dynamic left sidebar */}
-      <Sidebar role={role} />
+      <Sidebar role={role} userEmail={role === "ADMIN" ? "priya.nair@voxa.ai" : "visal.kumar@voxa.ai"} />
 
       {/* Main Content Area */}
       <div style={{ marginLeft: 260, minHeight: "100vh", display: "flex", flexDirection: "column" }}>
@@ -85,18 +85,19 @@ export function DashboardShell({ children }: DashboardShellProps) {
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
-            background: "rgba(15, 15, 18, 0.7)",
-            backdropFilter: "blur(12px)",
+            background: "rgba(7, 8, 11, 0.7)",
+            backdropFilter: "blur(20px)",
             position: "sticky",
             top: 0,
             zIndex: 90,
+            viewTransitionName: "site-header", // Persistent stationary site-header in dashboards!
           }}
         >
           {/* Page Info */}
           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-            <Sparkles size={16} style={{ color: "var(--gold)" }} />
-            <span style={{ fontSize: 13, fontWeight: 500, color: "var(--txt2)" }}>
-              Bangalore Luxury Interiors Dashboard
+            <Sparkles size={15} style={{ color: "var(--gold)" }} />
+            <span style={{ fontSize: 13, fontWeight: 600, color: "var(--txt2)", letterSpacing: ".02em" }}>
+              {role === "ADMIN" ? "Bangalore Luxury Interiors Admin Console" : "Enterprise VoIP Outbound Pipeline"}
             </span>
           </div>
 
@@ -110,11 +111,11 @@ export function DashboardShell({ children }: DashboardShellProps) {
                 style={{
                   height: 36,
                   padding: "0 14px",
-                  borderRadius: 8,
-                  border: "1px solid rgba(255,255,255,0.08)",
+                  borderRadius: 10,
+                  border: "1px solid rgba(255,255,255,0.06)",
                   background: "rgba(255,255,255,0.03)",
                   color: "var(--txt)",
-                  fontSize: 12,
+                  fontSize: 12.5,
                   fontWeight: 600,
                   cursor: "pointer",
                   display: "inline-flex",
@@ -123,24 +124,25 @@ export function DashboardShell({ children }: DashboardShellProps) {
                   transition: "all 0.2s ease",
                 }}
               >
-                <span>Role: </span>
+                <span>Session Scope: </span>
                 <span style={{ color: role === "ADMIN" ? "var(--gold)" : "var(--blue)" }}>
-                  {role === "ADMIN" ? "Admin" : "Sales Agent"}
+                  {role === "ADMIN" ? "Administrator" : "Sales Agent"}
                 </span>
                 <ChevronDown size={14} style={{ color: "var(--txt3)" }} />
               </button>
               {showRoleMenu && (
                 <div
+                  className="glass-panel"
                   style={{
                     position: "absolute",
                     top: 42,
                     right: 0,
-                    width: 150,
-                    background: "#15151A",
+                    width: 160,
+                    background: "#0c0d14",
                     border: "1px solid rgba(255,255,255,0.08)",
-                    borderRadius: 8,
-                    boxShadow: "0 8px 30px rgba(0,0,0,0.5)",
-                    padding: 4,
+                    borderRadius: 10,
+                    boxShadow: "0 10px 30px rgba(0,0,0,0.6)",
+                    padding: 6,
                     zIndex: 200,
                   }}
                 >
@@ -149,29 +151,29 @@ export function DashboardShell({ children }: DashboardShellProps) {
                     style={{
                       width: "100%",
                       padding: "8px 12px",
-                      borderRadius: 6,
+                      borderRadius: 8,
                       border: "none",
                       background: role === "ADMIN" ? "rgba(255,255,255,0.04)" : "transparent",
                       color: role === "ADMIN" ? "var(--gold)" : "var(--txt2)",
                       fontSize: 12,
-                      fontWeight: 500,
+                      fontWeight: 600,
                       textAlign: "left",
                       cursor: "pointer",
                     }}
                   >
-                    Admin Mode
+                    Admin Console
                   </button>
                   <button
                     onClick={() => handleRoleChange("SALES_AGENT")}
                     style={{
                       width: "100%",
                       padding: "8px 12px",
-                      borderRadius: 6,
+                      borderRadius: 8,
                       border: "none",
                       background: role === "SALES_AGENT" ? "rgba(255,255,255,0.04)" : "transparent",
                       color: role === "SALES_AGENT" ? "var(--blue)" : "var(--txt2)",
                       fontSize: 12,
-                      fontWeight: 500,
+                      fontWeight: 600,
                       textAlign: "left",
                       cursor: "pointer",
                     }}
@@ -184,16 +186,15 @@ export function DashboardShell({ children }: DashboardShellProps) {
 
             {/* Notification Dot */}
             <div
+              className="glass-panel"
               style={{
                 width: 36,
                 height: 36,
-                borderRadius: 8,
-                border: "1px solid rgba(255,255,255,0.05)",
+                borderRadius: 10,
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
                 cursor: "pointer",
-                background: "rgba(255,255,255,0.02)",
                 position: "relative",
               }}
             >
@@ -201,12 +202,13 @@ export function DashboardShell({ children }: DashboardShellProps) {
               <div
                 style={{
                   position: "absolute",
-                  top: 8,
-                  right: 8,
+                  top: 9,
+                  right: 9,
                   width: 6,
                   height: 6,
                   borderRadius: "50%",
                   background: "var(--gold)",
+                  boxShadow: "0 0 6px var(--gold)",
                 }}
               />
             </div>
@@ -218,7 +220,7 @@ export function DashboardShell({ children }: DashboardShellProps) {
               onClick={handleSignOut}
               style={{
                 height: 36,
-                padding: "0 12px",
+                padding: "0 10px",
                 border: "none",
                 background: "transparent",
                 color: "var(--txt2)",
@@ -226,18 +228,32 @@ export function DashboardShell({ children }: DashboardShellProps) {
                 display: "flex",
                 alignItems: "center",
                 gap: 6,
-                fontSize: 12,
+                fontSize: 12.5,
+                fontWeight: 500,
+                transition: "color 0.2s ease",
               }}
+              onMouseEnter={(e) => e.currentTarget.style.color = "var(--txt)"}
+              onMouseLeave={(e) => e.currentTarget.style.color = "var(--txt2)"}
             >
               <LogOut size={14} />
-              <span>Log out</span>
+              <span>Sign out</span>
             </button>
           </div>
         </header>
 
-        {/* Content Box */}
+        {/* Content Box with native View Transition on Route changes */}
         <div style={{ flex: 1, padding: 40, overflowY: "auto" }}>
-          {children}
+          <ViewTransition
+            key={pathname}
+            name="dashboard-content"
+            share="auto"
+            enter="auto"
+            default="none"
+          >
+            <div>
+              {children}
+            </div>
+          </ViewTransition>
         </div>
       </div>
     </div>

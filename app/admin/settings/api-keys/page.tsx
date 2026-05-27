@@ -213,15 +213,12 @@ export default function ApiKeysSettings() {
           
           {/* Card A: Rate Limits */}
           <div
+            className="glass-panel stagger-item"
             style={{
-              background: "rgba(21, 21, 26, 0.55)",
-              border: "1px solid rgba(255, 255, 255, 0.05)",
-              borderRadius: 16,
               padding: 24,
               display: "flex",
               alignItems: "center",
               gap: 20,
-              backdropFilter: "blur(10px)",
             }}
           >
             <div style={{ padding: 12, borderRadius: 10, background: "rgba(201, 161, 74, 0.08)", color: "var(--gold)" }}>
@@ -238,15 +235,12 @@ export default function ApiKeysSettings() {
 
           {/* Card B: Monthly Quota */}
           <div
+            className="glass-panel stagger-item"
             style={{
-              background: "rgba(21, 21, 26, 0.55)",
-              border: "1px solid rgba(255, 255, 255, 0.05)",
-              borderRadius: 16,
               padding: 24,
               display: "flex",
               alignItems: "center",
               gap: 20,
-              backdropFilter: "blur(10px)",
             }}
           >
             <div style={{ padding: 12, borderRadius: 10, background: "rgba(99, 140, 255, 0.08)", color: "var(--blue)" }}>
@@ -263,15 +257,12 @@ export default function ApiKeysSettings() {
 
           {/* Card C: Identity Security */}
           <div
+            className="glass-panel stagger-item"
             style={{
-              background: "rgba(21, 21, 26, 0.55)",
-              border: "1px solid rgba(255, 255, 255, 0.05)",
-              borderRadius: 16,
               padding: 24,
               display: "flex",
               alignItems: "center",
               gap: 20,
-              backdropFilter: "blur(10px)",
             }}
           >
             <div style={{ padding: 12, borderRadius: 10, background: "rgba(34, 197, 94, 0.08)", color: "#22C55E" }}>
@@ -300,10 +291,8 @@ export default function ApiKeysSettings() {
           
           {/* API KEYS MANAGEMENT BOX */}
           <div
+            className="glass-panel"
             style={{
-              background: "var(--surf)",
-              border: "1px solid rgba(255, 255, 255, 0.05)",
-              borderRadius: 16,
               overflow: "hidden",
             }}
           >
@@ -425,10 +414,8 @@ export default function ApiKeysSettings() {
 
           {/* IMMUTABLE AUDIT LOGS DISPLAY */}
           <div
+            className="glass-panel"
             style={{
-              background: "var(--surf)",
-              border: "1px solid rgba(255, 255, 255, 0.05)",
-              borderRadius: 16,
               overflow: "hidden",
             }}
           >
@@ -672,15 +659,10 @@ export default function ApiKeysSettings() {
                     value={newKeyName}
                     onChange={(e) => setNewKeyName(e.target.value)}
                     disabled={generating}
+                    className="glass-input"
                     style={{
                       height: 40,
-                      borderRadius: 10,
-                      border: "1px solid rgba(255,255,255,0.08)",
-                      background: "rgba(0,0,0,0.2)",
-                      padding: "0 12px",
                       fontSize: 13,
-                      color: "var(--txt)",
-                      outline: "none",
                     }}
                   />
                 </div>

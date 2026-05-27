@@ -247,16 +247,12 @@ export default function AdminContacts() {
                 placeholder="Search leads by name, layout type, location (e.g. Whitefield, 3BHK)..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
+                className="glass-input"
                 style={{
                   width: "100%",
                   height: 40,
                   padding: "0 16px 0 44px",
-                  borderRadius: 10,
-                  border: "1px solid rgba(255,255,255,0.08)",
-                  background: "rgba(0,0,0,0.2)",
-                  color: "var(--txt)",
                   fontSize: 13.5,
-                  outline: "none",
                 }}
               />
             </div>
@@ -323,10 +319,8 @@ export default function AdminContacts() {
 
         {/* Data Table */}
         <div
+          className="glass-panel stagger-item"
           style={{
-            background: "var(--surf)",
-            border: "1px solid rgba(255, 255, 255, 0.05)",
-            borderRadius: 14,
             overflow: "hidden",
           }}
         >
@@ -485,17 +479,17 @@ export default function AdminContacts() {
 
           {/* Drawer Body */}
           <div
+            className="glass-panel"
             style={{
               position: "relative",
               width: 500,
               height: "100%",
-              background: "#15151A",
               borderLeft: "1px solid rgba(255,255,255,0.08)",
-              boxShadow: "-10px 0 40px rgba(0,0,0,0.6)",
+              boxShadow: "-15px 0 50px rgba(0,0,0,0.7)",
               display: "flex",
               flexDirection: "column",
               zIndex: 1001,
-              animation: "floatUp 0.3s ease",
+              animation: "slide-left 0.35s cubic-bezier(0.16, 1, 0.3, 1)",
             }}
           >
             {/* Header */}

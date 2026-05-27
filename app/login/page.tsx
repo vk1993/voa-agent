@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, Suspense } from "react";
+import React, { useState, useEffect, Suspense, ViewTransition } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Shield, Sparkles, AlertCircle, ArrowRight, CheckCircle2 } from "lucide-react";
 
@@ -115,15 +115,11 @@ function LoginContent() {
 
       {/* Main Login Frame */}
       <div
+        className="glass-panel stagger-item"
         style={{
           width: "100%",
           maxWidth: 460,
-          background: "rgba(21, 21, 26, 0.75)",
-          border: "1px solid rgba(255, 255, 255, 0.06)",
-          borderRadius: 24,
           padding: "48px 40px",
-          backdropFilter: "blur(20px)",
-          boxShadow: "0 20px 50px rgba(0,0,0,0.5)",
           display: "flex",
           flexDirection: "column",
           gap: 32,
@@ -133,22 +129,24 @@ function LoginContent() {
       >
         {/* Brand Header */}
         <div style={{ display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center" }}>
-          <div
-            style={{
-              width: 48,
-              height: 48,
-              borderRadius: 12,
-              background: "linear-gradient(135deg, var(--gold) 0%, #a87e2f 100%)",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              color: "#0F0F12",
-              marginBottom: 16,
-              boxShadow: "0 8px 24px rgba(201,161,74,0.25)",
-            }}
-          >
-            <Shield size={22} />
-          </div>
+          <ViewTransition name="logo-shield" share="morph">
+            <div
+              style={{
+                width: 48,
+                height: 48,
+                borderRadius: 12,
+                background: "linear-gradient(135deg, var(--gold) 0%, #a87e2f 100%)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                color: "#0F0F12",
+                marginBottom: 16,
+                boxShadow: "0 8px 24px rgba(201,161,74,0.25)",
+              }}
+            >
+              <Shield size={22} />
+            </div>
+          </ViewTransition>
           <h1
             style={{
               fontSize: 24,
@@ -219,18 +217,11 @@ function LoginContent() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   disabled={loading}
+                  className="glass-input"
                   style={{
                     height: 42,
-                    borderRadius: 10,
-                    border: "1px solid rgba(255, 255, 255, 0.08)",
-                    background: "rgba(0, 0, 0, 0.2)",
-                    padding: "0 14px",
                     fontSize: 13,
-                    color: "var(--txt)",
-                    outline: "none",
-                    transition: "border-color 0.2s ease",
                   }}
-                  className="focus:border-amber-500"
                 />
               </div>
 
@@ -249,16 +240,10 @@ function LoginContent() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   disabled={loading}
+                  className="glass-input"
                   style={{
                     height: 42,
-                    borderRadius: 10,
-                    border: "1px solid rgba(255, 255, 255, 0.08)",
-                    background: "rgba(0, 0, 0, 0.2)",
-                    padding: "0 14px",
                     fontSize: 13,
-                    color: "var(--txt)",
-                    outline: "none",
-                    transition: "border-color 0.2s ease",
                   }}
                 />
               </div>

@@ -25,110 +25,114 @@ export function HeroCard({ acc }: HeroCardProps) {
   const lines = [
     {
       role: "AI",
-      text: "Hi Priya — I saw you enquired about our 3BHK design package. Are you still looking?",
+      text: "Hi Priya — I saw you enquired about our premium 3BHK interior design package. Are you still looking to start?",
     },
     {
       role: "USER",
-      text: "Yes, we just got possession last week actually.",
+      text: "Yes, we just got possession of our flat last week actually. We are keen but have some specific timeline requirements.",
     },
     {
       role: "AI",
-      text: "Perfect timing! Most clients in Whitefield budget around 8-10 lakhs for a full interior. Does that range work?",
+      text: "Perfect timing! Most clients in Whitefield budget around 8-12 lakhs for custom modular interiors. Does that align with what you had in mind?",
     },
   ];
 
-  const facts = ["📍 Whitefield", "🏠 3BHK", "💰 8-10L budget"];
+  const facts = ["📍 Whitefield Area", "🏠 Custom 3BHK Flat", "💰 8-12L modular budget"];
 
   return (
     <div style={{ position: "relative" }}>
-      {/* Ambient glow */}
+      {/* Intense Ambient Glow behind card */}
       <div
         style={{
           position: "absolute",
-          inset: "-80px",
-          background: `radial-gradient(ellipse 55% 55% at 50% 45%, ${acc}0F 0%, transparent 68%)`,
+          inset: "-60px",
+          background: `radial-gradient(ellipse 55% 55% at 50% 45%, ${acc}15 0%, transparent 70%)`,
           pointerEvents: "none",
         }}
       />
-      {/* Card */}
+      {/* High-Fidelity Glassmorphic Card Container */}
       <div
+        className="glass-panel"
         style={{
           position: "relative",
-          background: "#15151A",
-          borderRadius: 16,
           overflow: "hidden",
-          border: "1px solid rgba(255,255,255,.05)",
           borderTop: `2px solid ${acc}`,
           boxShadow:
-            "0 40px 80px rgba(0,0,0,.65), 0 8px 16px rgba(0,0,0,.4)",
+            "0 40px 80px rgba(0,0,0,.75), 0 8px 24px rgba(0,0,0,.5), 0 0 1px 1px rgba(255,255,255,0.03) inset",
+          borderRadius: 20,
         }}
       >
-        {/* Header */}
+        {/* Call Status Header */}
         <div
           style={{
             display: "flex",
             justifyContent: "space-between",
             alignItems: "center",
-            padding: "13px 18px",
+            padding: "15px 20px",
             borderBottom: "1px solid rgba(255,255,255,.05)",
-            background: "rgba(0,0,0,.18)",
+            background: "rgba(0,0,0,.25)",
           }}
         >
-          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 9 }}>
             <Pulse />
             <span
               style={{
                 fontFamily: "var(--font-mono)",
-                fontSize: 11.5,
+                fontSize: 11,
+                fontWeight: 600,
                 color: "var(--green)",
-                letterSpacing: ".05em",
+                letterSpacing: ".06em",
               }}
             >
-              LIVE CALL · {fmt(secs)}
+              VOIP CONVERSATION · {fmt(secs)}
             </span>
           </div>
           <span
             style={{
               fontFamily: "var(--font-mono)",
-              fontSize: 10.5,
+              fontSize: 10,
               color: "var(--txt2)",
+              fontWeight: 500,
             }}
           >
-            Aurora-7 · VOXA
+            Aurora-v9 · VOXA
           </span>
         </div>
-        {/* Transcript */}
+
+        {/* Live Conversation Transcript */}
         <div
           style={{
-            padding: "18px 18px 12px",
+            padding: "20px 20px 14px",
             display: "flex",
             flexDirection: "column",
-            gap: 13,
+            gap: 16,
           }}
         >
           {lines.map((l, i) => (
-            <div key={i} style={{ display: "flex", gap: 9, alignItems: "flex-start" }}>
+            <div key={i} style={{ display: "flex", gap: 11, alignItems: "flex-start" }}>
               <span
                 style={{
                   flexShrink: 0,
                   fontFamily: "var(--font-mono)",
                   fontSize: 9,
-                  fontWeight: 600,
-                  padding: "3px 6px",
-                  borderRadius: 4,
+                  fontWeight: 700,
+                  padding: "4px 8px",
+                  borderRadius: 5,
                   marginTop: 2,
-                  background: i % 2 === 0 ? `${acc}1A` : "rgba(255,255,255,.05)",
+                  background: i % 2 === 0 ? `${acc}1F` : "rgba(255,255,255,.06)",
                   color: i % 2 === 0 ? acc : "var(--txt2)",
-                  letterSpacing: ".04em",
+                  letterSpacing: ".05em",
+                  border: i % 2 === 0 ? `0.5px solid ${acc}44` : "0.5px solid rgba(255,255,255,.04)",
                 }}
               >
                 {l.role}
               </span>
               <p
                 style={{
-                  fontSize: 12.5,
+                  fontSize: 13,
+                  fontWeight: 400,
                   color: i % 2 === 0 ? "var(--txt)" : "var(--txt2)",
-                  lineHeight: 1.55,
+                  lineHeight: 1.6,
                 }}
               >
                 {l.text}
@@ -136,57 +140,74 @@ export function HeroCard({ acc }: HeroCardProps) {
             </div>
           ))}
         </div>
-        {/* Waveform row */}
+
+        {/* Live Waveform VoIP Simulator Component */}
         <div
           style={{
-            padding: "4px 18px 14px",
+            padding: "6px 20px 16px",
             display: "flex",
             alignItems: "center",
-            gap: 10,
+            gap: 12,
           }}
         >
           <Waveform acc={acc} />
           <span
             style={{
               fontFamily: "var(--font-mono)",
-              fontSize: 10,
+              fontSize: 10.5,
               color: "var(--txt3)",
+              fontWeight: 500,
+              letterSpacing: ".04em",
+              animation: "pulse 2s infinite ease-in-out",
             }}
           >
-            Speaking…
+            VOXA AI speaking…
           </span>
         </div>
-        {/* Facts extracted */}
+
+        {/* Facts Extraction Console Panel */}
         <div
           style={{
-            padding: "12px 18px 14px",
+            padding: "14px 20px 16px",
             borderTop: "1px solid rgba(255,255,255,.05)",
-            background: "rgba(0,0,0,.15)",
+            background: "rgba(0,0,0,.2)",
           }}
         >
           <div
             style={{
               fontFamily: "var(--font-mono)",
-              fontSize: 9,
+              fontSize: 9.5,
+              fontWeight: 600,
               color: "var(--txt3)",
-              letterSpacing: ".09em",
-              marginBottom: 8,
+              letterSpacing: ".1em",
+              marginBottom: 10,
             }}
           >
-            FACTS EXTRACTED
+            SEMANTIC ENTITIES EXTRACTED
           </div>
-          <div style={{ display: "flex", gap: 7, flexWrap: "wrap" }}>
+          <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
             {facts.map((f) => (
               <span
                 key={f}
                 style={{
                   fontFamily: "var(--font-mono)",
-                  fontSize: 11,
+                  fontSize: 10.5,
+                  fontWeight: 600,
                   color: acc,
-                  padding: "4px 10px",
-                  background: `${acc}12`,
-                  border: `0.5px solid ${acc}`,
+                  padding: "5px 12px",
+                  background: `${acc}0D`,
+                  border: `1px solid ${acc}33`,
                   borderRadius: 20,
+                  transition: "all 0.2s ease",
+                  cursor: "default",
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = `${acc}1E`;
+                  e.currentTarget.style.borderColor = acc;
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = `${acc}0D`;
+                  e.currentTarget.style.borderColor = `${acc}33`;
                 }}
               >
                 {f}
@@ -195,27 +216,28 @@ export function HeroCard({ acc }: HeroCardProps) {
           </div>
         </div>
       </div>
-      {/* Metric chips */}
-      <div style={{ display: "flex", gap: 11, marginTop: 14, justifyContent: "center" }}>
+
+      {/* Floating Call Metrics Chips at the bottom */}
+      <div style={{ display: "flex", gap: 12, marginTop: 16, justifyContent: "center" }}>
         {[
-          { v: "$0.09 / call", s: "vs human $23/call" },
-          { v: "572ms", s: "avg response" },
+          { v: "$0.09 / minute", s: "vs human agent $24.00" },
+          { v: "520ms response", s: "ultra low VoIP latency" },
         ].map((m) => (
           <div
             key={m.v}
+            className="glass-panel"
             style={{
-              background: "rgba(21,21,26,.85)",
-              border: "1px solid rgba(255,255,255,.08)",
-              borderRadius: 10,
-              padding: "10px 16px",
-              backdropFilter: "blur(12px)",
+              borderRadius: 12,
+              padding: "10px 18px",
+              boxShadow: "0 10px 24px rgba(0,0,0,0.3)",
+              background: "rgba(14, 17, 27, 0.8)",
             }}
           >
             <div
               style={{
                 fontFamily: "var(--font-mono)",
-                fontSize: 14,
-                fontWeight: 600,
+                fontSize: 14.5,
+                fontWeight: 700,
                 color: acc,
               }}
             >
@@ -224,9 +246,10 @@ export function HeroCard({ acc }: HeroCardProps) {
             <div
               style={{
                 fontFamily: "var(--font-mono)",
-                fontSize: 10,
+                fontSize: 10.5,
                 color: "var(--txt3)",
                 marginTop: 2,
+                fontWeight: 500,
               }}
             >
               {m.s}
