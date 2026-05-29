@@ -1,40 +1,40 @@
 {
   "version": "53.0.0",
   "artifacts": {
-    "VoxaTelephonyStack.assets": {
+    "VoxaStack.assets": {
       "type": "cdk:asset-manifest",
       "properties": {
-        "file": "VoxaTelephonyStack.assets.json",
+        "file": "VoxaStack.assets.json",
         "requiresBootstrapStackVersion": 6,
         "bootstrapStackVersionSsmParameter": "/cdk-bootstrap/hnb659fds/version"
       }
     },
-    "VoxaTelephonyStack": {
+    "VoxaStack": {
       "type": "aws:cloudformation:stack",
-      "environment": "aws://123456789012/us-east-1",
+      "environment": "aws://unknown-account/us-east-1",
       "properties": {
-        "templateFile": "VoxaTelephonyStack.template.json",
+        "templateFile": "VoxaStack.template.json",
         "terminationProtection": false,
         "validateOnSynth": false,
-        "assumeRoleArn": "arn:${AWS::Partition}:iam::123456789012:role/cdk-hnb659fds-deploy-role-123456789012-us-east-1",
-        "cloudFormationExecutionRoleArn": "arn:${AWS::Partition}:iam::123456789012:role/cdk-hnb659fds-cfn-exec-role-123456789012-us-east-1",
-        "stackTemplateAssetObjectUrl": "s3://cdk-hnb659fds-assets-123456789012-us-east-1/661fa15e809de86d692c37a5ba13a2a56aca72c6dbbe91fbd407f9f6e488e1ae.json",
+        "assumeRoleArn": "arn:${AWS::Partition}:iam::${AWS::AccountId}:role/cdk-hnb659fds-deploy-role-${AWS::AccountId}-us-east-1",
+        "cloudFormationExecutionRoleArn": "arn:${AWS::Partition}:iam::${AWS::AccountId}:role/cdk-hnb659fds-cfn-exec-role-${AWS::AccountId}-us-east-1",
+        "stackTemplateAssetObjectUrl": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-us-east-1/1cb6957e27d84c4fe299aa148bab59f0b4fbc26683ced8829132fed62d048990.json",
         "requiresBootstrapStackVersion": 6,
         "bootstrapStackVersionSsmParameter": "/cdk-bootstrap/hnb659fds/version",
         "additionalDependencies": [
-          "VoxaTelephonyStack.assets"
+          "VoxaStack.assets"
         ],
         "lookupRole": {
-          "arn": "arn:${AWS::Partition}:iam::123456789012:role/cdk-hnb659fds-lookup-role-123456789012-us-east-1",
+          "arn": "arn:${AWS::Partition}:iam::${AWS::AccountId}:role/cdk-hnb659fds-lookup-role-${AWS::AccountId}-us-east-1",
           "requiresBootstrapStackVersion": 8,
           "bootstrapStackVersionSsmParameter": "/cdk-bootstrap/hnb659fds/version"
         }
       },
       "dependencies": [
-        "VoxaTelephonyStack.assets"
+        "VoxaStack.assets"
       ],
-      "additionalMetadataFile": "VoxaTelephonyStack.metadata.json",
-      "displayName": "VoxaTelephonyStack"
+      "additionalMetadataFile": "VoxaStack.metadata.json",
+      "displayName": "VoxaStack"
     },
     "Tree": {
       "type": "cdk:tree",
@@ -71,6 +71,7 @@
             "explanation": "Disable implicit openListener when custom security groups are provided"
           },
           "@aws-cdk/aws-rds:lowercaseDbIdentifier": {
+            "userValue": true,
             "recommendedValue": true,
             "explanation": "Force lowercasing of RDS Cluster names in CDK",
             "unconfiguredBehavesLike": {
@@ -86,6 +87,7 @@
             }
           },
           "@aws-cdk/aws-lambda:recognizeVersionProps": {
+            "userValue": true,
             "recommendedValue": true,
             "explanation": "Enable this feature flag to opt in to the updated logical id calculation for Lambda Version created using the  `fn.currentVersion`.",
             "unconfiguredBehavesLike": {
@@ -97,6 +99,7 @@
             "explanation": "Enable this feature flag to opt in to the updated logical id calculation for Lambda Version created using the `fn.currentVersion`."
           },
           "@aws-cdk/aws-cloudfront:defaultSecurityPolicyTLSv1.2_2021": {
+            "userValue": true,
             "recommendedValue": true,
             "explanation": "Enable this feature flag to have cloudfront distributions use the security policy TLSv1.2_2021 by default.",
             "unconfiguredBehavesLike": {
@@ -104,10 +107,15 @@
             }
           },
           "@aws-cdk/core:checkSecretUsage": {
+            "userValue": true,
             "recommendedValue": true,
             "explanation": "Enable this flag to make it impossible to accidentally use SecretValues in unsafe locations"
           },
           "@aws-cdk/core:target-partitions": {
+            "userValue": [
+              "aws",
+              "aws-cn"
+            ],
             "recommendedValue": [
               "aws",
               "aws-cn"
@@ -115,22 +123,27 @@
             "explanation": "What regions to include in lookup tables of environment agnostic stacks"
           },
           "@aws-cdk-containers/ecs-service-extensions:enableDefaultLogDriver": {
+            "userValue": true,
             "recommendedValue": true,
             "explanation": "ECS extensions will automatically add an `awslogs` driver if no logging is specified"
           },
           "@aws-cdk/aws-ec2:uniqueImdsv2TemplateName": {
+            "userValue": true,
             "recommendedValue": true,
             "explanation": "Enable this feature flag to have Launch Templates generated by the `InstanceRequireImdsv2Aspect` use unique names."
           },
           "@aws-cdk/aws-ecs:arnFormatIncludesClusterName": {
+            "userValue": true,
             "recommendedValue": true,
             "explanation": "ARN format used by ECS. In the new ARN format, the cluster name is part of the resource ID."
           },
           "@aws-cdk/aws-iam:minimizePolicies": {
+            "userValue": true,
             "recommendedValue": true,
             "explanation": "Minimize IAM policies by combining Statements"
           },
           "@aws-cdk/core:validateSnapshotRemovalPolicy": {
+            "userValue": true,
             "recommendedValue": true,
             "explanation": "Error on snapshot removal policies on resources that do not support it."
           },
@@ -139,18 +152,22 @@
             "explanation": "Generate key aliases that include the stack name"
           },
           "@aws-cdk/aws-s3:createDefaultLoggingPolicy": {
+            "userValue": true,
             "recommendedValue": true,
             "explanation": "Enable this feature flag to create an S3 bucket policy by default in cases where an AWS service would automatically create the Policy if one does not exist."
           },
           "@aws-cdk/aws-sns-subscriptions:restrictSqsDescryption": {
+            "userValue": true,
             "recommendedValue": true,
             "explanation": "Restrict KMS key policy for encrypted Queues a bit more"
           },
           "@aws-cdk/aws-apigateway:disableCloudWatchRole": {
+            "userValue": true,
             "recommendedValue": true,
             "explanation": "Make default CloudWatch Role behavior safe for multiple API Gateways in one environment"
           },
           "@aws-cdk/core:enablePartitionLiterals": {
+            "userValue": true,
             "recommendedValue": true,
             "explanation": "Make ARNs concrete if AWS partition is known"
           },
@@ -211,7 +228,6 @@
             "explanation": "Restrict access to the VPC default security group"
           },
           "@aws-cdk/aws-apigateway:requestValidatorUniqueId": {
-            "userValue": true,
             "recommendedValue": true,
             "explanation": "Generate a unique id for each RequestValidator added to a method"
           },
@@ -495,5 +511,5 @@
       }
     }
   },
-  "minimumCliVersion": "2.1124.1"
+  "minimumCliVersion": "2.1125.0"
 }

@@ -10,7 +10,9 @@ const JWKS = createRemoteJWKSet(new URL(JWKS_URL));
 export interface JwtPayload {
   sub: string;
   tenantId: string;
-  role: "ADMIN" | "SALES_AGENT" | "READ_ONLY";
+  role: "SUPER_ADMIN" | "ADMIN" | "SALES_AGENT" | "READ_ONLY";
+  jti?: string;
+  email?: string;
 }
 
 // Instantiate Upstash Redis Client safely
@@ -81,34 +83,56 @@ export async function verifySessionJwt(token: string): Promise<JwtPayload | null
   const jwksUrl = process.env.JWKS_URL;
 
   try {
+    let payload: JwtPayload | null = null;
+
     if (jwksUrl) {
       // Production: verify against real Cognito/Okta JWKS (RS256)
-      const { payload } = await jwtVerify(token, JWKS, {
+      const { payload: jwtPayload } = await jwtVerify(token, JWKS, {
         audience: "https://voxa.ai/app",
         issuer: "https://auth.voxa.ai",
         algorithms: ["RS256"],
       });
-      return {
-        sub: payload.sub as string,
-        tenantId: payload.tenantId as string,
-        role: payload.role as "ADMIN" | "SALES_AGENT" | "READ_ONLY",
+      payload = {
+        sub: jwtPayload.sub as string,
+        tenantId: jwtPayload.tenantId as string,
+        role: jwtPayload.role as "SUPER_ADMIN" | "ADMIN" | "SALES_AGENT" | "READ_ONLY",
+        jti: jwtPayload.jti as string,
+        email: jwtPayload.email as string,
       };
     } else {
-      // Development: verify with the same HS256 secret used in /api/auth/exchange
-      const secret = new TextEncoder().encode(
-        process.env.JWT_LOCAL_SECRET || "voxa-local-dev-secret-key-123456789"
-      );
-      const { payload } = await jwtVerify(token, secret, {
+      // Development: verify with the secure JWT_SECRET environment variable
+      const jwtSecret = process.env.JWT_SECRET;
+      if (!jwtSecret) {
+        throw new Error(
+          "FATAL: JWT_SECRET environment variable is not set. " +
+          "Refusing to verify tokens without a secure secret."
+        );
+      }
+      const secret = new TextEncoder().encode(jwtSecret);
+      const { payload: jwtPayload } = await jwtVerify(token, secret, {
         audience: "https://voxa.ai/app",
         issuer: "https://auth.voxa.ai",
         algorithms: ["HS256"],
       });
-      return {
-        sub: payload.sub as string,
-        tenantId: payload.tenantId as string,
-        role: payload.role as "ADMIN" | "SALES_AGENT" | "READ_ONLY",
+      payload = {
+        sub: jwtPayload.sub as string,
+        tenantId: jwtPayload.tenantId as string,
+        role: jwtPayload.role as "SUPER_ADMIN" | "ADMIN" | "SALES_AGENT" | "READ_ONLY",
+        jti: jwtPayload.jti as string,
+        email: jwtPayload.email as string,
       };
     }
+
+    // Blacklist check (Token Revocation / Logout support)
+    if (payload && payload.jti && process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN) {
+      const isBlacklisted = await redis.get(`blacklist:jti:${payload.jti}`);
+      if (isBlacklisted) {
+        console.warn(`[AUTH] Rejected blacklisted session JTI: ${payload.jti}`);
+        return null;
+      }
+    }
+
+    return payload;
   } catch (error) {
     console.error("JWT verification failed:", error);
     return null;
@@ -301,9 +325,9 @@ export async function proxy(request: NextRequest) {
   // Role-Based Authorization Guarding
   const userRole = userPayload.role;
 
-  // B. Guard /admin/* and /api/admin/* (ADMIN only)
+  // B. Guard /admin/* and /api/admin/* (ADMIN or SUPER_ADMIN only)
   if (pathname.startsWith("/admin/") || pathname === "/admin" || pathname.startsWith("/api/admin/")) {
-    if (userRole !== "ADMIN") {
+    if (userRole !== "ADMIN" && userRole !== "SUPER_ADMIN") {
       if (isApiRoute) {
         return buildJsonError("FORBIDDEN", "Insufficient administrative privileges.", 403, slug);
       }
@@ -332,6 +356,9 @@ export async function proxy(request: NextRequest) {
     requestHeaders.set("x-tenant-id", userPayload.tenantId);
     requestHeaders.set("x-user-id", userPayload.sub);
     requestHeaders.set("x-user-role", userRole);
+    if (sessionCookie) {
+      requestHeaders.set("authorization", `Bearer ${sessionCookie}`);
+    }
     if (slug) requestHeaders.set("x-tenant-slug", slug);
 
     const res = NextResponse.next({
@@ -347,6 +374,9 @@ export async function proxy(request: NextRequest) {
   requestHeaders.set("x-tenant-id", userPayload.tenantId);
   requestHeaders.set("x-user-id", userPayload.sub);
   requestHeaders.set("x-user-role", userRole);
+  if (sessionCookie) {
+    requestHeaders.set("authorization", `Bearer ${sessionCookie}`);
+  }
   if (slug) requestHeaders.set("x-tenant-slug", slug);
 
   // Perform dynamic internal rewrite if slug is present (avoid infinite loop)

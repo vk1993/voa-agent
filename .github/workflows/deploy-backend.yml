@@ -15,6 +15,11 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
@@ -30,12 +35,7 @@ jobs:
       - name: Install CDK Stack Dependencies
         run: |
           cd aws-infra
-          npm ci
-
-      - name: Build and Compile CDK Code & Lambdas
-        run: |
-          cd aws-infra
-          npm run build
+          pip install -r requirements.txt
 
       - name: Verify AWS Region
         run: |

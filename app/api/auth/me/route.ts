@@ -1,9 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { verifySessionJwt } from "../../../../proxy";
-import { PrismaClient } from "@prisma/client";
-
-const prisma = new PrismaClient();
+import prisma from "@/lib/prisma";
 
 export async function GET(request: NextRequest) {
   try {
@@ -19,33 +17,33 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "UNAUTHORIZED", message: "Invalid or expired session token" }, { status: 401 });
     }
 
-    // Defensively query the tenant name from the database
-    let tenantName = "Voxa Luxury Design";
+    // Query the tenant from the database
+    let tenantName: string | null = null;
     try {
-      const tenant = await prisma.tenant.findFirst({
+      const tenant = await prisma.tenant.findUnique({
         where: { id: payload.tenantId },
       });
       if (tenant) {
         tenantName = tenant.name;
       }
     } catch (dbError) {
-      console.warn("Database lookup for tenant name failed. Using default.", dbError);
+      console.warn("Database lookup for tenant name failed:", dbError);
     }
 
-    // Defensively query the user metadata from the database
-    let userName = payload.role === "ADMIN" ? "Priya Nair" : "Vishal Kumar";
-    let userEmail = payload.role === "ADMIN" ? "priya.nair@voxa.ai" : "visal.kumar@voxa.ai";
+    // Query the user metadata from the database
+    let userName: string | null = null;
+    let userEmail: string | null = payload.email || null;
 
     try {
-      const user = await prisma.user.findFirst({
+      const user = await prisma.user.findUnique({
         where: { id: payload.sub },
       });
       if (user) {
-        userName = user.name || userName;
+        userName = user.name || null;
         userEmail = user.email || userEmail;
       }
     } catch (dbError) {
-      console.warn("Database lookup for user name/email failed. Using default.", dbError);
+      console.warn("Database lookup for user details failed:", dbError);
     }
 
     return NextResponse.json({

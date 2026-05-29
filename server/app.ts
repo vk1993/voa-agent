@@ -84,48 +84,7 @@ export async function createServer(): Promise<FastifyInstance> {
     reply.header("X-Request-ID", req.id);
   });
 
-  // =========================================================================
-  // 4. RATE LIMITING MIDDLEWARE (Per-Tenant Sliding Window)
-  // =========================================================================
-  app.addHook("onRequest", async (req, reply) => {
-    // Avoid rate limiting internal/health checks
-    if (req.routeOptions.url === "/health" || req.routeOptions.url === "/status") return;
 
-    const tenantId = req.headers["x-tenant-id"] || "anonymous";
-    const key = `ratelimit:tenant:${tenantId}`;
-    const now = Date.now();
-    const windowStart = now - 60000; // 60s sliding window
-
-    try {
-      const p = redis.pipeline();
-      p.zremrangebyscore(key, 0, windowStart);
-      p.zadd(key, { score: now, member: String(now) });
-      p.zcard(key);
-      p.expire(key, 60);
-
-      const results = await p.exec();
-      const requestCount = results[2] as number;
-
-      // Extract B2B usage tiers
-      const plan = req.headers["x-tenant-plan"] || "STARTER";
-      const limit = plan === "GROWTH" ? 1000 : 100; // Starter: 100 req/min, Growth: 1000 req/min
-
-      if (requestCount > limit) {
-        // Enforce rate limiting with headers
-        reply.header("Retry-After", "60");
-        reply.status(429).send({
-          error: "Too Many Requests",
-          code: "TENANT_RATE_LIMIT_EXCEEDED",
-          message: "Sliding window rate limit exceeded for your tier.",
-          limit,
-          remaining: 0,
-        });
-      }
-    } catch (err) {
-      // Fail-open to avoid service disruption if Redis is offline
-      app.log.error(err as Error, "Sliding window rate limiting pipeline failed");
-    }
-  });
 
   // =========================================================================
   // 5. AUTH GUARD (JWT verification via TokenFactory claims)
@@ -167,6 +126,47 @@ export async function createServer(): Promise<FastifyInstance> {
     } catch (err: any) {
       const code = err.code === "ERR_JWT_EXPIRED" ? "TOKEN_EXPIRED" : "TOKEN_INVALID";
       reply.status(401).send({ error: "Unauthorized", code });
+    }
+  });
+
+  // =========================================================================
+  // 5.5. RATE LIMITING MIDDLEWARE (Per-Tenant Sliding Window)
+  // =========================================================================
+  app.addHook("preHandler", async (req, reply) => {
+    // Avoid rate limiting internal/health checks
+    if (req.routeOptions.url === "/health" || req.routeOptions.url === "/status") return;
+
+    // Securely pull tenantId from the verified JWT payload rather than spoofable headers
+    const tenantId = req.user ? req.user.tenantId : "anonymous";
+    const key = `ratelimit:tenant:${tenantId}`;
+    const now = Date.now();
+    const windowStart = now - 60000; // 60s sliding window
+
+    try {
+      const p = redis.pipeline();
+      p.zremrangebyscore(key, 0, windowStart);
+      p.zadd(key, { score: now, member: String(now) });
+      p.zcard(key);
+      p.expire(key, 60);
+
+      const results = await p.exec();
+      const requestCount = results[2] as number;
+
+      // Default to STARTER limit securely
+      const limit = 100; // Starter: 100 req/min
+
+      if (requestCount > limit) {
+        reply.header("Retry-After", "60");
+        reply.status(429).send({
+          error: "Too Many Requests",
+          code: "TENANT_RATE_LIMIT_EXCEEDED",
+          message: "Sliding window rate limit exceeded for your tier.",
+          limit,
+          remaining: 0,
+        });
+      }
+    } catch (err) {
+      app.log.error(err as Error, "Sliding window rate limiting pipeline failed");
     }
   });
 

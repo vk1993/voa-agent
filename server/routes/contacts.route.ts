@@ -117,11 +117,20 @@ export const contactsRoutes: FastifyPluginAsync = async (app) => {
       });
 
       // 3. Generate high-fidelity CSV payload
+      const sanitizeCsvField = (value: string | null | undefined): string => {
+        if (!value) return "";
+        const str = String(value);
+        if (/^[=+\-@\t\r]/.test(str)) {
+          return "'" + str;
+        }
+        return str;
+      };
+
       const csvHeaders = "ID,Name,Phone,Email,Status,LeadScore,BHKType,BudgetMin,BudgetMax\n";
       const csvRows = contacts
         .map(
           (c) =>
-            `"${c.id}","${c.name}","${c.phone}","${c.email || ""}","${c.status}",${c.leadScore},"${c.bhkType || ""}",${c.budgetMin || 0},${c.budgetMax || 0}`
+            `"${c.id}","${sanitizeCsvField(c.name)}","${sanitizeCsvField(c.phone)}","${sanitizeCsvField(c.email)}","${sanitizeCsvField(c.status)}",${c.leadScore},"${sanitizeCsvField(c.bhkType)}",${c.budgetMin || 0},${c.budgetMax || 0}`
         )
         .join("\n");
       const csvContent = csvHeaders + csvRows;
@@ -233,6 +242,32 @@ export const contactsRoutes: FastifyPluginAsync = async (app) => {
         message: "Contact record successfully archived.",
         contact: archivedContact,
       };
+    }
+  );
+
+  // --- INTERNAL ROUTES ---
+  app.get<{ Params: { id: string } }>(
+    "/:id/phone",
+    async (req, reply) => {
+      const apiKey = req.headers["x-internal-key"];
+      if (!apiKey || apiKey !== process.env.INTERNAL_API_KEY) {
+        reply.status(401).send({ error: "Unauthorized" });
+        return;
+      }
+
+      const { id } = req.params;
+      // Note: req.db is assumed available as in other routes
+      const contact = await req.db.contact.findUnique({
+        where: { id },
+        select: { phone: true },
+      });
+
+      if (!contact) {
+        reply.status(404).send({ error: "Contact not found" });
+        return;
+      }
+
+      return { phone: contact.phone };
     }
   );
 };

@@ -1,8 +1,33 @@
 import { NextRequest, NextResponse } from "next/server";
-import { PrismaClient } from "@prisma/client";
+import { SignJWT } from "jose";
 import crypto from "crypto";
+import prisma from "@/lib/prisma";
 
-const prisma = new PrismaClient();
+const IS_DEV = process.env.NODE_ENV !== "production";
+
+/**
+ * DEV-ONLY mock credential store.
+ * In production, authentication is delegated entirely to AWS Cognito.
+ * These credentials are NEVER checked when NODE_ENV === "production".
+ */
+const DEV_CREDENTIALS: Record<string, { password: string | undefined; role: "ADMIN" | "SALES_AGENT" }> = {
+  "admin@voxa.ai": { password: process.env.DEV_ADMIN_PASSWORD, role: "ADMIN" },
+  "agent@voxa.ai": { password: process.env.DEV_AGENT_PASSWORD, role: "SALES_AGENT" },
+};
+
+/**
+ * Returns the JWT signing secret. Fails hard if not configured.
+ */
+function getJwtSecret(): Uint8Array {
+  const secret = process.env.JWT_SECRET;
+  if (!secret) {
+    throw new Error(
+      "FATAL: JWT_SECRET environment variable is not set. " +
+      "Refusing to sign tokens without a secure secret."
+    );
+  }
+  return new TextEncoder().encode(secret);
+}
 
 export async function POST(request: NextRequest) {
   try {
@@ -13,41 +38,44 @@ export async function POST(request: NextRequest) {
     }
 
     let role: "ADMIN" | "SALES_AGENT";
-    let userId: string;
-    let tenantId: string;
 
-    // Cognito mock checking
-    const userPoolId = process.env.COGNITO_USER_POOL_ID || "us-east-1_mockPool";
-    if (userPoolId === "us-east-1_mockPool" || !process.env.COGNITO_USER_POOL_ID) {
-      // Mock validation checking
-      if (email === "admin@voxa.ai" && password === "VoxaAdmin2026!") {
-        role = "ADMIN";
-      } else if (email === "agent@voxa.ai" && password === "VoxaAgent2026!") {
-        role = "SALES_AGENT";
-      } else {
-        return NextResponse.json({ error: "UNAUTHORIZED", message: "Invalid credentials" }, { status: 401 });
+    // ── Authentication Gate ──────────────────────────────────────────
+    if (IS_DEV) {
+      // Development only: validate against local mock credentials
+      console.warn("[AUTH] ⚠️  Using DEV mock credentials. This is disabled in production.");
+      const devUser = DEV_CREDENTIALS[email];
+      if (!devUser || !devUser.password || devUser.password !== password) {
+        return NextResponse.json(
+          { error: "UNAUTHORIZED", message: "Invalid credentials" },
+          { status: 401 }
+        );
       }
+      role = devUser.role;
     } else {
-      // Real Cognito auth flow would be here. Fallback to mock for testing if no Cognito client is configured.
-      if (email === "admin@voxa.ai" && password === "VoxaAdmin2026!") {
-        role = "ADMIN";
-      } else if (email === "agent@voxa.ai" && password === "VoxaAgent2026!") {
-        role = "SALES_AGENT";
-      } else {
-        return NextResponse.json({ error: "UNAUTHORIZED", message: "Invalid credentials" }, { status: 401 });
-      }
+      // Production: delegate to AWS Cognito InitiateAuth
+      // TODO: Implement real Cognito SDK call:
+      //   import { CognitoIdentityProviderClient, InitiateAuthCommand } from "@aws-sdk/client-cognito-identity-provider";
+      //   const cognitoClient = new CognitoIdentityProviderClient({ region: process.env.AWS_REGION });
+      //   const authResult = await cognitoClient.send(new InitiateAuthCommand({ ... }));
+      return NextResponse.json(
+        { error: "NOT_IMPLEMENTED", message: "Production Cognito authentication is not yet configured." },
+        { status: 501 }
+      );
     }
 
-    // Resolve tenant and user information from the database
+    // ── Resolve user & tenant from database ──────────────────────────
     let dbUser = await prisma.user.findFirst({
       where: { email },
     });
+
+    let userId: string;
+    let tenantId: string;
 
     if (dbUser) {
       userId = dbUser.id;
       tenantId = dbUser.tenantId;
     } else {
-      // Find or seed a default tenant defensively in development
+      // In development: seed a default tenant if none exists
       let dbTenant = await prisma.tenant.findFirst();
       if (!dbTenant) {
         dbTenant = await prisma.tenant.create({
@@ -58,8 +86,7 @@ export async function POST(request: NextRequest) {
         });
       }
       tenantId = dbTenant.id;
-      
-      // Create user record
+
       dbUser = await prisma.user.create({
         data: {
           email,
@@ -72,24 +99,23 @@ export async function POST(request: NextRequest) {
       userId = dbUser.id;
     }
 
-    // Call /api/auth/exchange route to obtain secure JWT
-    const exchangeUrl = new URL("/api/auth/exchange", request.url).toString();
-    const exchangeRes = await fetch(exchangeUrl, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ userId, email, role, tenantId }),
-    });
+    // ── Sign JWT directly (no external exchange endpoint) ────────────
+    const jti = crypto.randomUUID();
+    const token = await new SignJWT({
+      sub: userId,
+      email,
+      role,
+      tenantId,
+      jti,
+    })
+      .setProtectedHeader({ alg: "HS256" })
+      .setIssuedAt()
+      .setIssuer("https://auth.voxa.ai")
+      .setAudience("https://voxa.ai/app")
+      .setExpirationTime("24h")
+      .sign(getJwtSecret());
 
-    const exchangeData = await exchangeRes.json();
-    if (!exchangeData.success) {
-      return NextResponse.json({ error: "Exchange handshake failed" }, { status: 500 });
-    }
-
-    const token = exchangeData.token;
-
-    // Store JWT in an HttpOnly cookie via Set-Cookie response header (never client JS)
-    // Omit `Secure` on localhost (http) so the browser actually stores the cookie.
-    // In production (HTTPS) the Secure flag is always added.
+    // ── Set HttpOnly session cookie ──────────────────────────────────
     const isProduction = process.env.NODE_ENV === "production";
     const cookieFlags = isProduction
       ? "HttpOnly; Secure; SameSite=Strict; Path=/; Max-Age=86400"
@@ -101,6 +127,9 @@ export async function POST(request: NextRequest) {
     return response;
   } catch (error: any) {
     console.error("Cognito exchange route failure:", error);
-    return NextResponse.json({ error: "INTERNAL_SERVER_ERROR", message: error.message }, { status: 500 });
+    return NextResponse.json(
+      { error: "INTERNAL_SERVER_ERROR", message: "Authentication failed due to an internal error." },
+      { status: 500 }
+    );
   }
 }

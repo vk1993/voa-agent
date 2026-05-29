@@ -1,0 +1,10 @@
+[project]
+name = "voxa-agent"
+version = "1.0.0"
+requires-python = ">=3.12"
+dependencies = [
+  "voxa-core",                    # local editable install
+  "fastapi>=0.111.0",
+  "uvicorn[standard]>=0.29.0",
+  "python-json-logger>=2.0.7",
+]

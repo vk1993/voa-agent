@@ -42,8 +42,15 @@ export function withAuditLog(
 
     if (sessionCookie) {
       try {
-        const session = JSON.parse(decodeURIComponent(sessionCookie));
-        userId = session.email || session.userId || userId;
+        let session;
+        if (sessionCookie.includes('.')) {
+          const payloadBase64 = sessionCookie.split('.')[1];
+          const payloadStr = Buffer.from(payloadBase64, 'base64url').toString('utf8');
+          session = JSON.parse(payloadStr);
+        } else {
+          session = JSON.parse(decodeURIComponent(sessionCookie));
+        }
+        userId = session.email || session.userId || session.sub || userId;
         tenantId = session.tenantId || session.tenant || tenantId;
       } catch (e) {
         // Fallback silently if session format differs

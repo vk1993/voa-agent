@@ -71,6 +71,8 @@ vi.mock("@prisma/client", () => {
     },
     $executeRaw: async () => {},
     $use: () => {},
+    $transaction: async (queries: any[]) => Promise.all(queries),
+    $extends: () => mockPrisma,
     $disconnect: async () => {},
   };
 

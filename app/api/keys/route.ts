@@ -1,10 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
-import { PrismaClient } from "@prisma/client";
+import prisma from "@/lib/prisma";
 import { withAuditLog } from "@/lib/security/api-wrapper";
 import { verifySessionFromRequest } from "@/lib/security/security-service";
 import crypto from "crypto";
-
-const prisma = new PrismaClient();
 
 /**
  * Helper: Securely resolves and cryptographically verifies the tenant context.
@@ -81,7 +79,25 @@ async function postHandler(request: NextRequest) {
     }
 
     const body = await request.json();
-    const name = body.name || "Unnamed CRM Connection";
+    let name = body.name;
+
+    if (!name || typeof name !== 'string') {
+      name = "Unnamed CRM Connection";
+    } else {
+      name = name.trim();
+      if (name.length === 0 || name.length > 64) {
+        return NextResponse.json(
+          { success: false, error: "Name must be between 1 and 64 characters long" },
+          { status: 400 }
+        );
+      }
+      if (!/^[a-zA-Z0-9\s_\-.]+$/.test(name)) {
+        return NextResponse.json(
+          { success: false, error: "Name contains invalid characters" },
+          { status: 400 }
+        );
+      }
+    }
 
     // Verify tenant exists in PostgreSQL
     const dbTenant = await prisma.tenant.findUnique({

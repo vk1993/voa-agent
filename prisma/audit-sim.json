@@ -1,6 +1,222 @@
 [
   {
     "tenant_id": "tenant-a-uuid",
+    "timestamp": "2026-05-28T07:38:03.975Z",
+    "user_id": "admin@tenant-a.com",
+    "action": "POST_EXPORT",
+    "resource": "/contacts/export",
+    "previous_state": "{\"status\":\"STAGED\"}",
+    "new_state": "{\"status\":\"COMPLETED\",\"requestId\":\"3585d755-c477-48dd-bc93-97c5ec9e64a3\",\"statusCode\":200,\"latencyMs\":226.01258301734924}"
+  },
+  {
+    "tenant_id": "tenant-a-uuid",
+    "timestamp": "2026-05-28T07:38:03.750Z",
+    "user_id": "admin@tenant-a.com",
+    "action": "DATA_EXPORT_REQUESTED",
+    "resource": "contacts/export",
+    "previous_state": "{}",
+    "new_state": "{\"severity\":\"CRITICAL\",\"format\":\"CSV\",\"status\":\"INITIATED\"}"
+  },
+  {
+    "tenant_id": "tenant-a-uuid",
+    "timestamp": "2026-05-28T07:38:03.658Z",
+    "user_id": "admin@tenant-a.com",
+    "action": "DELETE_:ID",
+    "resource": "/contacts/:id",
+    "previous_state": "{\"status\":\"STAGED\"}",
+    "new_state": "{\"status\":\"COMPLETED\",\"requestId\":\"51c98ff9-5d1b-4712-ae32-4d96e52e386e\",\"statusCode\":200,\"latencyMs\":123.09362506866455}"
+  },
+  {
+    "tenant_id": "tenant-a-uuid",
+    "timestamp": "2026-05-28T07:38:03.536Z",
+    "user_id": "admin@tenant-a.com",
+    "action": "CONTACT_DELETED",
+    "resource": "contacts/some-contact-uuid",
+    "previous_state": "{\"previousStatus\":\"ACTIVE\"}",
+    "new_state": "{\"newStatus\":\"ARCHIVED\",\"severity\":\"CRITICAL\"}"
+  },
+  {
+    "tenant_id": "tenant-a-uuid",
+    "timestamp": "2026-05-28T07:38:03.424Z",
+    "user_id": "agent@tenant-a.com",
+    "action": "UNAUTHORIZED_ACCESS_ATTEMPT",
+    "resource": "/contacts/export",
+    "previous_state": "{\"attemptedRole\":\"SALES_AGENT\"}",
+    "new_state": "{\"error\":\"403 Forbidden\",\"allowedRoles\":[\"ADMIN\"],\"severity\":\"WARNING\"}"
+  },
+  {
+    "tenant_id": "tenant-a-uuid",
+    "timestamp": "2026-05-28T07:38:03.185Z",
+    "user_id": "agent@tenant-a.com",
+    "action": "CONTACTS_VIEWED",
+    "resource": "contacts",
+    "previous_state": "{}",
+    "new_state": "{\"recordCount\":1,\"page\":1,\"limit\":10}"
+  },
+  {
+    "tenant_id": "tenant-a-uuid",
+    "timestamp": "2026-05-28T07:38:02.895Z",
+    "user_id": "agent@tenant-a.com",
+    "action": "UNAUTHORIZED_ACCESS_ATTEMPT",
+    "resource": "/contacts/some-contact-uuid",
+    "previous_state": "{\"attemptedRole\":\"SALES_AGENT\"}",
+    "new_state": "{\"error\":\"403 Forbidden\",\"allowedRoles\":[\"ADMIN\"],\"severity\":\"WARNING\"}"
+  },
+  {
+    "tenant_id": "tenant-a-uuid",
+    "timestamp": "2026-05-28T07:38:02.670Z",
+    "user_id": "user-a@tenant-a.com",
+    "action": "CONTACTS_VIEWED",
+    "resource": "contacts",
+    "previous_state": "{}",
+    "new_state": "{\"recordCount\":2,\"page\":1,\"limit\":10}"
+  },
+  {
+    "tenant_id": "tenant-a-uuid",
+    "timestamp": "2026-05-28T06:56:39.198Z",
+    "user_id": "admin@tenant-a.com",
+    "action": "POST_EXPORT",
+    "resource": "/contacts/export",
+    "previous_state": "{\"status\":\"STAGED\"}",
+    "new_state": "{\"status\":\"COMPLETED\",\"requestId\":\"e0696883-7e09-4bde-a08c-0fbd3f88223c\",\"statusCode\":200,\"latencyMs\":288.53225004673004}"
+  },
+  {
+    "tenant_id": "tenant-a-uuid",
+    "timestamp": "2026-05-28T06:56:38.910Z",
+    "user_id": "admin@tenant-a.com",
+    "action": "DATA_EXPORT_REQUESTED",
+    "resource": "contacts/export",
+    "previous_state": "{}",
+    "new_state": "{\"severity\":\"CRITICAL\",\"format\":\"CSV\",\"status\":\"INITIATED\"}"
+  },
+  {
+    "tenant_id": "tenant-a-uuid",
+    "timestamp": "2026-05-28T06:56:38.814Z",
+    "user_id": "admin@tenant-a.com",
+    "action": "DELETE_:ID",
+    "resource": "/contacts/:id",
+    "previous_state": "{\"status\":\"STAGED\"}",
+    "new_state": "{\"status\":\"COMPLETED\",\"requestId\":\"02b986a0-9c19-4065-b79f-cad779e16185\",\"statusCode\":200,\"latencyMs\":193.08741700649261}"
+  },
+  {
+    "tenant_id": "tenant-a-uuid",
+    "timestamp": "2026-05-28T06:56:38.622Z",
+    "user_id": "admin@tenant-a.com",
+    "action": "CONTACT_DELETED",
+    "resource": "contacts/some-contact-uuid",
+    "previous_state": "{\"previousStatus\":\"ACTIVE\"}",
+    "new_state": "{\"newStatus\":\"ARCHIVED\",\"severity\":\"CRITICAL\"}"
+  },
+  {
+    "tenant_id": "tenant-a-uuid",
+    "timestamp": "2026-05-28T06:56:38.526Z",
+    "user_id": "agent@tenant-a.com",
+    "action": "UNAUTHORIZED_ACCESS_ATTEMPT",
+    "resource": "/contacts/export",
+    "previous_state": "{\"attemptedRole\":\"SALES_AGENT\"}",
+    "new_state": "{\"error\":\"403 Forbidden\",\"allowedRoles\":[\"ADMIN\"],\"severity\":\"WARNING\"}"
+  },
+  {
+    "tenant_id": "tenant-a-uuid",
+    "timestamp": "2026-05-28T06:56:38.140Z",
+    "user_id": "agent@tenant-a.com",
+    "action": "CONTACTS_VIEWED",
+    "resource": "contacts",
+    "previous_state": "{}",
+    "new_state": "{\"recordCount\":1,\"page\":1,\"limit\":10}"
+  },
+  {
+    "tenant_id": "tenant-a-uuid",
+    "timestamp": "2026-05-28T06:56:37.981Z",
+    "user_id": "agent@tenant-a.com",
+    "action": "UNAUTHORIZED_ACCESS_ATTEMPT",
+    "resource": "/contacts/some-contact-uuid",
+    "previous_state": "{\"attemptedRole\":\"SALES_AGENT\"}",
+    "new_state": "{\"error\":\"403 Forbidden\",\"allowedRoles\":[\"ADMIN\"],\"severity\":\"WARNING\"}"
+  },
+  {
+    "tenant_id": "tenant-a-uuid",
+    "timestamp": "2026-05-28T06:56:37.712Z",
+    "user_id": "user-a@tenant-a.com",
+    "action": "CONTACTS_VIEWED",
+    "resource": "contacts",
+    "previous_state": "{}",
+    "new_state": "{\"recordCount\":2,\"page\":1,\"limit\":10}"
+  },
+  {
+    "tenant_id": "tenant-a-uuid",
+    "timestamp": "2026-05-28T06:47:09.024Z",
+    "user_id": "admin@tenant-a.com",
+    "action": "POST_EXPORT",
+    "resource": "/contacts/export",
+    "previous_state": "{\"status\":\"STAGED\"}",
+    "new_state": "{\"status\":\"COMPLETED\",\"requestId\":\"6b660af6-6e90-4eda-a516-8522b9da599a\",\"statusCode\":200,\"latencyMs\":194.60483300685883}"
+  },
+  {
+    "tenant_id": "tenant-a-uuid",
+    "timestamp": "2026-05-28T06:47:08.830Z",
+    "user_id": "admin@tenant-a.com",
+    "action": "DATA_EXPORT_REQUESTED",
+    "resource": "contacts/export",
+    "previous_state": "{}",
+    "new_state": "{\"severity\":\"CRITICAL\",\"format\":\"CSV\",\"status\":\"INITIATED\"}"
+  },
+  {
+    "tenant_id": "tenant-a-uuid",
+    "timestamp": "2026-05-28T06:47:08.718Z",
+    "user_id": "admin@tenant-a.com",
+    "action": "DELETE_:ID",
+    "resource": "/contacts/:id",
+    "previous_state": "{\"status\":\"STAGED\"}",
+    "new_state": "{\"status\":\"COMPLETED\",\"requestId\":\"3fb15793-9e50-448a-a848-c9a615875f97\",\"statusCode\":200,\"latencyMs\":196.97816705703735}"
+  },
+  {
+    "tenant_id": "tenant-a-uuid",
+    "timestamp": "2026-05-28T06:47:08.522Z",
+    "user_id": "admin@tenant-a.com",
+    "action": "CONTACT_DELETED",
+    "resource": "contacts/some-contact-uuid",
+    "previous_state": "{\"previousStatus\":\"ACTIVE\"}",
+    "new_state": "{\"newStatus\":\"ARCHIVED\",\"severity\":\"CRITICAL\"}"
+  },
+  {
+    "tenant_id": "tenant-a-uuid",
+    "timestamp": "2026-05-28T06:47:08.263Z",
+    "user_id": "agent@tenant-a.com",
+    "action": "UNAUTHORIZED_ACCESS_ATTEMPT",
+    "resource": "/contacts/export",
+    "previous_state": "{\"attemptedRole\":\"SALES_AGENT\"}",
+    "new_state": "{\"error\":\"403 Forbidden\",\"allowedRoles\":[\"ADMIN\"],\"severity\":\"WARNING\"}"
+  },
+  {
+    "tenant_id": "tenant-a-uuid",
+    "timestamp": "2026-05-28T06:47:08.045Z",
+    "user_id": "agent@tenant-a.com",
+    "action": "CONTACTS_VIEWED",
+    "resource": "contacts",
+    "previous_state": "{}",
+    "new_state": "{\"recordCount\":1,\"page\":1,\"limit\":10}"
+  },
+  {
+    "tenant_id": "tenant-a-uuid",
+    "timestamp": "2026-05-28T06:47:07.895Z",
+    "user_id": "agent@tenant-a.com",
+    "action": "UNAUTHORIZED_ACCESS_ATTEMPT",
+    "resource": "/contacts/some-contact-uuid",
+    "previous_state": "{\"attemptedRole\":\"SALES_AGENT\"}",
+    "new_state": "{\"error\":\"403 Forbidden\",\"allowedRoles\":[\"ADMIN\"],\"severity\":\"WARNING\"}"
+  },
+  {
+    "tenant_id": "tenant-a-uuid",
+    "timestamp": "2026-05-28T06:47:07.561Z",
+    "user_id": "user-a@tenant-a.com",
+    "action": "CONTACTS_VIEWED",
+    "resource": "contacts",
+    "previous_state": "{}",
+    "new_state": "{\"recordCount\":2,\"page\":1,\"limit\":10}"
+  },
+  {
+    "tenant_id": "tenant-a-uuid",
     "timestamp": "2026-05-27T15:13:21.980Z",
     "user_id": "admin@tenant-a.com",
     "action": "POST_EXPORT",

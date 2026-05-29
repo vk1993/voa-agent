@@ -47,6 +47,8 @@ next-env.d.ts
 *.sqlite
 *.sqlite3
 prisma/dev.db
+prisma/audit-sim.json
+.env.local
 
 # Repomix outputs
 repomix-output.xml

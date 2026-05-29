@@ -1,0 +1,998 @@
+{
+  "/VoxaStack": [
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "Kernel._Kernel_create (/private/var/folders/lg/rh9v07ks7n1g3ngjmcc6szf00000gn/T/tmp129iwr4a/lib/program.js:1:61273)",
+        "Kernel.create (/private/var/folders/lg/rh9v07ks7n1g3ngjmcc6szf00000gn/T/tmp129iwr4a/lib/program.js:1:52004)",
+        "KernelHost.processRequest (/private/var/folders/lg/rh9v07ks7n1g3ngjmcc6szf00000gn/T/tmp129iwr4a/lib/program.js:1:212822)",
+        "KernelHost.run (/private/var/folders/lg/rh9v07ks7n1g3ngjmcc6szf00000gn/T/tmp129iwr4a/lib/program.js:1:211877)",
+        "Immediate._onImmediate (/private/var/folders/lg/rh9v07ks7n1g3ngjmcc6szf00000gn/T/tmp129iwr4a/lib/program.js:1:211921)",
+        "...node internals..."
+      ]
+    }
+  ],
+  "/VoxaStack/LeadEventsTable": [
+    {
+      "type": "aws:cdk:hasPhysicalName",
+      "data": {
+        "Ref": "LeadEventsTable7A8C8730"
+      }
+    }
+  ],
+  "/VoxaStack/DbEndpoint": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "DbEndpoint"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "Kernel._Kernel_create (/private/var/folders/lg/rh9v07ks7n1g3ngjmcc6szf00000gn/T/tmp129iwr4a/lib/program.js:1:61273)",
+        "Kernel.create (/private/var/folders/lg/rh9v07ks7n1g3ngjmcc6szf00000gn/T/tmp129iwr4a/lib/program.js:1:52004)",
+        "KernelHost.processRequest (/private/var/folders/lg/rh9v07ks7n1g3ngjmcc6szf00000gn/T/tmp129iwr4a/lib/program.js:1:212822)",
+        "KernelHost.run (/private/var/folders/lg/rh9v07ks7n1g3ngjmcc6szf00000gn/T/tmp129iwr4a/lib/program.js:1:211877)",
+        "Immediate._onImmediate (/private/var/folders/lg/rh9v07ks7n1g3ngjmcc6szf00000gn/T/tmp129iwr4a/lib/program.js:1:211921)",
+        "...node internals..."
+      ]
+    }
+  ],
+  "/VoxaStack/BootstrapVersion": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "BootstrapVersion"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "...App.synth in aws-cdk-lib...",
+        "/private/var/folders/lg/rh9v07ks7n1g3ngjmcc6szf00000gn/T/tmp129iwr4a/lib/program.js:1:543 (/private/var/folders/lg/rh9v07ks7n1g3ngjmcc6szf00000gn/T/tmp129iwr4a/lib/program.js:1:5434)"
+      ]
+    }
+  ],
+  "/VoxaStack/CheckBootstrapVersion": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "CheckBootstrapVersion"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "...App.synth in aws-cdk-lib...",
+        "/private/var/folders/lg/rh9v07ks7n1g3ngjmcc6szf00000gn/T/tmp129iwr4a/lib/program.js:1:543 (/private/var/folders/lg/rh9v07ks7n1g3ngjmcc6szf00000gn/T/tmp129iwr4a/lib/program.js:1:5434)"
+      ]
+    }
+  ],
+  "/VoxaStack/LeadEventsTable/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "LeadEventsTable7A8C8730"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "...new Table2 in aws-cdk-lib...",
+        "Kernel._Kernel_create (/private/var/folders/lg/rh9v07ks7n1g3ngjmcc6szf00000gn/T/tmp129iwr4a/lib/program.js:1:61273)",
+        "Kernel.create (/private/var/folders/lg/rh9v07ks7n1g3ngjmcc6szf00000gn/T/tmp129iwr4a/lib/program.js:1:52004)",
+        "KernelHost.processRequest (/private/var/folders/lg/rh9v07ks7n1g3ngjmcc6szf00000gn/T/tmp129iwr4a/lib/program.js:1:212822)",
+        "KernelHost.run (/private/var/folders/lg/rh9v07ks7n1g3ngjmcc6szf00000gn/T/tmp129iwr4a/lib/program.js:1:211877)",
+        "Immediate._onImmediate (/private/var/folders/lg/rh9v07ks7n1g3ngjmcc6szf00000gn/T/tmp129iwr4a/lib/program.js:1:211921)",
+        "...node internals..."
+      ]
+    }
+  ],
+  "/VoxaStack/RecordingsBucket/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "RecordingsBucketAA52F499"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "...new Bucket2 in aws-cdk-lib...",
+        "Kernel._Kernel_create (/private/var/folders/lg/rh9v07ks7n1g3ngjmcc6szf00000gn/T/tmp129iwr4a/lib/program.js:1:61273)",
+        "Kernel.create (/private/var/folders/lg/rh9v07ks7n1g3ngjmcc6szf00000gn/T/tmp129iwr4a/lib/program.js:1:52004)",
+        "KernelHost.processRequest (/private/var/folders/lg/rh9v07ks7n1g3ngjmcc6szf00000gn/T/tmp129iwr4a/lib/program.js:1:212822)",
+        "KernelHost.run (/private/var/folders/lg/rh9v07ks7n1g3ngjmcc6szf00000gn/T/tmp129iwr4a/lib/program.js:1:211877)",
+        "Immediate._onImmediate (/private/var/folders/lg/rh9v07ks7n1g3ngjmcc6szf00000gn/T/tmp129iwr4a/lib/program.js:1:211921)",
+        "...node internals..."
+      ]
+    }
+  ],
+  "/VoxaStack/VoxaSecrets/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "VoxaSecretsF28BAE34"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "...new Secret2 in aws-cdk-lib...",
+        "Kernel._Kernel_create (/private/var/folders/lg/rh9v07ks7n1g3ngjmcc6szf00000gn/T/tmp129iwr4a/lib/program.js:1:61273)",
+        "Kernel.create (/private/var/folders/lg/rh9v07ks7n1g3ngjmcc6szf00000gn/T/tmp129iwr4a/lib/program.js:1:52004)",
+        "KernelHost.processRequest (/private/var/folders/lg/rh9v07ks7n1g3ngjmcc6szf00000gn/T/tmp129iwr4a/lib/program.js:1:212822)",
+        "KernelHost.run (/private/var/folders/lg/rh9v07ks7n1g3ngjmcc6szf00000gn/T/tmp129iwr4a/lib/program.js:1:211877)",
+        "Immediate._onImmediate (/private/var/folders/lg/rh9v07ks7n1g3ngjmcc6szf00000gn/T/tmp129iwr4a/lib/program.js:1:211921)",
+        "...node internals..."
+      ]
+    }
+  ],
+  "/VoxaStack/VoxaVpc/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "VoxaVpc0488284C"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "...new Vpc2 in aws-cdk-lib...",
+        "Kernel._Kernel_create (/private/var/folders/lg/rh9v07ks7n1g3ngjmcc6szf00000gn/T/tmp129iwr4a/lib/program.js:1:61273)",
+        "Kernel.create (/private/var/folders/lg/rh9v07ks7n1g3ngjmcc6szf00000gn/T/tmp129iwr4a/lib/program.js:1:52004)",
+        "KernelHost.processRequest (/private/var/folders/lg/rh9v07ks7n1g3ngjmcc6szf00000gn/T/tmp129iwr4a/lib/program.js:1:212822)",
+        "KernelHost.run (/private/var/folders/lg/rh9v07ks7n1g3ngjmcc6szf00000gn/T/tmp129iwr4a/lib/program.js:1:211877)",
+        "Immediate._onImmediate (/private/var/folders/lg/rh9v07ks7n1g3ngjmcc6szf00000gn/T/tmp129iwr4a/lib/program.js:1:211921)",
+        "...node internals..."
+      ]
+    }
+  ],
+  "/VoxaStack/VoxaVpc/IGW": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "VoxaVpcIGW8C6191E8"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "...new Vpc2 in aws-cdk-lib...",
+        "Kernel._Kernel_create (/private/var/folders/lg/rh9v07ks7n1g3ngjmcc6szf00000gn/T/tmp129iwr4a/lib/program.js:1:61273)",
+        "Kernel.create (/private/var/folders/lg/rh9v07ks7n1g3ngjmcc6szf00000gn/T/tmp129iwr4a/lib/program.js:1:52004)",
+        "KernelHost.processRequest (/private/var/folders/lg/rh9v07ks7n1g3ngjmcc6szf00000gn/T/tmp129iwr4a/lib/program.js:1:212822)",
+        "KernelHost.run (/private/var/folders/lg/rh9v07ks7n1g3ngjmcc6szf00000gn/T/tmp129iwr4a/lib/program.js:1:211877)",
+        "Immediate._onImmediate (/private/var/folders/lg/rh9v07ks7n1g3ngjmcc6szf00000gn/T/tmp129iwr4a/lib/program.js:1:211921)",
+        "...node internals..."
+      ]
+    }
+  ],
+  "/VoxaStack/VoxaVpc/VPCGW": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "VoxaVpcVPCGW72707147"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "...new Vpc2 in aws-cdk-lib...",
+        "Kernel._Kernel_create (/private/var/folders/lg/rh9v07ks7n1g3ngjmcc6szf00000gn/T/tmp129iwr4a/lib/program.js:1:61273)",
+        "Kernel.create (/private/var/folders/lg/rh9v07ks7n1g3ngjmcc6szf00000gn/T/tmp129iwr4a/lib/program.js:1:52004)",
+        "KernelHost.processRequest (/private/var/folders/lg/rh9v07ks7n1g3ngjmcc6szf00000gn/T/tmp129iwr4a/lib/program.js:1:212822)",
+        "KernelHost.run (/private/var/folders/lg/rh9v07ks7n1g3ngjmcc6szf00000gn/T/tmp129iwr4a/lib/program.js:1:211877)",
+        "Immediate._onImmediate (/private/var/folders/lg/rh9v07ks7n1g3ngjmcc6szf00000gn/T/tmp129iwr4a/lib/program.js:1:211921)",
+        "...node internals..."
+      ]
+    }
+  ],
+  "/VoxaStack/DbSecurityGroup/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "DbSecurityGroupE9D701AD"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "...new SecurityGroup2 in aws-cdk-lib...",
+        "Kernel._Kernel_create (/private/var/folders/lg/rh9v07ks7n1g3ngjmcc6szf00000gn/T/tmp129iwr4a/lib/program.js:1:61273)",
+        "Kernel.create (/private/var/folders/lg/rh9v07ks7n1g3ngjmcc6szf00000gn/T/tmp129iwr4a/lib/program.js:1:52004)",
+        "KernelHost.processRequest (/private/var/folders/lg/rh9v07ks7n1g3ngjmcc6szf00000gn/T/tmp129iwr4a/lib/program.js:1:212822)",
+        "KernelHost.run (/private/var/folders/lg/rh9v07ks7n1g3ngjmcc6szf00000gn/T/tmp129iwr4a/lib/program.js:1:211877)",
+        "Immediate._onImmediate (/private/var/folders/lg/rh9v07ks7n1g3ngjmcc6szf00000gn/T/tmp129iwr4a/lib/program.js:1:211921)",
+        "...node internals..."
+      ]
+    }
+  ],
+  "/VoxaStack/VoxaPostgres/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "VoxaPostgres82F83C76"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "...new DatabaseInstance2 in aws-cdk-lib...",
+        "Kernel._Kernel_create (/private/var/folders/lg/rh9v07ks7n1g3ngjmcc6szf00000gn/T/tmp129iwr4a/lib/program.js:1:61273)",
+        "Kernel.create (/private/var/folders/lg/rh9v07ks7n1g3ngjmcc6szf00000gn/T/tmp129iwr4a/lib/program.js:1:52004)",
+        "KernelHost.processRequest (/private/var/folders/lg/rh9v07ks7n1g3ngjmcc6szf00000gn/T/tmp129iwr4a/lib/program.js:1:212822)",
+        "KernelHost.run (/private/var/folders/lg/rh9v07ks7n1g3ngjmcc6szf00000gn/T/tmp129iwr4a/lib/program.js:1:211877)",
+        "Immediate._onImmediate (/private/var/folders/lg/rh9v07ks7n1g3ngjmcc6szf00000gn/T/tmp129iwr4a/lib/program.js:1:211921)",
+        "...node internals..."
+      ]
+    }
+  ],
+  "/VoxaStack/VoxaCluster/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "VoxaCluster8E2FC62F"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "...new Cluster2 in aws-cdk-lib...",
+        "Kernel._Kernel_create (/private/var/folders/lg/rh9v07ks7n1g3ngjmcc6szf00000gn/T/tmp129iwr4a/lib/program.js:1:61273)",
+        "Kernel.create (/private/var/folders/lg/rh9v07ks7n1g3ngjmcc6szf00000gn/T/tmp129iwr4a/lib/program.js:1:52004)",
+        "KernelHost.processRequest (/private/var/folders/lg/rh9v07ks7n1g3ngjmcc6szf00000gn/T/tmp129iwr4a/lib/program.js:1:212822)",
+        "KernelHost.run (/private/var/folders/lg/rh9v07ks7n1g3ngjmcc6szf00000gn/T/tmp129iwr4a/lib/program.js:1:211877)",
+        "Immediate._onImmediate (/private/var/folders/lg/rh9v07ks7n1g3ngjmcc6szf00000gn/T/tmp129iwr4a/lib/program.js:1:211921)",
+        "...node internals..."
+      ]
+    }
+  ],
+  "/VoxaStack/AgentTask/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "AgentTask285670E7"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "...new FargateTaskDefinition2 in aws-cdk-lib...",
+        "Kernel._Kernel_create (/private/var/folders/lg/rh9v07ks7n1g3ngjmcc6szf00000gn/T/tmp129iwr4a/lib/program.js:1:61273)",
+        "Kernel.create (/private/var/folders/lg/rh9v07ks7n1g3ngjmcc6szf00000gn/T/tmp129iwr4a/lib/program.js:1:52004)",
+        "KernelHost.processRequest (/private/var/folders/lg/rh9v07ks7n1g3ngjmcc6szf00000gn/T/tmp129iwr4a/lib/program.js:1:212822)",
+        "KernelHost.run (/private/var/folders/lg/rh9v07ks7n1g3ngjmcc6szf00000gn/T/tmp129iwr4a/lib/program.js:1:211877)",
+        "Immediate._onImmediate (/private/var/folders/lg/rh9v07ks7n1g3ngjmcc6szf00000gn/T/tmp129iwr4a/lib/program.js:1:211921)",
+        "...node internals..."
+      ]
+    }
+  ],
+  "/VoxaStack/AgentService/LoadBalancerDNS": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "AgentServiceLoadBalancerDNS9B407F4C"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "...new ApplicationLoadBalancedFargateService2 in aws-cdk-lib...",
+        "Kernel._Kernel_create (/private/var/folders/lg/rh9v07ks7n1g3ngjmcc6szf00000gn/T/tmp129iwr4a/lib/program.js:1:61273)",
+        "Kernel.create (/private/var/folders/lg/rh9v07ks7n1g3ngjmcc6szf00000gn/T/tmp129iwr4a/lib/program.js:1:52004)",
+        "KernelHost.processRequest (/private/var/folders/lg/rh9v07ks7n1g3ngjmcc6szf00000gn/T/tmp129iwr4a/lib/program.js:1:212822)",
+        "KernelHost.run (/private/var/folders/lg/rh9v07ks7n1g3ngjmcc6szf00000gn/T/tmp129iwr4a/lib/program.js:1:211877)",
+        "Immediate._onImmediate (/private/var/folders/lg/rh9v07ks7n1g3ngjmcc6szf00000gn/T/tmp129iwr4a/lib/program.js:1:211921)",
+        "...node internals..."
+      ]
+    }
+  ],
+  "/VoxaStack/AgentService/ServiceURL": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "AgentServiceServiceURL6CAFAD9C"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "...new ApplicationLoadBalancedFargateService2 in aws-cdk-lib...",
+        "Kernel._Kernel_create (/private/var/folders/lg/rh9v07ks7n1g3ngjmcc6szf00000gn/T/tmp129iwr4a/lib/program.js:1:61273)",
+        "Kernel.create (/private/var/folders/lg/rh9v07ks7n1g3ngjmcc6szf00000gn/T/tmp129iwr4a/lib/program.js:1:52004)",
+        "KernelHost.processRequest (/private/var/folders/lg/rh9v07ks7n1g3ngjmcc6szf00000gn/T/tmp129iwr4a/lib/program.js:1:212822)",
+        "KernelHost.run (/private/var/folders/lg/rh9v07ks7n1g3ngjmcc6szf00000gn/T/tmp129iwr4a/lib/program.js:1:211877)",
+        "Immediate._onImmediate (/private/var/folders/lg/rh9v07ks7n1g3ngjmcc6szf00000gn/T/tmp129iwr4a/lib/program.js:1:211921)",
+        "...node internals..."
+      ]
+    }
+  ],
+  "/VoxaStack/AgentService/Service": [
+    {
+      "type": "aws:cdk:warning",
+      "data": "Enable the 'circuitBreaker' property to trigger a quicker deployment failure if tasks are failing to come start (without this setting deployments may take up to 3 hours to fail). [ack: @aws-cdk/aws-ecs:shouldUseCircuitBreaker]",
+      "trace": [
+        "Annotations.addMessage (/var/folders/lg/rh9v07ks7n1g3ngjmcc6szf00000gn/T/jsii-kernel-qLiuwJ/node_modules/aws-cdk-lib/core/lib/annotations.js:1:2399)",
+        "Annotations.addWarningV2 (/var/folders/lg/rh9v07ks7n1g3ngjmcc6szf00000gn/T/jsii-kernel-qLiuwJ/node_modules/aws-cdk-lib/core/lib/annotations.js:1:1087)",
+        "new BaseService2 (/var/folders/lg/rh9v07ks7n1g3ngjmcc6szf00000gn/T/jsii-kernel-qLiuwJ/node_modules/aws-cdk-lib/aws-ecs/lib/base/base-service.js:1:13563)",
+        "new BaseService2 (/var/folders/lg/rh9v07ks7n1g3ngjmcc6szf00000gn/T/jsii-kernel-qLiuwJ/node_modules/aws-cdk-lib/core/lib/no-box-stack-traces.js:1:345)",
+        "new FargateService2 (/var/folders/lg/rh9v07ks7n1g3ngjmcc6szf00000gn/T/jsii-kernel-qLiuwJ/node_modules/aws-cdk-lib/aws-ecs/lib/fargate/fargate-service.js:1:6805)",
+        "new FargateService2 (/var/folders/lg/rh9v07ks7n1g3ngjmcc6szf00000gn/T/jsii-kernel-qLiuwJ/node_modules/aws-cdk-lib/core/lib/prop-injectable.js:1:855)",
+        "new ApplicationLoadBalancedFargateService2 (/var/folders/lg/rh9v07ks7n1g3ngjmcc6szf00000gn/T/jsii-kernel-qLiuwJ/node_modules/aws-cdk-lib/aws-ecs-patterns/lib/fargate/application-load-balanced-fargate-service.js:1:6392)",
+        "new ApplicationLoadBalancedFargateService2 (/var/folders/lg/rh9v07ks7n1g3ngjmcc6szf00000gn/T/jsii-kernel-qLiuwJ/node_modules/aws-cdk-lib/core/lib/prop-injectable.js:1:855)",
+        "Kernel._Kernel_create (/private/var/folders/lg/rh9v07ks7n1g3ngjmcc6szf00000gn/T/tmp129iwr4a/lib/program.js:1:61273)",
+        "Kernel.create (/private/var/folders/lg/rh9v07ks7n1g3ngjmcc6szf00000gn/T/tmp129iwr4a/lib/program.js:1:52004)",
+        "KernelHost.processRequest (/private/var/folders/lg/rh9v07ks7n1g3ngjmcc6szf00000gn/T/tmp129iwr4a/lib/program.js:1:212822)",
+        "KernelHost.run (/private/var/folders/lg/rh9v07ks7n1g3ngjmcc6szf00000gn/T/tmp129iwr4a/lib/program.js:1:211877)",
+        "Immediate._onImmediate (/private/var/folders/lg/rh9v07ks7n1g3ngjmcc6szf00000gn/T/tmp129iwr4a/lib/program.js:1:211921)",
+        "process.processImmediate (node:internal/timers:511:21)"
+      ]
+    },
+    {
+      "type": "aws:cdk:warning",
+      "data": "minHealthyPercent has not been configured so the default value of 50% is used. The number of running tasks will decrease below the desired count during deployments etc. See https://github.com/aws/aws-cdk/issues/31705 [ack: @aws-cdk/aws-ecs:minHealthyPercent]",
+      "trace": [
+        "Annotations.addMessage (/var/folders/lg/rh9v07ks7n1g3ngjmcc6szf00000gn/T/jsii-kernel-qLiuwJ/node_modules/aws-cdk-lib/core/lib/annotations.js:1:2399)",
+        "Annotations.addWarningV2 (/var/folders/lg/rh9v07ks7n1g3ngjmcc6szf00000gn/T/jsii-kernel-qLiuwJ/node_modules/aws-cdk-lib/core/lib/annotations.js:1:1087)",
+        "new BaseService2 (/var/folders/lg/rh9v07ks7n1g3ngjmcc6szf00000gn/T/jsii-kernel-qLiuwJ/node_modules/aws-cdk-lib/aws-ecs/lib/base/base-service.js:1:14478)",
+        "new BaseService2 (/var/folders/lg/rh9v07ks7n1g3ngjmcc6szf00000gn/T/jsii-kernel-qLiuwJ/node_modules/aws-cdk-lib/core/lib/no-box-stack-traces.js:1:345)",
+        "new FargateService2 (/var/folders/lg/rh9v07ks7n1g3ngjmcc6szf00000gn/T/jsii-kernel-qLiuwJ/node_modules/aws-cdk-lib/aws-ecs/lib/fargate/fargate-service.js:1:6805)",
+        "new FargateService2 (/var/folders/lg/rh9v07ks7n1g3ngjmcc6szf00000gn/T/jsii-kernel-qLiuwJ/node_modules/aws-cdk-lib/core/lib/prop-injectable.js:1:855)",
+        "new ApplicationLoadBalancedFargateService2 (/var/folders/lg/rh9v07ks7n1g3ngjmcc6szf00000gn/T/jsii-kernel-qLiuwJ/node_modules/aws-cdk-lib/aws-ecs-patterns/lib/fargate/application-load-balanced-fargate-service.js:1:6392)",
+        "new ApplicationLoadBalancedFargateService2 (/var/folders/lg/rh9v07ks7n1g3ngjmcc6szf00000gn/T/jsii-kernel-qLiuwJ/node_modules/aws-cdk-lib/core/lib/prop-injectable.js:1:855)",
+        "Kernel._Kernel_create (/private/var/folders/lg/rh9v07ks7n1g3ngjmcc6szf00000gn/T/tmp129iwr4a/lib/program.js:1:61273)",
+        "Kernel.create (/private/var/folders/lg/rh9v07ks7n1g3ngjmcc6szf00000gn/T/tmp129iwr4a/lib/program.js:1:52004)",
+        "KernelHost.processRequest (/private/var/folders/lg/rh9v07ks7n1g3ngjmcc6szf00000gn/T/tmp129iwr4a/lib/program.js:1:212822)",
+        "KernelHost.run (/private/var/folders/lg/rh9v07ks7n1g3ngjmcc6szf00000gn/T/tmp129iwr4a/lib/program.js:1:211877)",
+        "Immediate._onImmediate (/private/var/folders/lg/rh9v07ks7n1g3ngjmcc6szf00000gn/T/tmp129iwr4a/lib/program.js:1:211921)",
+        "process.processImmediate (node:internal/timers:511:21)"
+      ]
+    }
+  ],
+  "/VoxaStack/PostCallQueue/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "PostCallQueue4A9FCE73"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "...new Queue2 in aws-cdk-lib...",
+        "Kernel._Kernel_create (/private/var/folders/lg/rh9v07ks7n1g3ngjmcc6szf00000gn/T/tmp129iwr4a/lib/program.js:1:61273)",
+        "Kernel.create (/private/var/folders/lg/rh9v07ks7n1g3ngjmcc6szf00000gn/T/tmp129iwr4a/lib/program.js:1:52004)",
+        "KernelHost.processRequest (/private/var/folders/lg/rh9v07ks7n1g3ngjmcc6szf00000gn/T/tmp129iwr4a/lib/program.js:1:212822)",
+        "KernelHost.run (/private/var/folders/lg/rh9v07ks7n1g3ngjmcc6szf00000gn/T/tmp129iwr4a/lib/program.js:1:211877)",
+        "Immediate._onImmediate (/private/var/folders/lg/rh9v07ks7n1g3ngjmcc6szf00000gn/T/tmp129iwr4a/lib/program.js:1:211921)",
+        "...node internals..."
+      ]
+    }
+  ],
+  "/VoxaStack/WorkerLambda/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "WorkerLambdaBD11C0E2"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "...new DockerImageFunction2 in aws-cdk-lib...",
+        "Kernel._Kernel_create (/private/var/folders/lg/rh9v07ks7n1g3ngjmcc6szf00000gn/T/tmp129iwr4a/lib/program.js:1:61273)",
+        "Kernel.create (/private/var/folders/lg/rh9v07ks7n1g3ngjmcc6szf00000gn/T/tmp129iwr4a/lib/program.js:1:52004)",
+        "KernelHost.processRequest (/private/var/folders/lg/rh9v07ks7n1g3ngjmcc6szf00000gn/T/tmp129iwr4a/lib/program.js:1:212822)",
+        "KernelHost.run (/private/var/folders/lg/rh9v07ks7n1g3ngjmcc6szf00000gn/T/tmp129iwr4a/lib/program.js:1:211877)",
+        "Immediate._onImmediate (/private/var/folders/lg/rh9v07ks7n1g3ngjmcc6szf00000gn/T/tmp129iwr4a/lib/program.js:1:211921)",
+        "...node internals..."
+      ]
+    }
+  ],
+  "/VoxaStack/FineTuningLambda/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "FineTuningLambdaECA0C2C0"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "...new DockerImageFunction2 in aws-cdk-lib...",
+        "Kernel._Kernel_create (/private/var/folders/lg/rh9v07ks7n1g3ngjmcc6szf00000gn/T/tmp129iwr4a/lib/program.js:1:61273)",
+        "Kernel.create (/private/var/folders/lg/rh9v07ks7n1g3ngjmcc6szf00000gn/T/tmp129iwr4a/lib/program.js:1:52004)",
+        "KernelHost.processRequest (/private/var/folders/lg/rh9v07ks7n1g3ngjmcc6szf00000gn/T/tmp129iwr4a/lib/program.js:1:212822)",
+        "KernelHost.run (/private/var/folders/lg/rh9v07ks7n1g3ngjmcc6szf00000gn/T/tmp129iwr4a/lib/program.js:1:211877)",
+        "Immediate._onImmediate (/private/var/folders/lg/rh9v07ks7n1g3ngjmcc6szf00000gn/T/tmp129iwr4a/lib/program.js:1:211921)",
+        "...node internals..."
+      ]
+    }
+  ],
+  "/VoxaStack/WeeklyFineTuningRule/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "WeeklyFineTuningRule9ED31D10"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "...new Rule2 in aws-cdk-lib...",
+        "Kernel._Kernel_create (/private/var/folders/lg/rh9v07ks7n1g3ngjmcc6szf00000gn/T/tmp129iwr4a/lib/program.js:1:61273)",
+        "Kernel.create (/private/var/folders/lg/rh9v07ks7n1g3ngjmcc6szf00000gn/T/tmp129iwr4a/lib/program.js:1:52004)",
+        "KernelHost.processRequest (/private/var/folders/lg/rh9v07ks7n1g3ngjmcc6szf00000gn/T/tmp129iwr4a/lib/program.js:1:212822)",
+        "KernelHost.run (/private/var/folders/lg/rh9v07ks7n1g3ngjmcc6szf00000gn/T/tmp129iwr4a/lib/program.js:1:211877)",
+        "Immediate._onImmediate (/private/var/folders/lg/rh9v07ks7n1g3ngjmcc6szf00000gn/T/tmp129iwr4a/lib/program.js:1:211921)",
+        "...node internals..."
+      ]
+    }
+  ],
+  "/VoxaStack/WeeklyFineTuningRule/AllowEventRuleVoxaStackFineTuningLambdaD279CAAA": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "WeeklyFineTuningRuleAllowEventRuleVoxaStackFineTuningLambdaD279CAAAD006A45D"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "...WrappedClass.<anonymous> in aws-cdk-lib...",
+        "/private/var/folders/lg/rh9v07ks7n1g3ngjmcc6szf00000gn/T/tmp129iwr4a/lib/program.js:1:543 (/private/var/folders/lg/rh9v07ks7n1g3ngjmcc6szf00000gn/T/tmp129iwr4a/lib/program.js:1:5434)",
+        "Kernel._Kernel_ensureSync (/private/var/folders/lg/rh9v07ks7n1g3ngjmcc6szf00000gn/T/tmp129iwr4a/lib/program.js:1:69889)",
+        "Kernel.invoke (/private/var/folders/lg/rh9v07ks7n1g3ngjmcc6szf00000gn/T/tmp129iwr4a/lib/program.js:1:54294)",
+        "KernelHost.processRequest (/private/var/folders/lg/rh9v07ks7n1g3ngjmcc6szf00000gn/T/tmp129iwr4a/lib/program.js:1:212822)",
+        "KernelHost.run (/private/var/folders/lg/rh9v07ks7n1g3ngjmcc6szf00000gn/T/tmp129iwr4a/lib/program.js:1:211877)"
+      ]
+    }
+  ],
+  "/VoxaStack/CDKMetadata/Default": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "CDKMetadata"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "...App.synth in aws-cdk-lib...",
+        "/private/var/folders/lg/rh9v07ks7n1g3ngjmcc6szf00000gn/T/tmp129iwr4a/lib/program.js:1:543 (/private/var/folders/lg/rh9v07ks7n1g3ngjmcc6szf00000gn/T/tmp129iwr4a/lib/program.js:1:5434)",
+        "Kernel._Kernel_ensureSync (/private/var/folders/lg/rh9v07ks7n1g3ngjmcc6szf00000gn/T/tmp129iwr4a/lib/program.js:1:69889)",
+        "Kernel.invoke (/private/var/folders/lg/rh9v07ks7n1g3ngjmcc6szf00000gn/T/tmp129iwr4a/lib/program.js:1:54294)"
+      ]
+    }
+  ],
+  "/VoxaStack/VoxaVpc/PublicSubnet1/Subnet": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "VoxaVpcPublicSubnet1SubnetFC406401"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        ".../var/folders/lg/rh9v07ks7n1g3ngjmcc6szf00000gn/T/jsii-kernel-qLiuwJ/node_modules/aws-cdk-lib/aws-ec2/lib/vpc.js:1:257 in aws-cdk-lib...",
+        "Array.forEach (:)",
+        "...aws-cdk-lib..."
+      ]
+    }
+  ],
+  "/VoxaStack/VoxaVpc/PublicSubnet1/RouteTable": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "VoxaVpcPublicSubnet1RouteTable0BDDEABB"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        ".../var/folders/lg/rh9v07ks7n1g3ngjmcc6szf00000gn/T/jsii-kernel-qLiuwJ/node_modules/aws-cdk-lib/aws-ec2/lib/vpc.js:1:257 in aws-cdk-lib...",
+        "Array.forEach (:)",
+        "...aws-cdk-lib..."
+      ]
+    }
+  ],
+  "/VoxaStack/VoxaVpc/PublicSubnet1/RouteTableAssociation": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "VoxaVpcPublicSubnet1RouteTableAssociation63F7952F"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        ".../var/folders/lg/rh9v07ks7n1g3ngjmcc6szf00000gn/T/jsii-kernel-qLiuwJ/node_modules/aws-cdk-lib/aws-ec2/lib/vpc.js:1:257 in aws-cdk-lib...",
+        "Array.forEach (:)",
+        "...aws-cdk-lib..."
+      ]
+    }
+  ],
+  "/VoxaStack/VoxaVpc/PublicSubnet1/DefaultRoute": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "VoxaVpcPublicSubnet1DefaultRouteC6057F0C"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        ".../var/folders/lg/rh9v07ks7n1g3ngjmcc6szf00000gn/T/jsii-kernel-qLiuwJ/node_modules/aws-cdk-lib/aws-ec2/lib/vpc.js:1:197 in aws-cdk-lib...",
+        "Array.forEach (:)",
+        "...new Vpc2 in aws-cdk-lib...",
+        "Kernel._Kernel_create (/private/var/folders/lg/rh9v07ks7n1g3ngjmcc6szf00000gn/T/tmp129iwr4a/lib/program.js:1:61273)",
+        "Kernel.create (/private/var/folders/lg/rh9v07ks7n1g3ngjmcc6szf00000gn/T/tmp129iwr4a/lib/program.js:1:52004)",
+        "KernelHost.processRequest (/private/var/folders/lg/rh9v07ks7n1g3ngjmcc6szf00000gn/T/tmp129iwr4a/lib/program.js:1:212822)",
+        "KernelHost.run (/private/var/folders/lg/rh9v07ks7n1g3ngjmcc6szf00000gn/T/tmp129iwr4a/lib/program.js:1:211877)"
+      ]
+    }
+  ],
+  "/VoxaStack/VoxaVpc/PublicSubnet1/EIP": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "VoxaVpcPublicSubnet1EIPDBE39FF3"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "...new Vpc2 in aws-cdk-lib...",
+        "Kernel._Kernel_create (/private/var/folders/lg/rh9v07ks7n1g3ngjmcc6szf00000gn/T/tmp129iwr4a/lib/program.js:1:61273)",
+        "Kernel.create (/private/var/folders/lg/rh9v07ks7n1g3ngjmcc6szf00000gn/T/tmp129iwr4a/lib/program.js:1:52004)",
+        "KernelHost.processRequest (/private/var/folders/lg/rh9v07ks7n1g3ngjmcc6szf00000gn/T/tmp129iwr4a/lib/program.js:1:212822)",
+        "KernelHost.run (/private/var/folders/lg/rh9v07ks7n1g3ngjmcc6szf00000gn/T/tmp129iwr4a/lib/program.js:1:211877)"
+      ]
+    }
+  ],
+  "/VoxaStack/VoxaVpc/PublicSubnet1/NATGateway": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "VoxaVpcPublicSubnet1NATGateway63685355"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "...new Vpc2 in aws-cdk-lib...",
+        "Kernel._Kernel_create (/private/var/folders/lg/rh9v07ks7n1g3ngjmcc6szf00000gn/T/tmp129iwr4a/lib/program.js:1:61273)",
+        "Kernel.create (/private/var/folders/lg/rh9v07ks7n1g3ngjmcc6szf00000gn/T/tmp129iwr4a/lib/program.js:1:52004)",
+        "KernelHost.processRequest (/private/var/folders/lg/rh9v07ks7n1g3ngjmcc6szf00000gn/T/tmp129iwr4a/lib/program.js:1:212822)",
+        "KernelHost.run (/private/var/folders/lg/rh9v07ks7n1g3ngjmcc6szf00000gn/T/tmp129iwr4a/lib/program.js:1:211877)"
+      ]
+    }
+  ],
+  "/VoxaStack/VoxaVpc/PublicSubnet2/Subnet": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "VoxaVpcPublicSubnet2Subnet8FBAB9BA"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        ".../var/folders/lg/rh9v07ks7n1g3ngjmcc6szf00000gn/T/jsii-kernel-qLiuwJ/node_modules/aws-cdk-lib/aws-ec2/lib/vpc.js:1:257 in aws-cdk-lib...",
+        "Array.forEach (:)",
+        "...aws-cdk-lib..."
+      ]
+    }
+  ],
+  "/VoxaStack/VoxaVpc/PublicSubnet2/RouteTable": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "VoxaVpcPublicSubnet2RouteTable86B4E75B"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        ".../var/folders/lg/rh9v07ks7n1g3ngjmcc6szf00000gn/T/jsii-kernel-qLiuwJ/node_modules/aws-cdk-lib/aws-ec2/lib/vpc.js:1:257 in aws-cdk-lib...",
+        "Array.forEach (:)",
+        "...aws-cdk-lib..."
+      ]
+    }
+  ],
+  "/VoxaStack/VoxaVpc/PublicSubnet2/RouteTableAssociation": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "VoxaVpcPublicSubnet2RouteTableAssociation800FEFF9"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        ".../var/folders/lg/rh9v07ks7n1g3ngjmcc6szf00000gn/T/jsii-kernel-qLiuwJ/node_modules/aws-cdk-lib/aws-ec2/lib/vpc.js:1:257 in aws-cdk-lib...",
+        "Array.forEach (:)",
+        "...aws-cdk-lib..."
+      ]
+    }
+  ],
+  "/VoxaStack/VoxaVpc/PublicSubnet2/DefaultRoute": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "VoxaVpcPublicSubnet2DefaultRoute30589868"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        ".../var/folders/lg/rh9v07ks7n1g3ngjmcc6szf00000gn/T/jsii-kernel-qLiuwJ/node_modules/aws-cdk-lib/aws-ec2/lib/vpc.js:1:197 in aws-cdk-lib...",
+        "Array.forEach (:)",
+        "...new Vpc2 in aws-cdk-lib...",
+        "Kernel._Kernel_create (/private/var/folders/lg/rh9v07ks7n1g3ngjmcc6szf00000gn/T/tmp129iwr4a/lib/program.js:1:61273)",
+        "Kernel.create (/private/var/folders/lg/rh9v07ks7n1g3ngjmcc6szf00000gn/T/tmp129iwr4a/lib/program.js:1:52004)",
+        "KernelHost.processRequest (/private/var/folders/lg/rh9v07ks7n1g3ngjmcc6szf00000gn/T/tmp129iwr4a/lib/program.js:1:212822)",
+        "KernelHost.run (/private/var/folders/lg/rh9v07ks7n1g3ngjmcc6szf00000gn/T/tmp129iwr4a/lib/program.js:1:211877)"
+      ]
+    }
+  ],
+  "/VoxaStack/VoxaVpc/PrivateSubnet1/Subnet": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "VoxaVpcPrivateSubnet1SubnetDDDC8E99"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        ".../var/folders/lg/rh9v07ks7n1g3ngjmcc6szf00000gn/T/jsii-kernel-qLiuwJ/node_modules/aws-cdk-lib/aws-ec2/lib/vpc.js:1:260 in aws-cdk-lib...",
+        "Array.forEach (:)",
+        "...aws-cdk-lib..."
+      ]
+    }
+  ],
+  "/VoxaStack/VoxaVpc/PrivateSubnet1/RouteTable": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "VoxaVpcPrivateSubnet1RouteTable2AB14E2B"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        ".../var/folders/lg/rh9v07ks7n1g3ngjmcc6szf00000gn/T/jsii-kernel-qLiuwJ/node_modules/aws-cdk-lib/aws-ec2/lib/vpc.js:1:260 in aws-cdk-lib...",
+        "Array.forEach (:)",
+        "...aws-cdk-lib..."
+      ]
+    }
+  ],
+  "/VoxaStack/VoxaVpc/PrivateSubnet1/RouteTableAssociation": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "VoxaVpcPrivateSubnet1RouteTableAssociation8AED79D1"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        ".../var/folders/lg/rh9v07ks7n1g3ngjmcc6szf00000gn/T/jsii-kernel-qLiuwJ/node_modules/aws-cdk-lib/aws-ec2/lib/vpc.js:1:260 in aws-cdk-lib...",
+        "Array.forEach (:)",
+        "...aws-cdk-lib..."
+      ]
+    }
+  ],
+  "/VoxaStack/VoxaVpc/PrivateSubnet1/DefaultRoute": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "VoxaVpcPrivateSubnet1DefaultRoute5B479E43"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "...new Vpc2 in aws-cdk-lib...",
+        "Kernel._Kernel_create (/private/var/folders/lg/rh9v07ks7n1g3ngjmcc6szf00000gn/T/tmp129iwr4a/lib/program.js:1:61273)",
+        "Kernel.create (/private/var/folders/lg/rh9v07ks7n1g3ngjmcc6szf00000gn/T/tmp129iwr4a/lib/program.js:1:52004)",
+        "KernelHost.processRequest (/private/var/folders/lg/rh9v07ks7n1g3ngjmcc6szf00000gn/T/tmp129iwr4a/lib/program.js:1:212822)"
+      ]
+    }
+  ],
+  "/VoxaStack/VoxaVpc/PrivateSubnet2/Subnet": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "VoxaVpcPrivateSubnet2SubnetE4829619"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        ".../var/folders/lg/rh9v07ks7n1g3ngjmcc6szf00000gn/T/jsii-kernel-qLiuwJ/node_modules/aws-cdk-lib/aws-ec2/lib/vpc.js:1:260 in aws-cdk-lib...",
+        "Array.forEach (:)",
+        "...aws-cdk-lib..."
+      ]
+    }
+  ],
+  "/VoxaStack/VoxaVpc/PrivateSubnet2/RouteTable": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "VoxaVpcPrivateSubnet2RouteTable2F845FD8"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        ".../var/folders/lg/rh9v07ks7n1g3ngjmcc6szf00000gn/T/jsii-kernel-qLiuwJ/node_modules/aws-cdk-lib/aws-ec2/lib/vpc.js:1:260 in aws-cdk-lib...",
+        "Array.forEach (:)",
+        "...aws-cdk-lib..."
+      ]
+    }
+  ],
+  "/VoxaStack/VoxaVpc/PrivateSubnet2/RouteTableAssociation": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "VoxaVpcPrivateSubnet2RouteTableAssociationF7D36BBB"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        ".../var/folders/lg/rh9v07ks7n1g3ngjmcc6szf00000gn/T/jsii-kernel-qLiuwJ/node_modules/aws-cdk-lib/aws-ec2/lib/vpc.js:1:260 in aws-cdk-lib...",
+        "Array.forEach (:)",
+        "...aws-cdk-lib..."
+      ]
+    }
+  ],
+  "/VoxaStack/VoxaVpc/PrivateSubnet2/DefaultRoute": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "VoxaVpcPrivateSubnet2DefaultRoute5CC12A1C"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "...new Vpc2 in aws-cdk-lib...",
+        "Kernel._Kernel_create (/private/var/folders/lg/rh9v07ks7n1g3ngjmcc6szf00000gn/T/tmp129iwr4a/lib/program.js:1:61273)",
+        "Kernel.create (/private/var/folders/lg/rh9v07ks7n1g3ngjmcc6szf00000gn/T/tmp129iwr4a/lib/program.js:1:52004)",
+        "KernelHost.processRequest (/private/var/folders/lg/rh9v07ks7n1g3ngjmcc6szf00000gn/T/tmp129iwr4a/lib/program.js:1:212822)"
+      ]
+    }
+  ],
+  "/VoxaStack/VoxaPostgres/SubnetGroup/Default": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "VoxaPostgresSubnetGroup79476868"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "...new DatabaseInstance2 in aws-cdk-lib...",
+        "Kernel._Kernel_create (/private/var/folders/lg/rh9v07ks7n1g3ngjmcc6szf00000gn/T/tmp129iwr4a/lib/program.js:1:61273)",
+        "Kernel.create (/private/var/folders/lg/rh9v07ks7n1g3ngjmcc6szf00000gn/T/tmp129iwr4a/lib/program.js:1:52004)",
+        "KernelHost.processRequest (/private/var/folders/lg/rh9v07ks7n1g3ngjmcc6szf00000gn/T/tmp129iwr4a/lib/program.js:1:212822)",
+        "KernelHost.run (/private/var/folders/lg/rh9v07ks7n1g3ngjmcc6szf00000gn/T/tmp129iwr4a/lib/program.js:1:211877)"
+      ]
+    }
+  ],
+  "/VoxaStack/VoxaPostgres/Secret/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "VoxaStackVoxaPostgresSecret341AC6EC3fdaad7efa858a3daf9490cf0a702aeb"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "...new DatabaseInstance2 in aws-cdk-lib...",
+        "Kernel._Kernel_create (/private/var/folders/lg/rh9v07ks7n1g3ngjmcc6szf00000gn/T/tmp129iwr4a/lib/program.js:1:61273)",
+        "Kernel.create (/private/var/folders/lg/rh9v07ks7n1g3ngjmcc6szf00000gn/T/tmp129iwr4a/lib/program.js:1:52004)"
+      ]
+    }
+  ],
+  "/VoxaStack/AgentTask/TaskRole/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "AgentTaskTaskRoleDB9648F7"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "...new FargateTaskDefinition2 in aws-cdk-lib...",
+        "Kernel._Kernel_create (/private/var/folders/lg/rh9v07ks7n1g3ngjmcc6szf00000gn/T/tmp129iwr4a/lib/program.js:1:61273)",
+        "Kernel.create (/private/var/folders/lg/rh9v07ks7n1g3ngjmcc6szf00000gn/T/tmp129iwr4a/lib/program.js:1:52004)",
+        "KernelHost.processRequest (/private/var/folders/lg/rh9v07ks7n1g3ngjmcc6szf00000gn/T/tmp129iwr4a/lib/program.js:1:212822)",
+        "KernelHost.run (/private/var/folders/lg/rh9v07ks7n1g3ngjmcc6szf00000gn/T/tmp129iwr4a/lib/program.js:1:211877)"
+      ]
+    }
+  ],
+  "/VoxaStack/AgentTask/ExecutionRole/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "AgentTaskExecutionRole28365420"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "...aws-cdk-lib...",
+        "(no user code in 10 frames, use --stack-trace-limit to capture more)"
+      ]
+    }
+  ],
+  "/VoxaStack/AgentService/LB/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "AgentServiceLB3F8E950B"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "...new ApplicationLoadBalancedFargateService2 in aws-cdk-lib...",
+        "Kernel._Kernel_create (/private/var/folders/lg/rh9v07ks7n1g3ngjmcc6szf00000gn/T/tmp129iwr4a/lib/program.js:1:61273)",
+        "Kernel.create (/private/var/folders/lg/rh9v07ks7n1g3ngjmcc6szf00000gn/T/tmp129iwr4a/lib/program.js:1:52004)",
+        "KernelHost.processRequest (/private/var/folders/lg/rh9v07ks7n1g3ngjmcc6szf00000gn/T/tmp129iwr4a/lib/program.js:1:212822)",
+        "KernelHost.run (/private/var/folders/lg/rh9v07ks7n1g3ngjmcc6szf00000gn/T/tmp129iwr4a/lib/program.js:1:211877)"
+      ]
+    }
+  ],
+  "/VoxaStack/AgentService/Service/Service": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "AgentServiceAC3930CF"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "...new ApplicationLoadBalancedFargateService2 in aws-cdk-lib...",
+        "Kernel._Kernel_create (/private/var/folders/lg/rh9v07ks7n1g3ngjmcc6szf00000gn/T/tmp129iwr4a/lib/program.js:1:61273)",
+        "Kernel.create (/private/var/folders/lg/rh9v07ks7n1g3ngjmcc6szf00000gn/T/tmp129iwr4a/lib/program.js:1:52004)",
+        "KernelHost.processRequest (/private/var/folders/lg/rh9v07ks7n1g3ngjmcc6szf00000gn/T/tmp129iwr4a/lib/program.js:1:212822)",
+        "KernelHost.run (/private/var/folders/lg/rh9v07ks7n1g3ngjmcc6szf00000gn/T/tmp129iwr4a/lib/program.js:1:211877)"
+      ]
+    }
+  ],
+  "/VoxaStack/WorkerLambda/ServiceRole/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "WorkerLambdaServiceRole33A0380F"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "...new DockerImageFunction2 in aws-cdk-lib...",
+        "Kernel._Kernel_create (/private/var/folders/lg/rh9v07ks7n1g3ngjmcc6szf00000gn/T/tmp129iwr4a/lib/program.js:1:61273)",
+        "Kernel.create (/private/var/folders/lg/rh9v07ks7n1g3ngjmcc6szf00000gn/T/tmp129iwr4a/lib/program.js:1:52004)",
+        "KernelHost.processRequest (/private/var/folders/lg/rh9v07ks7n1g3ngjmcc6szf00000gn/T/tmp129iwr4a/lib/program.js:1:212822)",
+        "KernelHost.run (/private/var/folders/lg/rh9v07ks7n1g3ngjmcc6szf00000gn/T/tmp129iwr4a/lib/program.js:1:211877)"
+      ]
+    }
+  ],
+  "/VoxaStack/WorkerLambda/SqsEventSource:VoxaStackPostCallQueueA8F64CE4/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "WorkerLambdaSqsEventSourceVoxaStackPostCallQueueA8F64CE4A836E7C7"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "...WrappedClass.addEventSource in aws-cdk-lib...",
+        "/private/var/folders/lg/rh9v07ks7n1g3ngjmcc6szf00000gn/T/tmp129iwr4a/lib/program.js:1:543 (/private/var/folders/lg/rh9v07ks7n1g3ngjmcc6szf00000gn/T/tmp129iwr4a/lib/program.js:1:5434)",
+        "Kernel._Kernel_ensureSync (/private/var/folders/lg/rh9v07ks7n1g3ngjmcc6szf00000gn/T/tmp129iwr4a/lib/program.js:1:69889)",
+        "Kernel.invoke (/private/var/folders/lg/rh9v07ks7n1g3ngjmcc6szf00000gn/T/tmp129iwr4a/lib/program.js:1:54294)",
+        "KernelHost.processRequest (/private/var/folders/lg/rh9v07ks7n1g3ngjmcc6szf00000gn/T/tmp129iwr4a/lib/program.js:1:212822)",
+        "KernelHost.run (/private/var/folders/lg/rh9v07ks7n1g3ngjmcc6szf00000gn/T/tmp129iwr4a/lib/program.js:1:211877)"
+      ]
+    }
+  ],
+  "/VoxaStack/FineTuningLambda/ServiceRole/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "FineTuningLambdaServiceRoleB78CFB0A"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "...new DockerImageFunction2 in aws-cdk-lib...",
+        "Kernel._Kernel_create (/private/var/folders/lg/rh9v07ks7n1g3ngjmcc6szf00000gn/T/tmp129iwr4a/lib/program.js:1:61273)",
+        "Kernel.create (/private/var/folders/lg/rh9v07ks7n1g3ngjmcc6szf00000gn/T/tmp129iwr4a/lib/program.js:1:52004)",
+        "KernelHost.processRequest (/private/var/folders/lg/rh9v07ks7n1g3ngjmcc6szf00000gn/T/tmp129iwr4a/lib/program.js:1:212822)",
+        "KernelHost.run (/private/var/folders/lg/rh9v07ks7n1g3ngjmcc6szf00000gn/T/tmp129iwr4a/lib/program.js:1:211877)"
+      ]
+    }
+  ],
+  "/VoxaStack/VoxaPostgres/Secret/Attachment/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "VoxaPostgresSecretAttachment6AF26F8F"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "...new DatabaseInstance2 in aws-cdk-lib...",
+        "Kernel._Kernel_create (/private/var/folders/lg/rh9v07ks7n1g3ngjmcc6szf00000gn/T/tmp129iwr4a/lib/program.js:1:61273)",
+        "Kernel.create (/private/var/folders/lg/rh9v07ks7n1g3ngjmcc6szf00000gn/T/tmp129iwr4a/lib/program.js:1:52004)",
+        "KernelHost.processRequest (/private/var/folders/lg/rh9v07ks7n1g3ngjmcc6szf00000gn/T/tmp129iwr4a/lib/program.js:1:212822)",
+        "KernelHost.run (/private/var/folders/lg/rh9v07ks7n1g3ngjmcc6szf00000gn/T/tmp129iwr4a/lib/program.js:1:211877)",
+        "Immediate._onImmediate (/private/var/folders/lg/rh9v07ks7n1g3ngjmcc6szf00000gn/T/tmp129iwr4a/lib/program.js:1:211921)"
+      ]
+    }
+  ],
+  "/VoxaStack/AgentTask/TaskRole/DefaultPolicy/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "AgentTaskTaskRoleDefaultPolicyFCEB1767"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "...WrappedClass.grantRead in aws-cdk-lib...",
+        "/private/var/folders/lg/rh9v07ks7n1g3ngjmcc6szf00000gn/T/tmp129iwr4a/lib/program.js:1:543 (/private/var/folders/lg/rh9v07ks7n1g3ngjmcc6szf00000gn/T/tmp129iwr4a/lib/program.js:1:5434)",
+        "Kernel._Kernel_ensureSync (/private/var/folders/lg/rh9v07ks7n1g3ngjmcc6szf00000gn/T/tmp129iwr4a/lib/program.js:1:69889)"
+      ]
+    }
+  ],
+  "/VoxaStack/AgentTask/AgentContainer/LogGroup/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "AgentTaskAgentContainerLogGroup7B05B531"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "...WrappedClass.<anonymous> in aws-cdk-lib...",
+        "/private/var/folders/lg/rh9v07ks7n1g3ngjmcc6szf00000gn/T/tmp129iwr4a/lib/program.js:1:543 (/private/var/folders/lg/rh9v07ks7n1g3ngjmcc6szf00000gn/T/tmp129iwr4a/lib/program.js:1:5434)",
+        "Kernel._Kernel_ensureSync (/private/var/folders/lg/rh9v07ks7n1g3ngjmcc6szf00000gn/T/tmp129iwr4a/lib/program.js:1:69889)"
+      ]
+    }
+  ],
+  "/VoxaStack/AgentTask/ExecutionRole/DefaultPolicy/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "AgentTaskExecutionRoleDefaultPolicy040B5063"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "...aws-cdk-lib...",
+        "(no user code in 10 frames, use --stack-trace-limit to capture more)"
+      ]
+    }
+  ],
+  "/VoxaStack/AgentService/LB/SecurityGroup/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "AgentServiceLBSecurityGroup63D4F07B"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "...new ApplicationLoadBalancedFargateService2 in aws-cdk-lib...",
+        "Kernel._Kernel_create (/private/var/folders/lg/rh9v07ks7n1g3ngjmcc6szf00000gn/T/tmp129iwr4a/lib/program.js:1:61273)",
+        "Kernel.create (/private/var/folders/lg/rh9v07ks7n1g3ngjmcc6szf00000gn/T/tmp129iwr4a/lib/program.js:1:52004)"
+      ]
+    }
+  ],
+  "/VoxaStack/AgentService/LB/SecurityGroup/to VoxaStackAgentServiceSecurityGroup42BCC004:8000": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "AgentServiceLBSecurityGrouptoVoxaStackAgentServiceSecurityGroup42BCC004800003BD297E"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "...aws-cdk-lib...",
+        "(no user code in 10 frames, use --stack-trace-limit to capture more)"
+      ]
+    }
+  ],
+  "/VoxaStack/AgentService/LB/PublicListener/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "AgentServiceLBPublicListener01E17E1A"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "...aws-cdk-lib...",
+        "(no user code in 10 frames, use --stack-trace-limit to capture more)"
+      ]
+    }
+  ],
+  "/VoxaStack/AgentService/Service/SecurityGroup/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "AgentServiceSecurityGroup99812D64"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "...new ApplicationLoadBalancedFargateService2 in aws-cdk-lib...",
+        "Kernel._Kernel_create (/private/var/folders/lg/rh9v07ks7n1g3ngjmcc6szf00000gn/T/tmp129iwr4a/lib/program.js:1:61273)",
+        "Kernel.create (/private/var/folders/lg/rh9v07ks7n1g3ngjmcc6szf00000gn/T/tmp129iwr4a/lib/program.js:1:52004)"
+      ]
+    }
+  ],
+  "/VoxaStack/AgentService/Service/SecurityGroup/from VoxaStackAgentServiceLBSecurityGroup0E887E4F:8000": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "AgentServiceSecurityGroupfromVoxaStackAgentServiceLBSecurityGroup0E887E4F8000FA090E6E"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "...aws-cdk-lib...",
+        "(no user code in 10 frames, use --stack-trace-limit to capture more)"
+      ]
+    }
+  ],
+  "/VoxaStack/WorkerLambda/ServiceRole/DefaultPolicy/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "WorkerLambdaServiceRoleDefaultPolicyFC3707DA"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "...aws-cdk-lib...",
+        "(no user code in 10 frames, use --stack-trace-limit to capture more)"
+      ]
+    }
+  ],
+  "/VoxaStack/FineTuningLambda/ServiceRole/DefaultPolicy/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "FineTuningLambdaServiceRoleDefaultPolicy7F7D38C9"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "...aws-cdk-lib...",
+        "(no user code in 10 frames, use --stack-trace-limit to capture more)"
+      ]
+    }
+  ],
+  "/VoxaStack/AgentService/LB/PublicListener/ECSGroup/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "AgentServiceLBPublicListenerECSGroup22B2C396"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "...new ApplicationLoadBalancedFargateService2 in aws-cdk-lib...",
+        "Kernel._Kernel_create (/private/var/folders/lg/rh9v07ks7n1g3ngjmcc6szf00000gn/T/tmp129iwr4a/lib/program.js:1:61273)"
+      ]
+    }
+  ]
+}

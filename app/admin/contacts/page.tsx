@@ -35,158 +35,54 @@ interface ContactData {
   };
 }
 
-const MOCK_CONTACTS: ContactData[] = [
-  {
-    id: "c1",
-    name: "Priya Nair",
-    phone: "+91 98450 12345",
-    email: "priya.nair@gmail.com",
-    status: "Hot",
-    requirements: "3BHK Premium Design & Wardrobes",
-    location: "Whitefield",
-    budget: "8-10L",
-    assignedAgent: "Visal Kumar",
-    lastCallDate: "Today, 11:30 AM",
-    callLog: {
-      duration: "02:47",
-      sentimentScore: 0.85,
-      intentExtracted: "Ready for site visit next Sunday. Needs modular kitchen customization.",
-      transcript: [
-        { role: "AI", text: "Hi Priya — I saw you enquired about our 3BHK design package. Are you still looking?" },
-        { role: "USER", text: "Yes, we just got possession last week actually in Whitefield." },
-        { role: "AI", text: "Perfect timing! Most clients in Whitefield budget around 8-10 lakhs for a full interior. Does that range work?" },
-        { role: "USER", text: "Yes, that is in our budget. I am particularly concerned about modular kitchen layouts though." },
-        { role: "AI", text: "We have a dedicated modular kitchen expert who can draw custom layouts. Can we schedule a showroom walk-through next Sunday?" },
-        { role: "USER", text: "Sunday works. 11:00 AM works best." }
-      ]
-    }
-  },
-  {
-    id: "c2",
-    name: "Arjun Reddy",
-    phone: "+91 99000 87654",
-    email: "arjun.reddy@yahoo.com",
-    status: "Warm",
-    requirements: "Modular Kitchen Overhaul & Living Room",
-    location: "Indiranagar",
-    budget: "3-5L",
-    assignedAgent: "Visal Kumar",
-    lastCallDate: "Yesterday, 4:15 PM",
-    callLog: {
-      duration: "01:50",
-      sentimentScore: 0.68,
-      intentExtracted: "Evaluating modular kitchen materials. Will visit the showroom once quotes are shared.",
-      transcript: [
-        { role: "AI", text: "Hello Arjun, this is VOXA calling from Prestige Interiors. You requested info about Modular Kitchen designs." },
-        { role: "USER", text: "Hi, yes. I need to remodel my kitchen in Indiranagar. I need high-gloss acrylic finishes." },
-        { role: "AI", text: "Excellent choice! Acrylic is extremely durable. For an Indiranagar kitchen and living room setup, our packages usually range from 3 to 5 lakhs. How does that sound?" },
-        { role: "USER", text: "The range is fine. Can you send me some material samples and pricing on WhatsApp?" },
-        { role: "AI", text: "Absolutely, I am triggering an automated WhatsApp with our catalog right away." }
-      ]
-    }
-  },
-  {
-    id: "c3",
-    name: "Sneha Sen",
-    phone: "+91 98860 55432",
-    email: "sneha.sen@outlook.com",
-    status: "Booked",
-    requirements: "Full Home Luxury Villa Design",
-    location: "Sarjapur Road",
-    budget: "25-30L",
-    assignedAgent: "Shalini Padhy",
-    lastCallDate: "May 25, 2:30 PM",
-    callLog: {
-      duration: "04:12",
-      sentimentScore: 0.92,
-      intentExtracted: "Showroom walkthrough booked. Fully qualified lead with high budget.",
-      transcript: [
-        { role: "AI", text: "Hello Sneha, calling regarding your inquiry on our luxury villa designs. How can we help you?" },
-        { role: "USER", text: "Yes, we bought a 4BHK villa on Sarjapur road and need full home interiors. Italian marble and automated lights are a must." },
-        { role: "AI", text: "A premium villa design with smart automation generally budgets around 25 to 30 lakhs. We have a live experience zone at HSR layout showing these setups." },
-        { role: "USER", text: "That sounds amazing. Can we come down on Saturday?" },
-        { role: "AI", text: "Saturday is perfect. I have locked your slot with Shalini Padhy, our chief architect, for 3:00 PM." }
-      ]
-    }
-  },
-  {
-    id: "c4",
-    name: "Rahul Hegde",
-    phone: "+91 97410 44321",
-    email: "rahul.hegde@hotmail.com",
-    status: "Warm",
-    requirements: "2BHK Compact Interior Package",
-    location: "Electronic City",
-    budget: "6-8L",
-    assignedAgent: "Visal Kumar",
-    lastCallDate: "May 24, 10:00 AM",
-    callLog: {
-      duration: "02:15",
-      sentimentScore: 0.6,
-      intentExtracted: "Comparing quotes with competitors. Needs space-saving multi-functional beds.",
-      transcript: [
-        { role: "AI", text: "Hi Rahul, VOXA calling. You enquired about our E-City 2BHK space-saving packages." },
-        { role: "USER", text: "Yes, I am comparing a few interior startups right now. Budget is tight around 6 to 8 lakhs." },
-        { role: "AI", text: "We specialize in space-optimization! We bundle multi-functional wall beds and study units that fit perfectly in this range." },
-        { role: "USER", text: "Okay, send me the E-City catalog. If I like the designs, I will book a designer consult." }
-      ]
-    }
-  },
-  {
-    id: "c5",
-    name: "Kavya Rao",
-    phone: "+91 96110 99887",
-    email: "kavya.rao@gmail.com",
-    status: "Hot",
-    requirements: "4BHK Duplex Full Home Designing",
-    location: "HSR Layout",
-    budget: "15-18L",
-    assignedAgent: "Shalini Padhy",
-    lastCallDate: "May 23, 5:45 PM",
-    callLog: {
-      duration: "03:05",
-      sentimentScore: 0.88,
-      intentExtracted: "Highly interested. Wants solid wood veneers. Consultation scheduled.",
-      transcript: [
-        { role: "AI", text: "Hi Kavya, calling from VOXA. You're looking for Duplex designs in HSR layout?" },
-        { role: "USER", text: "Yes, we have possession of a duplex and need premium wood paneling and high-end veneers." },
-        { role: "AI", text: "Duplexes are great! Standard veneer-themed layouts generally range from 15 to 18 lakhs. Would you like a designer to call you?" },
-        { role: "USER", text: "Yes, please ask Shalini to call me. I liked her portfolio on your site." }
-      ]
-    }
-  },
-  {
-    id: "c6",
-    name: "Deepak Shetty",
-    phone: "+91 95350 33221",
-    email: "deepak.shetty@gmail.com",
-    status: "Booked",
-    requirements: "Living Room Accent Wall & Sofa Overhaul",
-    location: "Koramangala",
-    budget: "2.5-4L",
-    assignedAgent: "Shalini Padhy",
-    lastCallDate: "May 22, 11:15 AM",
-    callLog: {
-      duration: "01:25",
-      sentimentScore: 0.72,
-      intentExtracted: "Consultation booked. Wants custom structural gypsum wall treatments.",
-      transcript: [
-        { role: "AI", text: "Hi Deepak, VOXA calling. You enquired about our Koramangala premium living room renovations." },
-        { role: "USER", text: "Yes, I need to renovate my TV unit and add customized wood paneling. Budget is around 3 lakhs." },
-        { role: "AI", text: "We can easily fit solid MDF paneling in that range! I can book a home measurement visit for you." },
-        { role: "USER", text: "Great, book it for Saturday morning at 10 AM." }
-      ]
-    }
-  }
-];
+
 
 export default function AdminContacts() {
-  const [filterStatus, setFilterStatus] = useState<"All" | "Hot" | "Warm" | "Booked" | "DND">("All");
+  const [filterStatus, setFilterStatus] = useState<string>("All");
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedContact, setSelectedContact] = useState<ContactData | null>(null);
+  const [contacts, setContacts] = useState<ContactData[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  React.useEffect(() => {
+    async function fetchContacts() {
+      try {
+        const res = await fetch("/api/contacts");
+        if (res.ok) {
+          const json = await res.json();
+          if (json.data && Array.isArray(json.data)) {
+            const mapped = json.data.map((c: any) => ({
+              id: c.id,
+              name: c.name,
+              phone: c.phone,
+              email: c.email || "",
+              status: c.status,
+              requirements: c.bhkType ? `${c.bhkType} requirements` : c.notes || "Not specified",
+              location: c.location || "Unknown",
+              budget: `${c.budgetMin || 0}-${c.budgetMax || 0}L`,
+              assignedAgent: c.assignedAgentId || "Unassigned",
+              lastCallDate: new Date(c.updatedAt).toLocaleString(),
+              callLog: {
+                duration: "00:00",
+                sentimentScore: 0.5,
+                intentExtracted: "No transcript available.",
+                transcript: []
+              }
+            }));
+            setContacts(mapped);
+          }
+        }
+      } catch (err) {
+        console.error("Failed to load contacts", err);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    fetchContacts();
+  }, []);
 
   // Filter contacts based on Status Pill and Search Query
-  const filteredContacts = MOCK_CONTACTS.filter((c) => {
+  const filteredContacts = contacts.filter((c) => {
     const matchesStatus = filterStatus === "All" || c.status === filterStatus;
     const matchesQuery =
       c.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -218,7 +114,7 @@ export default function AdminContacts() {
               fontFamily: "var(--font-mono)",
             }}
           >
-            Total Leads: <span style={{ color: "var(--gold)", fontWeight: 600 }}>{MOCK_CONTACTS.length}</span>
+            Total Leads: <span style={{ color: "var(--gold)", fontWeight: 600 }}>{contacts.length}</span>
           </div>
         </div>
 

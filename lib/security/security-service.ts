@@ -9,11 +9,16 @@ import { verifySessionJwt } from "../../proxy";
 export async function verifySessionFromRequest(request: NextRequest): Promise<{
   sub: string;
   tenantId: string;
-  role: "ADMIN" | "SALES_AGENT" | "READ_ONLY";
+  role: "SUPER_ADMIN" | "ADMIN" | "SALES_AGENT" | "READ_ONLY";
 } | null> {
   const sessionCookie = request.cookies.get("session")?.value;
   if (!sessionCookie) return null;
-  return verifySessionJwt(sessionCookie);
+  return verifySessionJwt(sessionCookie) as Promise<{
+    sub: string;
+    tenantId: string;
+    role: "SUPER_ADMIN" | "ADMIN" | "SALES_AGENT" | "READ_ONLY";
+    jti?: string;
+  } | null>;
 }
 
 /**
@@ -60,7 +65,7 @@ export function evaluateGuardrails(userInput: string): {
 } {
   const normalizedInput = userInput.trim().toLowerCase();
 
-  // Common prompt injection keywords/payloads
+  // Common prompt injection keywords/payloads (including advanced jailbreaks and evasion attempts)
   const injectionPatterns = [
     "ignore previous instructions",
     "ignore all guidelines",
@@ -72,6 +77,15 @@ export function evaluateGuardrails(userInput: string): {
     "change role",
     "print system instructions",
     "reveal instructions",
+    "dan mode",
+    "jailbreak",
+    "developer mode",
+    "ignore safety guidelines",
+    "bypass constraints",
+    "new instruction set",
+    "do anything now",
+    "pretend to be",
+    "you must now respond as"
   ];
 
   const containsInjection = injectionPatterns.some((pattern) =>
@@ -124,6 +138,18 @@ export function redactPII(text: string): string {
     
     return "[ADDRESS_REDACTED]";
   });
+
+  // D. Redact Aadhaar Numbers
+  const aadhaarRegex = /\b\d{4}\s?\d{4}\s?\d{4}\b/g;
+  redactedText = redactedText.replace(aadhaarRegex, "[AADHAAR_REDACTED]");
+
+  // E. Redact PAN Numbers
+  const panRegex = /\b[A-Z]{5}\d{4}[A-Z]\b/gi;
+  redactedText = redactedText.replace(panRegex, "[PAN_REDACTED]");
+
+  // F. Redact IFSC Codes
+  const ifscRegex = /\b[A-Z]{4}0[A-Z0-9]{6}\b/gi;
+  redactedText = redactedText.replace(ifscRegex, "[IFSC_REDACTED]");
 
   return redactedText;
 }
