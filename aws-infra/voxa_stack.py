@@ -20,7 +20,8 @@ from aws_cdk import (
     aws_cognito as cognito,
     aws_cloudfront as cf,
     aws_cloudfront_origins as origins,
-    RemovalPolicy
+    RemovalPolicy,
+    aws_elasticache as elasticache
 )
 from constructs import Construct
 
@@ -76,6 +77,11 @@ class VoxaStack(Stack):
             ec2.Port.tcp(5432),
             "Allow PostgreSQL from VPC"
         )
+        db_sg.add_ingress_rule(
+            ec2.Peer.ipv4(vpc.vpc_cidr_block),
+            ec2.Port.tcp(6379),
+            "Allow Redis from VPC"
+        )
 
         # =========================================================================
         # RDS Production Hardening (PostgreSQL 16)
@@ -109,6 +115,33 @@ class VoxaStack(Stack):
         CfnOutput(self, "DbEndpoint",
             value=db_instance.db_instance_endpoint_address,
             description="RDS PostgreSQL endpoint"
+        )
+
+        # =========================================================================
+        # Production ElastiCache Redis Cluster Configuration
+        # =========================================================================
+        cache_subnet_group = elasticache.CfnSubnetGroup(
+            self, "VoxaCacheSubnets",
+            description="Multi-tenant Redis Cache Private Partition Group",
+            subnet_ids=[subnet.subnet_id for subnet in vpc.private_subnets]
+        )
+
+        production_redis_cluster = elasticache.CfnCacheCluster(
+            self, "VoxaProductionValkeyRedis",
+            engine="redis",
+            cache_node_type="cache.t4g.micro",
+            num_cache_nodes=1,
+            cache_subnet_group_name=cache_subnet_group.ref,
+            vpc_security_group_ids=[db_sg.security_group_id]  # Re-use established security boundaries
+        )
+
+        CfnOutput(self, "RedisEndpoint",
+            value=production_redis_cluster.attr_redis_endpoint_address,
+            description="Redis primary endpoint address"
+        )
+        CfnOutput(self, "RedisPort",
+            value=production_redis_cluster.attr_redis_endpoint_port,
+            description="Redis primary endpoint port"
         )
 
         # =========================================================================
@@ -207,7 +240,8 @@ class VoxaStack(Stack):
                 "AWS_REGION":        self.region,
                 "INTERNAL_API_KEY":  "{{resolve:secretsmanager:VOXA_SECRETS:SecretString:INTERNAL_API_KEY}}",
                 "RECORDINGS_BUCKET_NAME": bucket.bucket_name,
-                "DATABASE_URL":      f"postgresql://voxa_admin:{db_instance.secret.secret_value_from_json('password').unsafe_unwrap()}@{db_instance.db_instance_endpoint_address}:5432/voxa_prod"
+                "DATABASE_URL":      f"postgresql://voxa_admin:{db_instance.secret.secret_value_from_json('password').unsafe_unwrap()}@{db_instance.db_instance_endpoint_address}:5432/voxa_prod",
+                "REDIS_URL":         f"redis://{production_redis_cluster.attr_redis_endpoint_address}:{production_redis_cluster.attr_redis_endpoint_port}"
             },
             health_check=ecs.HealthCheck(
                 command=["CMD-SHELL", "curl -f http://localhost:8080/health || exit 1"],
@@ -249,8 +283,7 @@ class VoxaStack(Stack):
                 "VOXA_SECRETS_ARN":          secret.secret_arn,
                 "AWS_REGION":                self.region,
                 "FASTIFY_INTERNAL_URL":      "http://fastify.voxa.internal:8080",
-                "UPSTASH_REDIS_REST_URL":    "{{resolve:secretsmanager:VOXA_SECRETS:SecretString:UPSTASH_REDIS_REST_URL}}",
-                "UPSTASH_REDIS_REST_TOKEN":  "{{resolve:secretsmanager:VOXA_SECRETS:SecretString:UPSTASH_REDIS_REST_TOKEN}}",
+                "REDIS_URL":                 f"redis://{production_redis_cluster.attr_redis_endpoint_address}:{production_redis_cluster.attr_redis_endpoint_port}",
                 "JWT_SECRET":                "{{resolve:secretsmanager:VOXA_SECRETS:SecretString:JWT_SECRET}}",
                 "COGNITO_USER_POOL_ID":      "{{resolve:secretsmanager:VOXA_SECRETS:SecretString:COGNITO_USER_POOL_ID}}",
                 "COGNITO_CLIENT_ID":         "{{resolve:secretsmanager:VOXA_SECRETS:SecretString:COGNITO_CLIENT_ID}}",

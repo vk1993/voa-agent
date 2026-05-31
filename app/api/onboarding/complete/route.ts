@@ -1,12 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { verifySessionJwt } from "../../../../proxy";
-import { Redis } from "@upstash/redis";
-
-const redis = new Redis({
-  url: process.env.UPSTASH_REDIS_REST_URL || "",
-  token: process.env.UPSTASH_REDIS_REST_TOKEN || "",
-});
+import redis from "@/lib/redis";
 
 export async function POST(request: NextRequest) {
   try {
@@ -42,9 +37,9 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    // Synchronize onboardingComplete status with Redis Edge Cache
+    // Synchronize onboardingComplete status with Redis Edge Cache using partitioned namespace
     try {
-      await redis.set(`tenant:onboarding:${tenantId}`, "true");
+      await redis.set(`t:${tenantId}:onboarding`, "true");
     } catch (redisError) {
       console.error("[ONBOARDING] Failed to push onboardingComplete:true to Redis:", redisError);
     }

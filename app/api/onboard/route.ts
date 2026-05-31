@@ -3,12 +3,7 @@ import { SignJWT } from "jose";
 import crypto from "crypto";
 import prisma from "@/lib/prisma";
 import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
-import { Redis } from "@upstash/redis";
-
-const redis = new Redis({
-  url: process.env.UPSTASH_REDIS_REST_URL || "",
-  token: process.env.UPSTASH_REDIS_REST_TOKEN || "",
-});
+import redis from "@/lib/redis";
 
 const IS_DEV = process.env.NODE_ENV !== "production";
 
@@ -75,6 +70,9 @@ export async function POST(request: NextRequest) {
           tenantId: newTenant.id,
           cognitoSub: cognitoSub,
           isActive: true,
+          name:
+            email.split("@")[0].charAt(0).toUpperCase() +
+            email.split("@")[0].slice(1), // derive name from email prefix
         },
       });
 
@@ -83,9 +81,9 @@ export async function POST(request: NextRequest) {
 
     const { tenant, user } = result;
 
-    // Synchronize onboarding complete false status with Redis Edge Cache
+    // Synchronize onboarding complete false status with Redis Edge Cache using partitioned namespace
     try {
-      await redis.set(`tenant:onboarding:${tenant.id}`, "false");
+      await redis.set(`t:${tenant.id}:onboarding`, "false");
     } catch (redisError) {
       console.error("[ONBOARDING] Failed to push onboardingComplete:false to Redis", redisError);
     }

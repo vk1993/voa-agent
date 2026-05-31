@@ -101,6 +101,7 @@ export function Sidebar({
       {onMobileClose && (
         <button
           onClick={onMobileClose}
+          className="sidebar-close-btn"
           style={{
             position: "absolute",
             top: 18,
@@ -109,7 +110,6 @@ export function Sidebar({
             border: "none",
             color: "var(--txt3)",
             cursor: "pointer",
-            display: "flex",
             alignItems: "center",
             justifyContent: "center",
             padding: 4,

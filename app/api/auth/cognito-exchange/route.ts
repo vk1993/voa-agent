@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { SignJWT } from "jose";
 import crypto from "crypto";
 import prisma from "@/lib/prisma";
+import redis from "@/lib/redis";
 import * as Cognito from "@aws-sdk/client-cognito-identity-provider";
 
 const IS_DEV = process.env.NODE_ENV !== "production";
@@ -148,6 +149,23 @@ export async function POST(request: NextRequest) {
         },
       });
       userId = dbUser.id;
+    }
+
+    // ── Sync onboarding state to Redis so proxy.ts redirect works correctly ──
+    try {
+      const tenant = await prisma.tenant.findUnique({
+        where: { id: tenantId },
+        select: { onboardingComplete: true },
+      });
+      if (tenant) {
+        await redis.set(
+          `t:${tenantId}:onboarding`,
+          tenant.onboardingComplete ? "true" : "false"
+        );
+      }
+    } catch (redisErr) {
+      console.error("[AUTH] Failed to sync onboarding state to Redis:", redisErr);
+      // Non-fatal — fail-open
     }
 
     // ── Sign JWT directly (no external exchange endpoint) ────────────

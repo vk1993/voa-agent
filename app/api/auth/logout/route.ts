@@ -1,16 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { verifySessionJwt } from "../../../../proxy";
-import { Redis } from "@upstash/redis";
-
-// Instantiate Upstash Redis client safely
-const redis =
-  process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN
-    ? new Redis({
-        url: process.env.UPSTASH_REDIS_REST_URL,
-        token: process.env.UPSTASH_REDIS_REST_TOKEN,
-      })
-    : null;
+import redis from "@/lib/redis";
 
 export async function POST(request: NextRequest) {
   try {
@@ -20,12 +11,17 @@ export async function POST(request: NextRequest) {
     if (sessionCookie) {
       const payload = await verifySessionJwt(sessionCookie);
       
-      // If the session is valid and has a JTI, blacklist it in Redis
-      if (payload && payload.jti && redis) {
-        const blacklistKey = `blacklist:jti:${payload.jti}`;
-        // Blacklist token for 24 hours (86400 seconds) matching token TTL
-        await redis.set(blacklistKey, "true", { ex: 86400 });
-        console.log(`[AUTH] Session blacklisted: ${payload.jti}`);
+      // If the session is valid and has a JTI, blacklist it in Redis with multi-tenant prefix format
+      if (payload && payload.jti) {
+        const blacklistKey = `t:${payload.tenantId}:blacklist:jti:${payload.jti}`;
+        
+        try {
+          // Blacklist token for 24 hours (86400 seconds) matching token TTL
+          await redis.set(blacklistKey, "true", "EX", 86400);
+          console.log(`[AUTH] Session blacklisted locally/production: ${payload.jti}`);
+        } catch (redisErr) {
+          console.error("[AUTH] Blacklist set failure (fail-open):", redisErr);
+        }
       }
     }
 

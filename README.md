@@ -210,8 +210,8 @@ VOXA provides a complete local development orchestration environment leveraging 
    - **Fastify API Server**: `npm run dev:server` (Port 8080)
    - **Python Telephony Agent**:
      ```bash
-     cd python && source venv/bin/activate
-     cd agent && uvicorn main:app --port 8000
+     source venv/bin/activate
+     cd python/agent && uvicorn main:app --port 8000
      ```
 
 ---

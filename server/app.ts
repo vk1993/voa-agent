@@ -2,7 +2,7 @@ import Fastify, { FastifyInstance } from "fastify";
 import helmet from "@fastify/helmet";
 import cors from "@fastify/cors";
 import crypto from "crypto";
-import { Redis } from "@upstash/redis";
+import Redis from "ioredis";
 import { jwtVerify, createRemoteJWKSet } from "jose";
 import { PrismaClient } from "@prisma/client";
 import { getTenantClient } from "../lib/prisma-tenant";
@@ -33,9 +33,13 @@ export async function createServer(): Promise<FastifyInstance> {
   });
 
   // Initialize secure Redis reference for rate limiting and JWT blacklisting
-  const redis = new Redis({
-    url: process.env.UPSTASH_REDIS_REST_URL || "https://mock.upstash.io",
-    token: process.env.UPSTASH_REDIS_REST_TOKEN || "mock_token",
+  const redis = new Redis(process.env.REDIS_URL || "redis://localhost:6379", {
+    maxRetriesPerRequest: null,
+    enableOfflineQueue: true,
+  });
+
+  redis.on("error", (err: any) => {
+    app.log.error(err, "[FASTIFY REDIS ERROR]");
   });
 
   // Cache JWKS in edge memory via Jose remote JWKSet if in production
@@ -128,8 +132,8 @@ export async function createServer(): Promise<FastifyInstance> {
         payload = result.payload;
       }
 
-      // Assert Blacklisted Session Tokens (JTI) for revoked access tokens
-      const isRevoked = await redis.get(`blacklist:jti:${payload.jti}`);
+      // Assert Blacklisted Session Tokens (JTI) for revoked access tokens using strict multi-tenant prefix format
+      const isRevoked = await redis.get(`t:${payload.tenantId}:blacklist:jti:${payload.jti}`);
       if (isRevoked) {
         reply.status(401).send({
           error: "Unauthorized",
@@ -158,21 +162,33 @@ export async function createServer(): Promise<FastifyInstance> {
     // Avoid rate limiting internal/health checks
     if (req.routeOptions.url === "/health" || req.routeOptions.url === "/status") return;
 
-    // Securely pull tenantId from the verified JWT payload rather than spoofable headers
+    // Securely pull tenantId from verified JWT payload and construct partitioned tenant/IP keys
     const tenantId = req.user ? req.user.tenantId : "anonymous";
-    const key = `ratelimit:tenant:${tenantId}`;
+    const key = tenantId !== "anonymous"
+      ? `t:${tenantId}:ratelimit`
+      : `t:anonymous:ratelimit:ip:${req.ip || "127.0.0.1"}`;
+
     const now = Date.now();
     const windowStart = now - 60000; // 60s sliding window
 
     try {
       const p = redis.pipeline();
       p.zremrangebyscore(key, 0, windowStart);
-      p.zadd(key, { score: now, member: String(now) });
+      p.zadd(key, now, String(now)); // Standard ioredis signature
       p.zcard(key);
       p.expire(key, 60);
 
       const results = await p.exec();
-      const requestCount = results[2] as number;
+      if (!results || results.length === 0) {
+        throw new Error("Pipeline returned empty results");
+      }
+
+      // In standard ioredis, exec results are returned as [error, result][] tuples
+      const zcardResult = results[2];
+      if (zcardResult[0]) {
+        throw zcardResult[0];
+      }
+      const requestCount = zcardResult[1] as number;
 
       // Default to STARTER limit securely
       const limit = 100; // Starter: 100 req/min

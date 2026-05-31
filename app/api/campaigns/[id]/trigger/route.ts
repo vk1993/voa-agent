@@ -1,16 +1,16 @@
-import { NextResponse } from "next/server";
+import { NextResponse, NextRequest } from "next/server";
 import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
-export async function POST(req: Request, { params }: { params: { id: string } }) {
+export async function POST(request: NextRequest, context: { params: Promise<{ id: string }> }) {
   try {
-    const authHeader = req.headers.get("authorization");
+    const authHeader = request.headers.get("authorization");
     if (!authHeader || authHeader !== `Bearer ${process.env.INTERNAL_API_KEY}`) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { id: campaignId } = params;
+    const { id: campaignId } = await context.params;
 
     const campaign = await prisma.campaign.findUnique({
       where: { id: campaignId },

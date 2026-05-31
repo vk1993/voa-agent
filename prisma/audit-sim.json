@@ -1,6 +1,663 @@
 [
   {
     "tenant_id": "tenant-a-uuid",
+    "timestamp": "2026-05-31T17:42:42.712Z",
+    "user_id": "admin@tenant-a.com",
+    "action": "POST_EXPORT",
+    "resource": "/contacts/export",
+    "previous_state": "{\"status\":\"STAGED\"}",
+    "new_state": "{\"status\":\"COMPLETED\",\"requestId\":\"c9837c21-0748-4dbd-8225-530a48bda064\",\"statusCode\":200,\"latencyMs\":22.41504192352295}"
+  },
+  {
+    "tenant_id": "tenant-a-uuid",
+    "timestamp": "2026-05-31T17:42:42.690Z",
+    "user_id": "admin@tenant-a.com",
+    "action": "DATA_EXPORT_REQUESTED",
+    "resource": "contacts/export",
+    "previous_state": "{}",
+    "new_state": "{\"severity\":\"CRITICAL\",\"format\":\"CSV\",\"status\":\"INITIATED\"}"
+  },
+  {
+    "tenant_id": "tenant-a-uuid",
+    "timestamp": "2026-05-31T17:42:42.600Z",
+    "user_id": "admin@tenant-a.com",
+    "action": "DELETE_:ID",
+    "resource": "/contacts/:id",
+    "previous_state": "{\"status\":\"STAGED\"}",
+    "new_state": "{\"status\":\"COMPLETED\",\"requestId\":\"5437fda0-aa3a-4a44-a985-9ce240fae8d3\",\"statusCode\":200,\"latencyMs\":14.837167024612427}"
+  },
+  {
+    "tenant_id": "tenant-a-uuid",
+    "timestamp": "2026-05-31T17:42:42.586Z",
+    "user_id": "admin@tenant-a.com",
+    "action": "CONTACT_DELETED",
+    "resource": "contacts/some-contact-uuid",
+    "previous_state": "{\"previousStatus\":\"ACTIVE\"}",
+    "new_state": "{\"newStatus\":\"ARCHIVED\",\"severity\":\"CRITICAL\"}"
+  },
+  {
+    "tenant_id": "tenant-a-uuid",
+    "timestamp": "2026-05-31T17:42:42.538Z",
+    "user_id": "agent@tenant-a.com",
+    "action": "UNAUTHORIZED_ACCESS_ATTEMPT",
+    "resource": "/contacts/export",
+    "previous_state": "{\"attemptedRole\":\"SALES_AGENT\"}",
+    "new_state": "{\"error\":\"403 Forbidden\",\"allowedRoles\":[\"ADMIN\"],\"severity\":\"WARNING\"}"
+  },
+  {
+    "tenant_id": "tenant-a-uuid",
+    "timestamp": "2026-05-31T17:42:42.439Z",
+    "user_id": "agent@tenant-a.com",
+    "action": "CONTACTS_VIEWED",
+    "resource": "contacts",
+    "previous_state": "{}",
+    "new_state": "{\"recordCount\":1,\"page\":1,\"limit\":10}"
+  },
+  {
+    "tenant_id": "tenant-a-uuid",
+    "timestamp": "2026-05-31T17:42:42.338Z",
+    "user_id": "agent@tenant-a.com",
+    "action": "UNAUTHORIZED_ACCESS_ATTEMPT",
+    "resource": "/contacts/some-contact-uuid",
+    "previous_state": "{\"attemptedRole\":\"SALES_AGENT\"}",
+    "new_state": "{\"error\":\"403 Forbidden\",\"allowedRoles\":[\"ADMIN\"],\"severity\":\"WARNING\"}"
+  },
+  {
+    "tenant_id": "tenant-a-uuid",
+    "timestamp": "2026-05-31T17:42:42.202Z",
+    "user_id": "user-a@tenant-a.com",
+    "action": "CONTACTS_VIEWED",
+    "resource": "contacts",
+    "previous_state": "{}",
+    "new_state": "{\"recordCount\":2,\"page\":1,\"limit\":10}"
+  },
+  {
+    "tenant_id": "tenant-a-uuid",
+    "timestamp": "2026-05-31T17:39:48.307Z",
+    "user_id": "admin@tenant-a.com",
+    "action": "POST_EXPORT",
+    "resource": "/contacts/export",
+    "previous_state": "{\"status\":\"STAGED\"}",
+    "new_state": "{\"status\":\"COMPLETED\",\"requestId\":\"a90db030-ce8b-49a3-b834-fe3bb97aca00\",\"statusCode\":200,\"latencyMs\":11.804374933242798}"
+  },
+  {
+    "tenant_id": "tenant-a-uuid",
+    "timestamp": "2026-05-31T17:39:48.296Z",
+    "user_id": "admin@tenant-a.com",
+    "action": "DATA_EXPORT_REQUESTED",
+    "resource": "contacts/export",
+    "previous_state": "{}",
+    "new_state": "{\"severity\":\"CRITICAL\",\"format\":\"CSV\",\"status\":\"INITIATED\"}"
+  },
+  {
+    "tenant_id": "tenant-a-uuid",
+    "timestamp": "2026-05-31T17:39:48.221Z",
+    "user_id": "admin@tenant-a.com",
+    "action": "DELETE_:ID",
+    "resource": "/contacts/:id",
+    "previous_state": "{\"status\":\"STAGED\"}",
+    "new_state": "{\"status\":\"COMPLETED\",\"requestId\":\"9339141b-42f7-458d-b42d-318a4f7353fd\",\"statusCode\":200,\"latencyMs\":12.647125005722046}"
+  },
+  {
+    "tenant_id": "tenant-a-uuid",
+    "timestamp": "2026-05-31T17:39:48.210Z",
+    "user_id": "admin@tenant-a.com",
+    "action": "CONTACT_DELETED",
+    "resource": "contacts/some-contact-uuid",
+    "previous_state": "{\"previousStatus\":\"ACTIVE\"}",
+    "new_state": "{\"newStatus\":\"ARCHIVED\",\"severity\":\"CRITICAL\"}"
+  },
+  {
+    "tenant_id": "tenant-a-uuid",
+    "timestamp": "2026-05-31T17:39:48.173Z",
+    "user_id": "agent@tenant-a.com",
+    "action": "UNAUTHORIZED_ACCESS_ATTEMPT",
+    "resource": "/contacts/export",
+    "previous_state": "{\"attemptedRole\":\"SALES_AGENT\"}",
+    "new_state": "{\"error\":\"403 Forbidden\",\"allowedRoles\":[\"ADMIN\"],\"severity\":\"WARNING\"}"
+  },
+  {
+    "tenant_id": "tenant-a-uuid",
+    "timestamp": "2026-05-31T17:39:48.075Z",
+    "user_id": "agent@tenant-a.com",
+    "action": "CONTACTS_VIEWED",
+    "resource": "contacts",
+    "previous_state": "{}",
+    "new_state": "{\"recordCount\":1,\"page\":1,\"limit\":10}"
+  },
+  {
+    "tenant_id": "tenant-a-uuid",
+    "timestamp": "2026-05-31T17:39:47.988Z",
+    "user_id": "agent@tenant-a.com",
+    "action": "UNAUTHORIZED_ACCESS_ATTEMPT",
+    "resource": "/contacts/some-contact-uuid",
+    "previous_state": "{\"attemptedRole\":\"SALES_AGENT\"}",
+    "new_state": "{\"error\":\"403 Forbidden\",\"allowedRoles\":[\"ADMIN\"],\"severity\":\"WARNING\"}"
+  },
+  {
+    "tenant_id": "tenant-a-uuid",
+    "timestamp": "2026-05-31T17:39:47.828Z",
+    "user_id": "user-a@tenant-a.com",
+    "action": "CONTACTS_VIEWED",
+    "resource": "contacts",
+    "previous_state": "{}",
+    "new_state": "{\"recordCount\":2,\"page\":1,\"limit\":10}"
+  },
+  {
+    "tenant_id": "tenant-a-uuid",
+    "timestamp": "2026-05-31T17:37:13.173Z",
+    "user_id": "admin@tenant-a.com",
+    "action": "POST_EXPORT",
+    "resource": "/contacts/export",
+    "previous_state": "{\"status\":\"STAGED\"}",
+    "new_state": "{\"status\":\"COMPLETED\",\"requestId\":\"06f803cf-b97d-4358-ad32-40353ab72d05\",\"statusCode\":200,\"latencyMs\":13.893375039100647}"
+  },
+  {
+    "tenant_id": "tenant-a-uuid",
+    "timestamp": "2026-05-31T17:37:13.160Z",
+    "user_id": "admin@tenant-a.com",
+    "action": "DATA_EXPORT_REQUESTED",
+    "resource": "contacts/export",
+    "previous_state": "{}",
+    "new_state": "{\"severity\":\"CRITICAL\",\"format\":\"CSV\",\"status\":\"INITIATED\"}"
+  },
+  {
+    "tenant_id": "tenant-a-uuid",
+    "timestamp": "2026-05-31T17:37:13.079Z",
+    "user_id": "admin@tenant-a.com",
+    "action": "DELETE_:ID",
+    "resource": "/contacts/:id",
+    "previous_state": "{\"status\":\"STAGED\"}",
+    "new_state": "{\"status\":\"COMPLETED\",\"requestId\":\"c0daee13-c91e-45bc-8480-ca9eaa2acaae\",\"statusCode\":200,\"latencyMs\":13.956166982650757}"
+  },
+  {
+    "tenant_id": "tenant-a-uuid",
+    "timestamp": "2026-05-31T17:37:13.066Z",
+    "user_id": "admin@tenant-a.com",
+    "action": "CONTACT_DELETED",
+    "resource": "contacts/some-contact-uuid",
+    "previous_state": "{\"previousStatus\":\"ACTIVE\"}",
+    "new_state": "{\"newStatus\":\"ARCHIVED\",\"severity\":\"CRITICAL\"}"
+  },
+  {
+    "tenant_id": "tenant-a-uuid",
+    "timestamp": "2026-05-31T17:37:13.010Z",
+    "user_id": "agent@tenant-a.com",
+    "action": "UNAUTHORIZED_ACCESS_ATTEMPT",
+    "resource": "/contacts/export",
+    "previous_state": "{\"attemptedRole\":\"SALES_AGENT\"}",
+    "new_state": "{\"error\":\"403 Forbidden\",\"allowedRoles\":[\"ADMIN\"],\"severity\":\"WARNING\"}"
+  },
+  {
+    "tenant_id": "tenant-a-uuid",
+    "timestamp": "2026-05-31T17:37:12.935Z",
+    "user_id": "agent@tenant-a.com",
+    "action": "CONTACTS_VIEWED",
+    "resource": "contacts",
+    "previous_state": "{}",
+    "new_state": "{\"recordCount\":1,\"page\":1,\"limit\":10}"
+  },
+  {
+    "tenant_id": "tenant-a-uuid",
+    "timestamp": "2026-05-31T17:37:12.887Z",
+    "user_id": "agent@tenant-a.com",
+    "action": "UNAUTHORIZED_ACCESS_ATTEMPT",
+    "resource": "/contacts/some-contact-uuid",
+    "previous_state": "{\"attemptedRole\":\"SALES_AGENT\"}",
+    "new_state": "{\"error\":\"403 Forbidden\",\"allowedRoles\":[\"ADMIN\"],\"severity\":\"WARNING\"}"
+  },
+  {
+    "tenant_id": "tenant-a-uuid",
+    "timestamp": "2026-05-31T17:37:12.708Z",
+    "user_id": "user-a@tenant-a.com",
+    "action": "CONTACTS_VIEWED",
+    "resource": "contacts",
+    "previous_state": "{}",
+    "new_state": "{\"recordCount\":2,\"page\":1,\"limit\":10}"
+  },
+  {
+    "tenant_id": "tenant-a-uuid",
+    "timestamp": "2026-05-31T17:28:29.001Z",
+    "user_id": "admin@tenant-a.com",
+    "action": "POST_EXPORT",
+    "resource": "/contacts/export",
+    "previous_state": "{\"status\":\"STAGED\"}",
+    "new_state": "{\"status\":\"COMPLETED\",\"requestId\":\"4d5d2222-3980-4ee8-b9b2-96496c8dee37\",\"statusCode\":200,\"latencyMs\":12.371457934379578}"
+  },
+  {
+    "tenant_id": "tenant-a-uuid",
+    "timestamp": "2026-05-31T17:28:28.989Z",
+    "user_id": "admin@tenant-a.com",
+    "action": "DATA_EXPORT_REQUESTED",
+    "resource": "contacts/export",
+    "previous_state": "{}",
+    "new_state": "{\"severity\":\"CRITICAL\",\"format\":\"CSV\",\"status\":\"INITIATED\"}"
+  },
+  {
+    "tenant_id": "tenant-a-uuid",
+    "timestamp": "2026-05-31T17:28:28.908Z",
+    "user_id": "admin@tenant-a.com",
+    "action": "DELETE_:ID",
+    "resource": "/contacts/:id",
+    "previous_state": "{\"status\":\"STAGED\"}",
+    "new_state": "{\"status\":\"COMPLETED\",\"requestId\":\"4771f452-5ba3-447b-8c6a-b870025658bd\",\"statusCode\":200,\"latencyMs\":12.287750005722046}"
+  },
+  {
+    "tenant_id": "tenant-a-uuid",
+    "timestamp": "2026-05-31T17:28:28.897Z",
+    "user_id": "admin@tenant-a.com",
+    "action": "CONTACT_DELETED",
+    "resource": "contacts/some-contact-uuid",
+    "previous_state": "{\"previousStatus\":\"ACTIVE\"}",
+    "new_state": "{\"newStatus\":\"ARCHIVED\",\"severity\":\"CRITICAL\"}"
+  },
+  {
+    "tenant_id": "tenant-a-uuid",
+    "timestamp": "2026-05-31T17:28:28.864Z",
+    "user_id": "agent@tenant-a.com",
+    "action": "UNAUTHORIZED_ACCESS_ATTEMPT",
+    "resource": "/contacts/export",
+    "previous_state": "{\"attemptedRole\":\"SALES_AGENT\"}",
+    "new_state": "{\"error\":\"403 Forbidden\",\"allowedRoles\":[\"ADMIN\"],\"severity\":\"WARNING\"}"
+  },
+  {
+    "tenant_id": "tenant-a-uuid",
+    "timestamp": "2026-05-31T17:28:28.771Z",
+    "user_id": "agent@tenant-a.com",
+    "action": "CONTACTS_VIEWED",
+    "resource": "contacts",
+    "previous_state": "{}",
+    "new_state": "{\"recordCount\":1,\"page\":1,\"limit\":10}"
+  },
+  {
+    "tenant_id": "tenant-a-uuid",
+    "timestamp": "2026-05-31T17:28:28.720Z",
+    "user_id": "agent@tenant-a.com",
+    "action": "UNAUTHORIZED_ACCESS_ATTEMPT",
+    "resource": "/contacts/some-contact-uuid",
+    "previous_state": "{\"attemptedRole\":\"SALES_AGENT\"}",
+    "new_state": "{\"error\":\"403 Forbidden\",\"allowedRoles\":[\"ADMIN\"],\"severity\":\"WARNING\"}"
+  },
+  {
+    "tenant_id": "tenant-a-uuid",
+    "timestamp": "2026-05-31T17:28:28.589Z",
+    "user_id": "user-a@tenant-a.com",
+    "action": "CONTACTS_VIEWED",
+    "resource": "contacts",
+    "previous_state": "{}",
+    "new_state": "{\"recordCount\":2,\"page\":1,\"limit\":10}"
+  },
+  {
+    "tenant_id": "tenant-a-uuid",
+    "timestamp": "2026-05-31T17:25:51.737Z",
+    "user_id": "admin@tenant-a.com",
+    "action": "POST_EXPORT",
+    "resource": "/contacts/export",
+    "previous_state": "{\"status\":\"STAGED\"}",
+    "new_state": "{\"status\":\"COMPLETED\",\"requestId\":\"40d9969d-f4b2-4ecc-aba9-b0d9448c3f3c\",\"statusCode\":200,\"latencyMs\":12.381541967391968}"
+  },
+  {
+    "tenant_id": "tenant-a-uuid",
+    "timestamp": "2026-05-31T17:25:51.726Z",
+    "user_id": "admin@tenant-a.com",
+    "action": "DATA_EXPORT_REQUESTED",
+    "resource": "contacts/export",
+    "previous_state": "{}",
+    "new_state": "{\"severity\":\"CRITICAL\",\"format\":\"CSV\",\"status\":\"INITIATED\"}"
+  },
+  {
+    "tenant_id": "tenant-a-uuid",
+    "timestamp": "2026-05-31T17:25:51.665Z",
+    "user_id": "admin@tenant-a.com",
+    "action": "DELETE_:ID",
+    "resource": "/contacts/:id",
+    "previous_state": "{\"status\":\"STAGED\"}",
+    "new_state": "{\"status\":\"COMPLETED\",\"requestId\":\"4b160803-3c72-4180-975b-53216756bfa6\",\"statusCode\":200,\"latencyMs\":13.44587504863739}"
+  },
+  {
+    "tenant_id": "tenant-a-uuid",
+    "timestamp": "2026-05-31T17:25:51.652Z",
+    "user_id": "admin@tenant-a.com",
+    "action": "CONTACT_DELETED",
+    "resource": "contacts/some-contact-uuid",
+    "previous_state": "{\"previousStatus\":\"ACTIVE\"}",
+    "new_state": "{\"newStatus\":\"ARCHIVED\",\"severity\":\"CRITICAL\"}"
+  },
+  {
+    "tenant_id": "tenant-a-uuid",
+    "timestamp": "2026-05-31T17:25:51.613Z",
+    "user_id": "agent@tenant-a.com",
+    "action": "UNAUTHORIZED_ACCESS_ATTEMPT",
+    "resource": "/contacts/export",
+    "previous_state": "{\"attemptedRole\":\"SALES_AGENT\"}",
+    "new_state": "{\"error\":\"403 Forbidden\",\"allowedRoles\":[\"ADMIN\"],\"severity\":\"WARNING\"}"
+  },
+  {
+    "tenant_id": "tenant-a-uuid",
+    "timestamp": "2026-05-31T17:25:51.468Z",
+    "user_id": "agent@tenant-a.com",
+    "action": "CONTACTS_VIEWED",
+    "resource": "contacts",
+    "previous_state": "{}",
+    "new_state": "{\"recordCount\":1,\"page\":1,\"limit\":10}"
+  },
+  {
+    "tenant_id": "tenant-a-uuid",
+    "timestamp": "2026-05-31T17:25:51.417Z",
+    "user_id": "agent@tenant-a.com",
+    "action": "UNAUTHORIZED_ACCESS_ATTEMPT",
+    "resource": "/contacts/some-contact-uuid",
+    "previous_state": "{\"attemptedRole\":\"SALES_AGENT\"}",
+    "new_state": "{\"error\":\"403 Forbidden\",\"allowedRoles\":[\"ADMIN\"],\"severity\":\"WARNING\"}"
+  },
+  {
+    "tenant_id": "tenant-a-uuid",
+    "timestamp": "2026-05-31T17:25:51.276Z",
+    "user_id": "user-a@tenant-a.com",
+    "action": "CONTACTS_VIEWED",
+    "resource": "contacts",
+    "previous_state": "{}",
+    "new_state": "{\"recordCount\":2,\"page\":1,\"limit\":10}"
+  },
+  {
+    "tenant_id": "tenant-a-uuid",
+    "timestamp": "2026-05-31T17:22:24.504Z",
+    "user_id": "admin@tenant-a.com",
+    "action": "POST_EXPORT",
+    "resource": "/contacts/export",
+    "previous_state": "{\"status\":\"STAGED\"}",
+    "new_state": "{\"status\":\"COMPLETED\",\"requestId\":\"350448a3-25d6-4b90-9525-14017ff9e31f\",\"statusCode\":200,\"latencyMs\":19.66883409023285}"
+  },
+  {
+    "tenant_id": "tenant-a-uuid",
+    "timestamp": "2026-05-31T17:22:24.485Z",
+    "user_id": "admin@tenant-a.com",
+    "action": "DATA_EXPORT_REQUESTED",
+    "resource": "contacts/export",
+    "previous_state": "{}",
+    "new_state": "{\"severity\":\"CRITICAL\",\"format\":\"CSV\",\"status\":\"INITIATED\"}"
+  },
+  {
+    "tenant_id": "tenant-a-uuid",
+    "timestamp": "2026-05-31T17:22:24.423Z",
+    "user_id": "admin@tenant-a.com",
+    "action": "DELETE_:ID",
+    "resource": "/contacts/:id",
+    "previous_state": "{\"status\":\"STAGED\"}",
+    "new_state": "{\"status\":\"COMPLETED\",\"requestId\":\"2d74b827-3358-47ce-b230-bd66a302d4e0\",\"statusCode\":200,\"latencyMs\":15.728000044822693}"
+  },
+  {
+    "tenant_id": "tenant-a-uuid",
+    "timestamp": "2026-05-31T17:22:24.409Z",
+    "user_id": "admin@tenant-a.com",
+    "action": "CONTACT_DELETED",
+    "resource": "contacts/some-contact-uuid",
+    "previous_state": "{\"previousStatus\":\"ACTIVE\"}",
+    "new_state": "{\"newStatus\":\"ARCHIVED\",\"severity\":\"CRITICAL\"}"
+  },
+  {
+    "tenant_id": "tenant-a-uuid",
+    "timestamp": "2026-05-31T17:22:24.365Z",
+    "user_id": "agent@tenant-a.com",
+    "action": "UNAUTHORIZED_ACCESS_ATTEMPT",
+    "resource": "/contacts/export",
+    "previous_state": "{\"attemptedRole\":\"SALES_AGENT\"}",
+    "new_state": "{\"error\":\"403 Forbidden\",\"allowedRoles\":[\"ADMIN\"],\"severity\":\"WARNING\"}"
+  },
+  {
+    "tenant_id": "tenant-a-uuid",
+    "timestamp": "2026-05-31T17:22:24.219Z",
+    "user_id": "agent@tenant-a.com",
+    "action": "CONTACTS_VIEWED",
+    "resource": "contacts",
+    "previous_state": "{}",
+    "new_state": "{\"recordCount\":1,\"page\":1,\"limit\":10}"
+  },
+  {
+    "tenant_id": "tenant-a-uuid",
+    "timestamp": "2026-05-31T17:22:24.174Z",
+    "user_id": "agent@tenant-a.com",
+    "action": "UNAUTHORIZED_ACCESS_ATTEMPT",
+    "resource": "/contacts/some-contact-uuid",
+    "previous_state": "{\"attemptedRole\":\"SALES_AGENT\"}",
+    "new_state": "{\"error\":\"403 Forbidden\",\"allowedRoles\":[\"ADMIN\"],\"severity\":\"WARNING\"}"
+  },
+  {
+    "tenant_id": "tenant-a-uuid",
+    "timestamp": "2026-05-31T17:22:24.051Z",
+    "user_id": "user-a@tenant-a.com",
+    "action": "CONTACTS_VIEWED",
+    "resource": "contacts",
+    "previous_state": "{}",
+    "new_state": "{\"recordCount\":2,\"page\":1,\"limit\":10}"
+  },
+  {
+    "tenant_id": "tenant-a-uuid",
+    "timestamp": "2026-05-31T17:19:57.402Z",
+    "user_id": "admin@tenant-a.com",
+    "action": "POST_EXPORT",
+    "resource": "/contacts/export",
+    "previous_state": "{\"status\":\"STAGED\"}",
+    "new_state": "{\"status\":\"COMPLETED\",\"requestId\":\"399dc115-b0f7-475a-a0d1-06326c2eee71\",\"statusCode\":200,\"latencyMs\":18.47966706752777}"
+  },
+  {
+    "tenant_id": "tenant-a-uuid",
+    "timestamp": "2026-05-31T17:19:57.384Z",
+    "user_id": "admin@tenant-a.com",
+    "action": "DATA_EXPORT_REQUESTED",
+    "resource": "contacts/export",
+    "previous_state": "{}",
+    "new_state": "{\"severity\":\"CRITICAL\",\"format\":\"CSV\",\"status\":\"INITIATED\"}"
+  },
+  {
+    "tenant_id": "tenant-a-uuid",
+    "timestamp": "2026-05-31T17:19:57.288Z",
+    "user_id": "admin@tenant-a.com",
+    "action": "DELETE_:ID",
+    "resource": "/contacts/:id",
+    "previous_state": "{\"status\":\"STAGED\"}",
+    "new_state": "{\"status\":\"COMPLETED\",\"requestId\":\"c00a96a9-cf26-4399-b665-fb214a498629\",\"statusCode\":200,\"latencyMs\":16.78112494945526}"
+  },
+  {
+    "tenant_id": "tenant-a-uuid",
+    "timestamp": "2026-05-31T17:19:57.272Z",
+    "user_id": "admin@tenant-a.com",
+    "action": "CONTACT_DELETED",
+    "resource": "contacts/some-contact-uuid",
+    "previous_state": "{\"previousStatus\":\"ACTIVE\"}",
+    "new_state": "{\"newStatus\":\"ARCHIVED\",\"severity\":\"CRITICAL\"}"
+  },
+  {
+    "tenant_id": "tenant-a-uuid",
+    "timestamp": "2026-05-31T17:19:57.214Z",
+    "user_id": "agent@tenant-a.com",
+    "action": "UNAUTHORIZED_ACCESS_ATTEMPT",
+    "resource": "/contacts/export",
+    "previous_state": "{\"attemptedRole\":\"SALES_AGENT\"}",
+    "new_state": "{\"error\":\"403 Forbidden\",\"allowedRoles\":[\"ADMIN\"],\"severity\":\"WARNING\"}"
+  },
+  {
+    "tenant_id": "tenant-a-uuid",
+    "timestamp": "2026-05-31T17:19:57.078Z",
+    "user_id": "agent@tenant-a.com",
+    "action": "CONTACTS_VIEWED",
+    "resource": "contacts",
+    "previous_state": "{}",
+    "new_state": "{\"recordCount\":1,\"page\":1,\"limit\":10}"
+  },
+  {
+    "tenant_id": "tenant-a-uuid",
+    "timestamp": "2026-05-31T17:19:57.023Z",
+    "user_id": "agent@tenant-a.com",
+    "action": "UNAUTHORIZED_ACCESS_ATTEMPT",
+    "resource": "/contacts/some-contact-uuid",
+    "previous_state": "{\"attemptedRole\":\"SALES_AGENT\"}",
+    "new_state": "{\"error\":\"403 Forbidden\",\"allowedRoles\":[\"ADMIN\"],\"severity\":\"WARNING\"}"
+  },
+  {
+    "tenant_id": "tenant-a-uuid",
+    "timestamp": "2026-05-31T17:19:56.829Z",
+    "user_id": "user-a@tenant-a.com",
+    "action": "CONTACTS_VIEWED",
+    "resource": "contacts",
+    "previous_state": "{}",
+    "new_state": "{\"recordCount\":2,\"page\":1,\"limit\":10}"
+  },
+  {
+    "tenant_id": "tenant-a-uuid",
+    "timestamp": "2026-05-31T17:12:57.814Z",
+    "user_id": "admin@tenant-a.com",
+    "action": "POST_EXPORT",
+    "resource": "/contacts/export",
+    "previous_state": "{\"status\":\"STAGED\"}",
+    "new_state": "{\"status\":\"COMPLETED\",\"requestId\":\"be9aff02-58d9-4f09-9291-caab3344c6f3\",\"statusCode\":200,\"latencyMs\":12.23562502861023}"
+  },
+  {
+    "tenant_id": "tenant-a-uuid",
+    "timestamp": "2026-05-31T17:12:57.802Z",
+    "user_id": "admin@tenant-a.com",
+    "action": "DATA_EXPORT_REQUESTED",
+    "resource": "contacts/export",
+    "previous_state": "{}",
+    "new_state": "{\"severity\":\"CRITICAL\",\"format\":\"CSV\",\"status\":\"INITIATED\"}"
+  },
+  {
+    "tenant_id": "tenant-a-uuid",
+    "timestamp": "2026-05-31T17:12:57.720Z",
+    "user_id": "admin@tenant-a.com",
+    "action": "DELETE_:ID",
+    "resource": "/contacts/:id",
+    "previous_state": "{\"status\":\"STAGED\"}",
+    "new_state": "{\"status\":\"COMPLETED\",\"requestId\":\"95f9d21d-4f45-47b3-8c54-de0821b71a1f\",\"statusCode\":200,\"latencyMs\":24.18358290195465}"
+  },
+  {
+    "tenant_id": "tenant-a-uuid",
+    "timestamp": "2026-05-31T17:12:57.697Z",
+    "user_id": "admin@tenant-a.com",
+    "action": "CONTACT_DELETED",
+    "resource": "contacts/some-contact-uuid",
+    "previous_state": "{\"previousStatus\":\"ACTIVE\"}",
+    "new_state": "{\"newStatus\":\"ARCHIVED\",\"severity\":\"CRITICAL\"}"
+  },
+  {
+    "tenant_id": "tenant-a-uuid",
+    "timestamp": "2026-05-31T17:12:57.652Z",
+    "user_id": "agent@tenant-a.com",
+    "action": "UNAUTHORIZED_ACCESS_ATTEMPT",
+    "resource": "/contacts/export",
+    "previous_state": "{\"attemptedRole\":\"SALES_AGENT\"}",
+    "new_state": "{\"error\":\"403 Forbidden\",\"allowedRoles\":[\"ADMIN\"],\"severity\":\"WARNING\"}"
+  },
+  {
+    "tenant_id": "tenant-a-uuid",
+    "timestamp": "2026-05-31T17:12:57.540Z",
+    "user_id": "agent@tenant-a.com",
+    "action": "CONTACTS_VIEWED",
+    "resource": "contacts",
+    "previous_state": "{}",
+    "new_state": "{\"recordCount\":1,\"page\":1,\"limit\":10}"
+  },
+  {
+    "tenant_id": "tenant-a-uuid",
+    "timestamp": "2026-05-31T17:12:57.491Z",
+    "user_id": "agent@tenant-a.com",
+    "action": "UNAUTHORIZED_ACCESS_ATTEMPT",
+    "resource": "/contacts/some-contact-uuid",
+    "previous_state": "{\"attemptedRole\":\"SALES_AGENT\"}",
+    "new_state": "{\"error\":\"403 Forbidden\",\"allowedRoles\":[\"ADMIN\"],\"severity\":\"WARNING\"}"
+  },
+  {
+    "tenant_id": "tenant-a-uuid",
+    "timestamp": "2026-05-31T17:12:57.320Z",
+    "user_id": "user-a@tenant-a.com",
+    "action": "CONTACTS_VIEWED",
+    "resource": "contacts",
+    "previous_state": "{}",
+    "new_state": "{\"recordCount\":2,\"page\":1,\"limit\":10}"
+  },
+  {
+    "tenant_id": "tenant-a-uuid",
+    "timestamp": "2026-05-31T17:12:41.589Z",
+    "user_id": "admin@tenant-a.com",
+    "action": "POST_EXPORT",
+    "resource": "/contacts/export",
+    "previous_state": "{\"status\":\"STAGED\"}",
+    "new_state": "{\"status\":\"COMPLETED\",\"requestId\":\"8fe9556c-d44e-4257-84ea-4e0d288473a6\",\"statusCode\":200,\"latencyMs\":13.87754201889038}"
+  },
+  {
+    "tenant_id": "tenant-a-uuid",
+    "timestamp": "2026-05-31T17:12:41.576Z",
+    "user_id": "admin@tenant-a.com",
+    "action": "DATA_EXPORT_REQUESTED",
+    "resource": "contacts/export",
+    "previous_state": "{}",
+    "new_state": "{\"severity\":\"CRITICAL\",\"format\":\"CSV\",\"status\":\"INITIATED\"}"
+  },
+  {
+    "tenant_id": "tenant-a-uuid",
+    "timestamp": "2026-05-31T17:12:41.463Z",
+    "user_id": "admin@tenant-a.com",
+    "action": "DELETE_:ID",
+    "resource": "/contacts/:id",
+    "previous_state": "{\"status\":\"STAGED\"}",
+    "new_state": "{\"status\":\"COMPLETED\",\"requestId\":\"918053ee-33f1-4706-a3be-058ab42c8190\",\"statusCode\":200,\"latencyMs\":18.412291049957275}"
+  },
+  {
+    "tenant_id": "tenant-a-uuid",
+    "timestamp": "2026-05-31T17:12:41.445Z",
+    "user_id": "admin@tenant-a.com",
+    "action": "CONTACT_DELETED",
+    "resource": "contacts/some-contact-uuid",
+    "previous_state": "{\"previousStatus\":\"ACTIVE\"}",
+    "new_state": "{\"newStatus\":\"ARCHIVED\",\"severity\":\"CRITICAL\"}"
+  },
+  {
+    "tenant_id": "tenant-a-uuid",
+    "timestamp": "2026-05-31T17:12:41.398Z",
+    "user_id": "agent@tenant-a.com",
+    "action": "UNAUTHORIZED_ACCESS_ATTEMPT",
+    "resource": "/contacts/export",
+    "previous_state": "{\"attemptedRole\":\"SALES_AGENT\"}",
+    "new_state": "{\"error\":\"403 Forbidden\",\"allowedRoles\":[\"ADMIN\"],\"severity\":\"WARNING\"}"
+  },
+  {
+    "tenant_id": "tenant-a-uuid",
+    "timestamp": "2026-05-31T17:12:41.213Z",
+    "user_id": "agent@tenant-a.com",
+    "action": "CONTACTS_VIEWED",
+    "resource": "contacts",
+    "previous_state": "{}",
+    "new_state": "{\"recordCount\":1,\"page\":1,\"limit\":10}"
+  },
+  {
+    "tenant_id": "tenant-a-uuid",
+    "timestamp": "2026-05-31T17:12:41.172Z",
+    "user_id": "agent@tenant-a.com",
+    "action": "UNAUTHORIZED_ACCESS_ATTEMPT",
+    "resource": "/contacts/some-contact-uuid",
+    "previous_state": "{\"attemptedRole\":\"SALES_AGENT\"}",
+    "new_state": "{\"error\":\"403 Forbidden\",\"allowedRoles\":[\"ADMIN\"],\"severity\":\"WARNING\"}"
+  },
+  {
+    "tenant_id": "tenant-a-uuid",
+    "timestamp": "2026-05-31T17:12:40.837Z",
+    "user_id": "user-a@tenant-a.com",
+    "action": "CONTACTS_VIEWED",
+    "resource": "contacts",
+    "previous_state": "{}",
+    "new_state": "{\"recordCount\":2,\"page\":1,\"limit\":10}"
+  },
+  {
+    "tenant_id": "a6c53a76-b286-45ed-91f4-d097e4640325",
+    "timestamp": "2026-05-31T16:25:57.391Z",
+    "user_id": "cae69901-3f27-4ad4-a4d2-212a40103b96",
+    "action": "TEST_CALL_TRIGGERED",
+    "resource": "+918867727394",
+    "previous_state": "{}",
+    "new_state": "{\"persona\":{\"agentName\":\"Priya\",\"companyName\":\"Neelibane Interiors\",\"vertical\":\"Interior Design\",\"language\":\"hinglish\",\"tone\":\"professional\"},\"timestamp\":\"2026-05-31T16:25:57.391Z\"}"
+  },
+  {
+    "tenant_id": "tenant-a-uuid",
     "timestamp": "2026-05-28T07:38:03.975Z",
     "user_id": "admin@tenant-a.com",
     "action": "POST_EXPORT",
@@ -241,239 +898,5 @@
     "resource": "/contacts/:id",
     "previous_state": "{\"status\":\"STAGED\"}",
     "new_state": "{\"status\":\"COMPLETED\",\"requestId\":\"1a807334-7352-4d32-8bc2-96760d5d9a3d\",\"statusCode\":200,\"latencyMs\":60.206958055496216}"
-  },
-  {
-    "tenant_id": "tenant-a-uuid",
-    "timestamp": "2026-05-27T15:13:21.702Z",
-    "user_id": "admin@tenant-a.com",
-    "action": "CONTACT_DELETED",
-    "resource": "contacts/some-contact-uuid",
-    "previous_state": "{\"previousStatus\":\"ACTIVE\"}",
-    "new_state": "{\"newStatus\":\"ARCHIVED\",\"severity\":\"CRITICAL\"}"
-  },
-  {
-    "tenant_id": "tenant-a-uuid",
-    "timestamp": "2026-05-27T15:13:21.486Z",
-    "user_id": "agent@tenant-a.com",
-    "action": "UNAUTHORIZED_ACCESS_ATTEMPT",
-    "resource": "/contacts/export",
-    "previous_state": "{\"attemptedRole\":\"SALES_AGENT\"}",
-    "new_state": "{\"error\":\"403 Forbidden\",\"allowedRoles\":[\"ADMIN\"],\"severity\":\"WARNING\"}"
-  },
-  {
-    "tenant_id": "tenant-a-uuid",
-    "timestamp": "2026-05-27T15:13:21.158Z",
-    "user_id": "agent@tenant-a.com",
-    "action": "CONTACTS_VIEWED",
-    "resource": "contacts",
-    "previous_state": "{}",
-    "new_state": "{\"recordCount\":1,\"page\":1,\"limit\":10}"
-  },
-  {
-    "tenant_id": "tenant-a-uuid",
-    "timestamp": "2026-05-27T15:13:20.926Z",
-    "user_id": "agent@tenant-a.com",
-    "action": "UNAUTHORIZED_ACCESS_ATTEMPT",
-    "resource": "/contacts/some-contact-uuid",
-    "previous_state": "{\"attemptedRole\":\"SALES_AGENT\"}",
-    "new_state": "{\"error\":\"403 Forbidden\",\"allowedRoles\":[\"ADMIN\"],\"severity\":\"WARNING\"}"
-  },
-  {
-    "tenant_id": "tenant-a-uuid",
-    "timestamp": "2026-05-27T15:13:20.671Z",
-    "user_id": "user-a@tenant-a.com",
-    "action": "CONTACTS_VIEWED",
-    "resource": "contacts",
-    "previous_state": "{}",
-    "new_state": "{\"recordCount\":2,\"page\":1,\"limit\":10}"
-  },
-  {
-    "tenant_id": "tenant-a-uuid",
-    "timestamp": "2026-05-27T12:56:46.054Z",
-    "user_id": "admin@tenant-a.com",
-    "action": "POST_EXPORT",
-    "resource": "/contacts/export",
-    "previous_state": "{\"status\":\"STAGED\"}",
-    "new_state": "{\"status\":\"COMPLETED\",\"requestId\":\"b2d607ea-853d-41e4-9460-85b4d25c1246\",\"statusCode\":200,\"latencyMs\":185.51687502861023}"
-  },
-  {
-    "tenant_id": "tenant-a-uuid",
-    "timestamp": "2026-05-27T12:56:45.869Z",
-    "user_id": "admin@tenant-a.com",
-    "action": "DATA_EXPORT_REQUESTED",
-    "resource": "contacts/export",
-    "previous_state": "{}",
-    "new_state": "{\"severity\":\"CRITICAL\",\"format\":\"CSV\",\"status\":\"INITIATED\"}"
-  },
-  {
-    "tenant_id": "tenant-a-uuid",
-    "timestamp": "2026-05-27T12:56:45.788Z",
-    "user_id": "admin@tenant-a.com",
-    "action": "DELETE_:ID",
-    "resource": "/contacts/:id",
-    "previous_state": "{\"status\":\"STAGED\"}",
-    "new_state": "{\"status\":\"COMPLETED\",\"requestId\":\"00a2d91d-7104-4d3a-98f3-a4fd0f874b52\",\"statusCode\":200,\"latencyMs\":188.19633293151855}"
-  },
-  {
-    "tenant_id": "tenant-a-uuid",
-    "timestamp": "2026-05-27T12:56:45.600Z",
-    "user_id": "admin@tenant-a.com",
-    "action": "CONTACT_DELETED",
-    "resource": "contacts/some-contact-uuid",
-    "previous_state": "{\"previousStatus\":\"ACTIVE\"}",
-    "new_state": "{\"newStatus\":\"ARCHIVED\",\"severity\":\"CRITICAL\"}"
-  },
-  {
-    "tenant_id": "tenant-a-uuid",
-    "timestamp": "2026-05-27T12:56:45.394Z",
-    "user_id": "agent@tenant-a.com",
-    "action": "UNAUTHORIZED_ACCESS_ATTEMPT",
-    "resource": "/contacts/export",
-    "previous_state": "{\"attemptedRole\":\"SALES_AGENT\"}",
-    "new_state": "{\"error\":\"403 Forbidden\",\"allowedRoles\":[\"ADMIN\"],\"severity\":\"WARNING\"}"
-  },
-  {
-    "tenant_id": "tenant-a-uuid",
-    "timestamp": "2026-05-27T12:56:45.141Z",
-    "user_id": "agent@tenant-a.com",
-    "action": "CONTACTS_VIEWED",
-    "resource": "contacts",
-    "previous_state": "{}",
-    "new_state": "{\"recordCount\":1,\"page\":1,\"limit\":10}"
-  },
-  {
-    "tenant_id": "tenant-a-uuid",
-    "timestamp": "2026-05-27T12:56:44.927Z",
-    "user_id": "agent@tenant-a.com",
-    "action": "UNAUTHORIZED_ACCESS_ATTEMPT",
-    "resource": "/contacts/some-contact-uuid",
-    "previous_state": "{\"attemptedRole\":\"SALES_AGENT\"}",
-    "new_state": "{\"error\":\"403 Forbidden\",\"allowedRoles\":[\"ADMIN\"],\"severity\":\"WARNING\"}"
-  },
-  {
-    "tenant_id": "tenant-a-uuid",
-    "timestamp": "2026-05-27T12:56:44.618Z",
-    "user_id": "user-a@tenant-a.com",
-    "action": "CONTACTS_VIEWED",
-    "resource": "contacts",
-    "previous_state": "{}",
-    "new_state": "{\"recordCount\":2,\"page\":1,\"limit\":10}"
-  },
-  {
-    "tenant_id": "tenant-a-uuid",
-    "timestamp": "2026-05-27T12:56:14.293Z",
-    "user_id": "admin@tenant-a.com",
-    "action": "POST_EXPORT",
-    "resource": "/contacts/export",
-    "previous_state": "{\"status\":\"STAGED\"}",
-    "new_state": "{\"status\":\"COMPLETED\",\"requestId\":\"5dc1bbf4-cf96-4425-b44a-b10f89a4fbca\",\"statusCode\":200,\"latencyMs\":192.95966696739197}"
-  },
-  {
-    "tenant_id": "tenant-a-uuid",
-    "timestamp": "2026-05-27T12:56:14.100Z",
-    "user_id": "admin@tenant-a.com",
-    "action": "DATA_EXPORT_REQUESTED",
-    "resource": "contacts/export",
-    "previous_state": "{}",
-    "new_state": "{\"severity\":\"CRITICAL\",\"format\":\"CSV\",\"status\":\"INITIATED\"}"
-  },
-  {
-    "tenant_id": "tenant-a-uuid",
-    "timestamp": "2026-05-27T12:56:14.017Z",
-    "user_id": "admin@tenant-a.com",
-    "action": "DELETE_:ID",
-    "resource": "/contacts/:id",
-    "previous_state": "{\"status\":\"STAGED\"}",
-    "new_state": "{\"status\":\"COMPLETED\",\"requestId\":\"4cc6c871-6a4f-4de9-ba15-7f2b903e0099\",\"statusCode\":200,\"latencyMs\":142.09249997138977}"
-  },
-  {
-    "tenant_id": "tenant-a-uuid",
-    "timestamp": "2026-05-27T12:56:13.876Z",
-    "user_id": "admin@tenant-a.com",
-    "action": "CONTACT_DELETED",
-    "resource": "contacts/some-contact-uuid",
-    "previous_state": "{\"previousStatus\":\"ACTIVE\"}",
-    "new_state": "{\"newStatus\":\"ARCHIVED\",\"severity\":\"CRITICAL\"}"
-  },
-  {
-    "tenant_id": "tenant-a-uuid",
-    "timestamp": "2026-05-27T12:56:13.579Z",
-    "user_id": "agent@tenant-a.com",
-    "action": "UNAUTHORIZED_ACCESS_ATTEMPT",
-    "resource": "/contacts/export",
-    "previous_state": "{\"attemptedRole\":\"SALES_AGENT\"}",
-    "new_state": "{\"error\":\"403 Forbidden\",\"allowedRoles\":[\"ADMIN\"],\"severity\":\"WARNING\"}"
-  },
-  {
-    "tenant_id": "tenant-a-uuid",
-    "timestamp": "2026-05-27T12:56:13.423Z",
-    "user_id": "user-a@tenant-a.com",
-    "action": "CONTACTS_VIEWED",
-    "resource": "contacts",
-    "previous_state": "{}",
-    "new_state": "{\"recordCount\":2,\"page\":1,\"limit\":10}"
-  },
-  {
-    "tenant_id": "tenant-a-uuid",
-    "timestamp": "2026-05-27T12:56:13.117Z",
-    "user_id": "agent@tenant-a.com",
-    "action": "CONTACTS_VIEWED",
-    "resource": "contacts",
-    "previous_state": "{}",
-    "new_state": "{\"recordCount\":1,\"page\":1,\"limit\":10}"
-  },
-  {
-    "tenant_id": "tenant-a-uuid",
-    "timestamp": "2026-05-27T12:56:12.994Z",
-    "user_id": "agent@tenant-a.com",
-    "action": "UNAUTHORIZED_ACCESS_ATTEMPT",
-    "resource": "/contacts/some-contact-uuid",
-    "previous_state": "{\"attemptedRole\":\"SALES_AGENT\"}",
-    "new_state": "{\"error\":\"403 Forbidden\",\"allowedRoles\":[\"ADMIN\"],\"severity\":\"WARNING\"}"
-  },
-  {
-    "tenant_id": "tenant-a-uuid",
-    "timestamp": "2026-05-27T12:56:12.673Z",
-    "user_id": "user-a@tenant-a.com",
-    "action": "CONTACTS_VIEWED",
-    "resource": "contacts",
-    "previous_state": "{}",
-    "new_state": "{\"recordCount\":2,\"page\":1,\"limit\":10}"
-  },
-  {
-    "tenant_id": "tenant-a-uuid",
-    "timestamp": "2026-05-27T12:55:58.305Z",
-    "user_id": "user-a@tenant-a.com",
-    "action": "CONTACTS_VIEWED",
-    "resource": "contacts",
-    "previous_state": "{}",
-    "new_state": "{\"recordCount\":2,\"page\":1,\"limit\":10}"
-  },
-  {
-    "tenant_id": "tenant-a-uuid",
-    "timestamp": "2026-05-27T12:55:48.279Z",
-    "user_id": "user-a@tenant-a.com",
-    "action": "CONTACTS_VIEWED",
-    "resource": "contacts",
-    "previous_state": "{}",
-    "new_state": "{\"recordCount\":2,\"page\":1,\"limit\":10}"
-  },
-  {
-    "tenant_id": "tenant-a-uuid",
-    "timestamp": "2026-05-27T12:55:36.319Z",
-    "user_id": "user-a@tenant-a.com",
-    "action": "CONTACTS_VIEWED",
-    "resource": "contacts",
-    "previous_state": "{}",
-    "new_state": "{\"recordCount\":2,\"page\":1,\"limit\":10}"
-  },
-  {
-    "tenant_id": "tenant-a-uuid",
-    "timestamp": "2026-05-27T12:55:15.902Z",
-    "user_id": "user-a@tenant-a.com",
-    "action": "CONTACTS_VIEWED",
-    "resource": "contacts",
-    "previous_state": "{}",
-    "new_state": "{\"recordCount\":2,\"page\":1,\"limit\":10}"
   }
 ]

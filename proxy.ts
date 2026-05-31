@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { jwtVerify, createRemoteJWKSet } from "jose";
-import { Redis } from "@upstash/redis";
+import Redis from "ioredis";
 
 // Define the JWKS cache endpoint
 const JWKS_URL = "https://auth.voxa.ai/.well-known/jwks.json";
@@ -15,13 +15,19 @@ export interface JwtPayload {
   email?: string;
 }
 
-// Instantiate Upstash Redis Client safely
-const redis = new Redis({
-  url: process.env.UPSTASH_REDIS_REST_URL || "",
-  token: process.env.UPSTASH_REDIS_REST_TOKEN || "",
+// Instantiate standard TCP Redis Client outside the handler to persist the connection pool
+const redisUrl = process.env.REDIS_URL || "redis://localhost:6379";
+const redis = new Redis(redisUrl, {
+  maxRetriesPerRequest: null,
+  enableOfflineQueue: true,
 });
 
-// Cache tenant statuses in-memory at Edge for 60 seconds to optimize latency
+// Event listener for Redis logging
+redis.on("error", (err) => {
+  console.error("[REDIS PROXY CONNECTION ERROR]:", err);
+});
+
+// Cache tenant statuses in-memory at Middleware for 60 seconds to optimize latency
 const statusCache = new Map<string, { status: string; expiresAt: number }>();
 
 /**
@@ -62,14 +68,11 @@ export function extractTenantSlug(hostname: string): string | null {
  * Helper: Resolve custom domain to tenant slug from Redis.
  */
 async function resolveCustomDomainSlug(host: string): Promise<string | null> {
-  if (!process.env.UPSTASH_REDIS_REST_URL || !process.env.UPSTASH_REDIS_REST_TOKEN) {
-    return null;
-  }
   try {
-    const slug = await redis.get<string>(`domain:tenant:${host}`);
+    const slug = await redis.get(`domain:tenant:${host}`);
     return slug || null;
   } catch (error) {
-    console.error("Failed to resolve custom domain from Redis:", error);
+    console.error("Failed to resolve custom domain from Redis (fail-open):", error);
     return null;
   }
 }
@@ -123,12 +126,17 @@ export async function verifySessionJwt(token: string): Promise<JwtPayload | null
       };
     }
 
-    // Blacklist check (Token Revocation / Logout support)
-    if (payload && payload.jti && process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN) {
-      const isBlacklisted = await redis.get(`blacklist:jti:${payload.jti}`);
-      if (isBlacklisted) {
-        console.warn(`[AUTH] Rejected blacklisted session JTI: ${payload.jti}`);
-        return null;
+    // Blacklist check (Token Revocation / Logout support) using strict tenant prefix format
+    if (payload && payload.jti) {
+      try {
+        const blacklistKey = `t:${payload.tenantId}:blacklist:jti:${payload.jti}`;
+        const isBlacklisted = await redis.get(blacklistKey);
+        if (isBlacklisted) {
+          console.warn(`[AUTH] Rejected blacklisted session JTI: ${payload.jti}`);
+          return null;
+        }
+      } catch (redisError) {
+        console.error("[AUTH] Blacklist check failed (fail-open):", redisError);
       }
     }
 
@@ -141,7 +149,7 @@ export async function verifySessionJwt(token: string): Promise<JwtPayload | null
 
 
 /**
- * Helper: Fetch tenant status from Upstash Redis with 60-second local cache.
+ * Helper: Fetch tenant status from Redis with 60-second local cache and fail-open.
  */
 async function getTenantStatus(tenantId: string): Promise<string> {
   const now = Date.now();
@@ -150,47 +158,55 @@ async function getTenantStatus(tenantId: string): Promise<string> {
     return cached.status;
   }
 
-  if (!process.env.UPSTASH_REDIS_REST_URL || !process.env.UPSTASH_REDIS_REST_TOKEN) {
-    return "ACTIVE";
-  }
-
   try {
-    const status = await redis.get<string>(`tenant:status:${tenantId}`);
+    const status = await redis.get(`t:${tenantId}:status`);
     if (status) {
       statusCache.set(tenantId, { status, expiresAt: now + 60000 });
       return status;
     }
   } catch (error) {
-    console.error("Tenant active check failed at Edge. Defaulting to ACTIVE.", error);
+    console.error("Tenant active check failed at Middleware (fail-open). Defaulting to ACTIVE.", error);
   }
 
   return "ACTIVE";
 }
 
 /**
- * Helper: Atomic Rate Limiting via Upstash Redis pipelines.
+ * Helper: Atomic Rate Limiting via standard ioredis pipelines.
  */
-async function checkRateLimit(key: string, limit: number): Promise<{ limited: boolean; retryAfter: number }> {
-  if (!process.env.UPSTASH_REDIS_REST_URL || !process.env.UPSTASH_REDIS_REST_TOKEN) {
-    return { limited: false, retryAfter: 0 };
-  }
-
+async function checkRateLimit(tenantId: string, type: "tenant" | "ip", keySuffix: string, limit: number): Promise<{ limited: boolean; retryAfter: number }> {
   const now = Math.floor(Date.now() / 1000);
   const windowIndex = Math.floor(now / 60);
-  const redisKey = `ratelimit:${key}:${windowIndex}`;
+
+  // Logical partitioning based on multi-tenant structure
+  const redisKey = type === "tenant"
+    ? `t:${tenantId}:ratelimit:${windowIndex}`
+    : `t:anonymous:ratelimit:${keySuffix}:${windowIndex}`;
 
   try {
     const p = redis.pipeline();
     p.incr(redisKey);
     p.expire(redisKey, 120); // 2-minute TTL
-    const [count] = await p.exec<[number, number]>();
+    
+    const results = await p.exec();
+    if (!results || results.length === 0) {
+      return { limited: false, retryAfter: 0 };
+    }
 
+    // In standard ioredis, exec results are returned as [error, result][] tuples
+    const incrResult = results[0];
+    if (incrResult[0]) {
+      console.error("[RATE LIMIT] increment operation failed in pipeline:", incrResult[0]);
+      return { limited: false, retryAfter: 0 }; // Fail-open
+    }
+
+    const count = incrResult[1] as number;
     if (count > limit) {
       const retryAfter = 60 - (now % 60);
       return { limited: true, retryAfter };
     }
   } catch (error) {
-    console.error("Rate limiting check failed at Edge:", error);
+    console.error("Rate limiting check failed (fail-open):", error);
   }
 
   return { limited: false, retryAfter: 0 };
@@ -227,9 +243,9 @@ function buildJsonError(error: string, message: string, status: number, slug: st
 }
 
 /**
- * Edge-Native Routing Proxy Interceptor for VOXA Next.js.
+ * Node-Native Routing Proxy Interceptor for VOXA Next.js.
  */
-export async function proxy(request: NextRequest) {
+export default async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // 1. Resolve Tenant Slug from Subdomain or custom domain X-Forwarded-Host header
@@ -242,7 +258,7 @@ export async function proxy(request: NextRequest) {
   // 2. Public route validation: allow root and .well-known routes with IP Rate Limit
   if (pathname === "/" || pathname.startsWith("/.well-known")) {
     const ip = request.headers.get("x-forwarded-for")?.split(",")[0].trim() || request.headers.get("x-real-ip") || "127.0.0.1";
-    const { limited, retryAfter } = await checkRateLimit(`ip:${ip}`, 100);
+    const { limited, retryAfter } = await checkRateLimit("anonymous", "ip", `ip:${ip}`, 100);
     if (limited) {
       return buildJsonError("TOO_MANY_REQUESTS", "Rate limit exceeded. Please try again later.", 429, slug, retryAfter);
     }
@@ -250,7 +266,14 @@ export async function proxy(request: NextRequest) {
     return addSecurityHeaders(res, slug);
   }
 
-  // 3. Extract and Verify Cryptographic Session JWT (RS256)
+  // 2.5 Redirect directly visiting "/admin" to "/admin/contacts"
+  if (pathname === "/admin" || pathname === "/admin/") {
+    const url = request.nextUrl.clone();
+    url.pathname = "/admin/contacts";
+    return addSecurityHeaders(NextResponse.redirect(url), slug);
+  }
+
+  // 3. Extract and Verify Cryptographic Session JWT (RS256 / HS256)
   const sessionCookie = request.cookies.get("session")?.value;
   let userPayload: JwtPayload | null = null;
   if (sessionCookie) {
@@ -259,13 +282,13 @@ export async function proxy(request: NextRequest) {
 
   // 4. Rate Limiting Check
   if (userPayload) {
-    const { limited, retryAfter } = await checkRateLimit(`tenant:${userPayload.tenantId}`, 1000);
+    const { limited, retryAfter } = await checkRateLimit(userPayload.tenantId, "tenant", "", 1000);
     if (limited) {
       return buildJsonError("TOO_MANY_REQUESTS", "Tenant rate limit exceeded.", 429, slug, retryAfter);
     }
   } else {
     const ip = request.headers.get("x-forwarded-for")?.split(",")[0].trim() || request.headers.get("x-real-ip") || "127.0.0.1";
-    const { limited, retryAfter } = await checkRateLimit(`ip:${ip}`, 100);
+    const { limited, retryAfter } = await checkRateLimit("anonymous", "ip", `ip:${ip}`, 100);
     if (limited) {
       return buildJsonError("TOO_MANY_REQUESTS", "Rate limit exceeded.", 429, slug, retryAfter);
     }
@@ -293,16 +316,26 @@ export async function proxy(request: NextRequest) {
   }
 
   // 5.5 Check onboardingComplete status for authenticated UI requests
-  if (userPayload && !pathname.startsWith("/api/") && pathname !== "/onboarding") {
+  if (
+    userPayload &&
+    !pathname.startsWith("/api/") &&
+    pathname !== "/onboarding" &&
+    !pathname.startsWith("/super-admin")  // Super Admins bypass onboarding wizard
+  ) {
     try {
-      const onboardingComplete = await redis.get<string>(`tenant:onboarding:${userPayload.tenantId}`);
-      if (onboardingComplete === "false") {
+      const onboardingComplete = await redis.get(`t:${userPayload.tenantId}:onboarding`);
+      // Redirect if explicitly false OR if key is missing (null = unknown state)
+      // But only for ADMIN/SUPER_ADMIN — Sales Agents don't do onboarding
+      if (
+        (userPayload.role === "ADMIN" || userPayload.role === "SUPER_ADMIN") &&
+        (onboardingComplete === "false" || onboardingComplete === null)
+      ) {
         const url = request.nextUrl.clone();
         url.pathname = "/onboarding";
         return addSecurityHeaders(NextResponse.redirect(url), slug);
       }
     } catch (err) {
-      console.error("[EDGE] Failed to fetch onboarding status from Redis:", err);
+      console.error("[EDGE] Failed to fetch onboarding status from Redis (fail-open):", err);
     }
   }
 
@@ -320,11 +353,18 @@ export async function proxy(request: NextRequest) {
     return addSecurityHeaders(res, slug);
   }
 
-  // A. Guard Login Route & Invite Acceptance
-  if (pathname.startsWith("/login") || pathname.startsWith("/accept-invite")) {
+  // A. Guard Login Route, Invite Acceptance & Signup
+  if (
+    pathname.startsWith("/login") ||
+    pathname.startsWith("/accept-invite") ||
+    pathname.startsWith("/signup")    // ADD: prevent authenticated users from seeing signup
+  ) {
     if (userPayload) {
       const url = request.nextUrl.clone();
-      url.pathname = "/";
+      url.pathname =
+        userPayload.role === "ADMIN" || userPayload.role === "SUPER_ADMIN"
+          ? "/admin/contacts"
+          : "/sp/pipeline";
       return addSecurityHeaders(NextResponse.redirect(url), slug);
     }
     const res = NextResponse.next();
@@ -334,7 +374,7 @@ export async function proxy(request: NextRequest) {
   // Authentication Guards
   // NOTE: /api/auth/* routes are public — they ARE the login flow itself.
   if (!userPayload) {
-    if (pathname.startsWith("/api/auth/") || pathname === "/api/accept-invite") {
+    if (pathname.startsWith("/api/auth/") || pathname === "/api/accept-invite" || pathname === "/api/onboard") {
       const res = NextResponse.next();
       return addSecurityHeaders(res, slug);
     }
@@ -358,6 +398,18 @@ export async function proxy(request: NextRequest) {
       }
       const url = request.nextUrl.clone();
       url.pathname = "/sp/pipeline";
+      return addSecurityHeaders(NextResponse.redirect(url), slug);
+    }
+  }
+
+  // E. Guard /super-admin/* and /api/super-admin/* (SUPER_ADMIN only)
+  if (pathname.startsWith("/super-admin") || pathname.startsWith("/api/super-admin")) {
+    if (userRole !== "SUPER_ADMIN") {
+      if (isApiRoute) {
+        return buildJsonError("FORBIDDEN", "Super Admin access required.", 403, slug);
+      }
+      const url = request.nextUrl.clone();
+      url.pathname = userRole === "ADMIN" ? "/admin/contacts" : "/sp/pipeline";
       return addSecurityHeaders(NextResponse.redirect(url), slug);
     }
   }
@@ -424,14 +476,17 @@ export async function proxy(request: NextRequest) {
   return addSecurityHeaders(res, slug);
 }
 
-// Edge configuration matching boundaries
+// Node.js configuration matching boundaries for Middleware
 export const config = {
   matcher: [
+    "/admin",
     "/admin/:path*",
     "/sp/:path*",
     "/api/:path*",
     "/login",
+    "/signup",               // Guard authenticated users out of signup page
     "/accept-invite",
     "/onboarding",
+    "/super-admin/:path*",   // Future Super Admin pages
   ],
 };

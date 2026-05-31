@@ -1,17 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
-import { Redis } from "@upstash/redis";
 import { SESClient, SendEmailCommand } from "@aws-sdk/client-ses";
 import crypto from "crypto";
 import prisma from "@/lib/prisma";
 import { withAuditLog } from "@/lib/security/api-wrapper";
 import { verifySessionFromRequest } from "@/lib/security/security-service";
-
-const redis = process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN
-  ? new Redis({
-      url: process.env.UPSTASH_REDIS_REST_URL,
-      token: process.env.UPSTASH_REDIS_REST_TOKEN,
-    })
-  : null;
+import redis from "@/lib/redis";
 
 async function inviteHandler(request: NextRequest) {
   try {
@@ -68,14 +61,17 @@ async function inviteHandler(request: NextRequest) {
     const otpCode = String(Math.floor(100000 + Math.random() * 900000));
     const inviteExpiry = new Date(Date.now() + 86400000); // 24 hours validity
 
-    // 5. Caching OIDC invitation contexts in Upstash Redis safely
-    if (redis) {
+    // 5. Caching OIDC invitation contexts in standard TCP Redis safely
+    try {
       await redis.set(
         `invite:${inviteToken}`,
         JSON.stringify({ email, role, tenantId, otpCode, used: false }),
-        { ex: 86400 }
+        "EX",
+        86400
       );
-      await redis.set(`invite:otp:${otpCode}`, inviteToken, { ex: 86400 });
+      await redis.set(`invite:otp:${otpCode}`, inviteToken, "EX", 86400);
+    } catch (redisError) {
+      console.error("[TEAM-INVITE] Caching invite in Redis failed (fail-open to database only):", redisError);
     }
 
     // 6. Deliver magic links via AWS SES

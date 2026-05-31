@@ -3,7 +3,7 @@ import supertest from "supertest";
 import { generateKeyPair, SignJWT } from "jose";
 import { PrismaClient } from "@prisma/client";
 import { createServer } from "../server/app";
-import { Redis } from "@upstash/redis";
+import Redis from "ioredis";
 
 // Top-level mock-prefixed variables for vitest hoisted closure access
 let mockPublicKey: any = null;
@@ -82,22 +82,27 @@ vi.mock("@prisma/client", () => {
 });
 
 // Stub/Mock Redis pipeline operations
-vi.mock("@upstash/redis", () => {
+vi.mock("ioredis", () => {
   const mockRedis = {
     pipeline: () => ({
       zremrangebyscore: () => {},
       zadd: () => {},
       zcard: () => {},
       expire: () => {},
-      exec: async () => [0, 0, mockRateLimitHits], // Mock returns dynamically configured hit count
+      exec: async () => [
+        [null, 0],
+        [null, 0],
+        [null, mockRateLimitHits]
+      ], // Mock returns standard ioredis error/result tuples
     }),
     get: async (key: string) => {
       if (key.includes("blacklist:jti:revoked-jti")) return "true";
       if (key.includes("status:suspended-tenant")) return "SUSPENDED";
       return null;
     },
+    on: () => {}, // standard event emitter stub for connection logs
   };
-  return { Redis: vi.fn().mockImplementation(() => mockRedis) };
+  return { default: vi.fn().mockImplementation(() => mockRedis) };
 });
 
 // Mock AWS S3 client commands
@@ -416,8 +421,16 @@ describe("VOXA Enterprise E2E Security Suite", () => {
     it("STARTER tenant: 101st request in 1 min returns 429 with Retry-After header", async () => {
       mockRateLimitHits = 105; // Configure mock redis hits to return 105 requests (above 100 Starter threshold)
 
+      const tokenA = await generateToken({
+        sub: "user-a",
+        email: "user-a@starter-tenant.com",
+        role: "ADMIN",
+        tenantId: "starter-tenant",
+      });
+
       const response = await supertest(app.server)
         .get("/contacts")
+        .set("Authorization", `Bearer ${tokenA}`)
         .set("x-tenant-id", "starter-tenant")
         .set("x-tenant-plan", "STARTER");
 

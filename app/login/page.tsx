@@ -28,7 +28,9 @@ export default function LoginPage() {
         return;
       }
       router.push(
-        data.role === "ADMIN" || data.role === "SUPER_ADMIN"
+        data.role === "SUPER_ADMIN"
+          ? "/super-admin"
+          : data.role === "ADMIN"
           ? "/admin/contacts"
           : "/sp/pipeline"
       );

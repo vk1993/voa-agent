@@ -11,6 +11,10 @@ export default function AuthLayout({
   title?: string;
   subtitle?: string;
 }) {
+  const [mounted, setMounted] = React.useState(false);
+  React.useEffect(() => {
+    setMounted(true);
+  }, []);
   return (
     <div
       style={{
@@ -73,29 +77,33 @@ export default function AuthLayout({
             padding: "40px 0",
           }}
         >
-          <svg
-            viewBox="0 0 320 120"
-            width="100%"
-            style={{ maxWidth: 320, opacity: 0.6 }}
-          >
-            {Array.from({ length: 40 }, (_, i) => {
-              const h =
-                10 +
-                Math.abs(Math.sin(i * 0.6)) * 80 +
-                Math.abs(Math.sin(i * 1.3)) * 30;
-              return (
-                <rect
-                  key={i}
-                  x={i * 8}
-                  y={(120 - h) / 2}
-                  width={4}
-                  height={h}
-                  rx={2}
-                  fill={i % 3 === 0 ? "#C9A14A" : "rgba(255,255,255,0.15)"}
-                />
-              );
-            })}
-          </svg>
+          {mounted && (
+            <svg
+              viewBox="0 0 320 120"
+              width="100%"
+              style={{ maxWidth: 320, opacity: 0.6 }}
+            >
+              {Array.from({ length: 40 }, (_, i) => {
+                const rawH =
+                  10 +
+                  Math.abs(Math.sin(i * 0.6)) * 80 +
+                  Math.abs(Math.sin(i * 1.3)) * 30;
+                const h = Math.round(rawH);
+                const y = Math.round((120 - h) / 2);
+                return (
+                  <rect
+                    key={i}
+                    x={i * 8}
+                    y={y}
+                    width={4}
+                    height={h}
+                    rx={2}
+                    fill={i % 3 === 0 ? "#C9A14A" : "rgba(255,255,255,0.15)"}
+                  />
+                );
+              })}
+            </svg>
+          )}
         </div>
 
         {/* Bottom quote */}

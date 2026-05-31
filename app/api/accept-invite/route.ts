@@ -1,15 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
-import { Redis } from "@upstash/redis";
+import redis from "@/lib/redis";
 import { SignJWT } from "jose";
 import crypto from "crypto";
 import prisma from "@/lib/prisma";
-
-const redis = process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN
-  ? new Redis({
-      url: process.env.UPSTASH_REDIS_REST_URL,
-      token: process.env.UPSTASH_REDIS_REST_TOKEN,
-    })
-  : null;
 
 function getJwtSecret(): Uint8Array {
   const secret = process.env.JWT_SECRET;
@@ -43,8 +36,12 @@ export async function POST(request: NextRequest) {
 
     // 2. Resolve invite metadata from Redis
     let resolvedToken = token;
-    if (!resolvedToken && otpCode && redis) {
-      resolvedToken = await redis.get<string>(`invite:otp:${otpCode}`);
+    if (!resolvedToken && otpCode) {
+      try {
+        resolvedToken = await redis.get(`invite:otp:${otpCode}`);
+      } catch (redisErr) {
+        console.error("[ACCEPT-INVITE] Redis get OTP failed (fail-open fallback will be attempted):", redisErr);
+      }
     }
 
     if (!resolvedToken) {
@@ -54,42 +51,88 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const rawInviteData = redis ? await redis.get<string>(`invite:${resolvedToken}`) : null;
-    if (!rawInviteData) {
+    let inviteData: any = null;
+    let resolvedFromDb = false;
+
+    try {
+      const rawInviteData = await redis.get(`invite:${resolvedToken}`);
+      if (rawInviteData) {
+        inviteData = typeof rawInviteData === "string" ? JSON.parse(rawInviteData) : rawInviteData;
+      }
+    } catch (redisErr) {
+      console.error("[ACCEPT-INVITE] Redis get invite data failed (falling back to database):", redisErr);
+    }
+
+    // Fail-open/Resilient Database Fallback:
+    // If Redis is offline or the token was evicted, query Postgres to resolve the invitation details
+    if (!inviteData) {
+      const dbUser = await prisma.user.findFirst({
+        where: { inviteToken: resolvedToken },
+      });
+
+      if (dbUser) {
+        if (dbUser.inviteExpiry && new Date() > dbUser.inviteExpiry) {
+          return NextResponse.json(
+            { error: "EXPIRED_LINK", message: "This invitation link has expired." },
+            { status: 400 }
+          );
+        }
+        inviteData = {
+          email: dbUser.email,
+          role: dbUser.role,
+          tenantId: dbUser.tenantId,
+          used: dbUser.isActive,
+        };
+        resolvedFromDb = true;
+      }
+    }
+
+    if (!inviteData) {
       return NextResponse.json(
-        { error: "EXPIRED_LINK", message: "This invitation link has expired or has already been used." },
+        { error: "EXPIRED_LINK", message: "This invitation link has expired or is invalid." },
         { status: 400 }
       );
     }
 
-    const inviteData = typeof rawInviteData === "string" ? JSON.parse(rawInviteData) : rawInviteData;
-    
-    // 3. Mark the invitation token as used atomically in Redis
-    if (redis) {
-      // Atomic SET NX (set if not exists) prevents race conditions from double clicks
-      const lockAcquired = await redis.set(`invite_used:${resolvedToken}`, "1", { nx: true, ex: 86400 });
-      
-      if (!lockAcquired) {
-        return NextResponse.json(
-          { error: "ALREADY_USED", message: "This invitation link has already been used." },
-          { status: 400 }
-        );
-      }
-
-      // Update the main record to mark it used for visibility/fallback
-      await redis.set(
-        `invite:${resolvedToken}`,
-        JSON.stringify({ ...inviteData, used: true }),
-        { ex: 86400 }
+    if (inviteData.used) {
+      return NextResponse.json(
+        { error: "ALREADY_USED", message: "This invitation link has already been used." },
+        { status: 400 }
       );
-    } else {
-      // Fallback for local development without Redis
-      if (inviteData.used) {
-        return NextResponse.json(
-          { error: "ALREADY_USED", message: "This invitation link has already been used." },
-          { status: 400 }
+    }
+
+    // 3. Mark the invitation token as used atomically in Redis using ioredis SET NX
+    let lockAcquired = false;
+    try {
+      // Atomic SET EX NX: set token with 24h expiration only if it does not exist
+      const lockResult = await redis.set(`invite_used:${resolvedToken}`, "1", "EX", 86400, "NX");
+      lockAcquired = lockResult === "OK";
+      
+      if (lockAcquired) {
+        // Update the cached payload to prevent reuse
+        await redis.set(
+          `invite:${resolvedToken}`,
+          JSON.stringify({ ...inviteData, used: true }),
+          "EX",
+          86400
         );
       }
+    } catch (redisErr) {
+      console.error("[ACCEPT-INVITE] Redis atomic lock check failed (falling back to database locking):", redisErr);
+      // Fail-open logical fallback: lock check via database user status
+      const userStatusCheck = await prisma.user.findFirst({
+        where: { inviteToken: resolvedToken },
+      });
+      if (userStatusCheck && !userStatusCheck.isActive) {
+        lockAcquired = true;
+      }
+    }
+
+    if (!lockAcquired) {
+      return NextResponse.json(
+        { error: "ALREADY_USED", message: "This invitation link has already been used." },
+        { status: 400 }
+      );
     }
 
     // 4. Create Cognito account (production) or local UUID mock (dev)
@@ -182,9 +225,13 @@ export async function POST(request: NextRequest) {
       ? "HttpOnly; Secure; SameSite=Strict; Path=/; Max-Age=86400"
       : "HttpOnly; SameSite=Lax; Path=/; Max-Age=86400";
 
-    const redirectTo = inviteData.role === "ADMIN" || inviteData.role === "SUPER_ADMIN"
-      ? "/admin/contacts"
-      : "/sp/pipeline";
+    // ADMIN invited by Super Admin must complete onboarding wizard first
+    const redirectTo =
+      inviteData.role === "SUPER_ADMIN"
+        ? "/super-admin"
+        : inviteData.role === "ADMIN"
+        ? "/onboarding"      // Admin goes to wizard, not straight to dashboard
+        : "/sp/pipeline";    // Sales Agent / Read Only go to pipeline
 
     const response = NextResponse.json({ success: true, redirectTo });
     response.headers.set("Set-Cookie", `session=${tokenSigned}; ${cookieFlags}`);
