@@ -1,53 +1,45 @@
 "use client";
-
 import React from "react";
-import F from "./FadeIn";
 
-interface MetricsProps {
-  acc: string;
-}
-
-export function Metrics({ acc }: MetricsProps) {
+export default function Metrics({ acc }: { acc: string }) {
   const stats = [
-    { v: "147M+", l: "Outbound Calls Handled" },
-    { v: "$0.09", l: "Average Cost Per Call" },
-    { v: "520ms", l: "P95 Audio VoIP Latency" },
-    { v: "23", l: "Countries Live & Active" },
-    { v: "4.8×", l: "More Bookings vs Human Team" },
+    { v: "147", l: "Active B2B Tenants" },
+    { v: "8", l: "Industry Verticals" },
+    { v: "<800ms", l: "Average AI Response" },
+    { v: "23%", l: "Avg Conversion Rate" },
+    { v: "23", l: "Countries Active" },
   ];
 
   return (
     <section
       style={{
         background: "rgba(10, 12, 18, 0.6)",
-        borderTop: "1px solid rgba(255, 255, 255, 0.05)",
-        borderBottom: "1px solid rgba(255, 255, 255, 0.05)",
+        borderTop: "0.5px solid rgba(255, 255, 255, 0.05)",
+        borderBottom: "0.5px solid rgba(255, 255, 255, 0.05)",
         padding: "60px 0",
         position: "relative",
         zIndex: 5,
         backdropFilter: "blur(12px)",
       }}
     >
-      <div className="wrap">
+      <div className="container">
         <div
           style={{
             display: "grid",
-            gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
+            gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))",
             gap: 24,
             alignItems: "center",
           }}
         >
           {stats.map((s, i) => (
-            <F
+            <div
               key={i}
-              delay={i * 60}
               style={{
                 textAlign: "center",
                 padding: "16px",
                 position: "relative",
               }}
             >
-              {/* Internal card-like feel */}
               <div
                 style={{
                   display: "inline-block",
@@ -57,12 +49,12 @@ export function Metrics({ acc }: MetricsProps) {
               >
                 <div
                   style={{
-                    fontFamily: "var(--font-mono)",
-                    fontSize: "clamp(30px, 3vw, 42px)",
+                    fontFamily: "var(--font-display)",
+                    fontSize: "clamp(32px, 3.2vw, 44px)",
                     fontWeight: 700,
                     color: acc,
                     lineHeight: 1,
-                    letterSpacing: "-.02em",
+                    letterSpacing: "-.03em",
                   }}
                 >
                   {s.v}
@@ -70,7 +62,7 @@ export function Metrics({ acc }: MetricsProps) {
                 <div
                   style={{
                     height: 2,
-                    background: `linear-gradient(90deg, transparent 0%, ${acc}88 50%, transparent 100%)`,
+                    background: `linear-gradient(90deg, transparent 0%, ${acc}80 50%, transparent 100%)`,
                     marginTop: 6,
                     width: "80%",
                     margin: "6px auto 0",
@@ -80,7 +72,7 @@ export function Metrics({ acc }: MetricsProps) {
               <div
                 style={{
                   fontFamily: "var(--font-sans)",
-                  fontSize: 12.5,
+                  fontSize: 12,
                   fontWeight: 500,
                   color: "var(--txt2)",
                   marginTop: 10,
@@ -91,12 +83,10 @@ export function Metrics({ acc }: MetricsProps) {
               >
                 {s.l}
               </div>
-            </F>
+            </div>
           ))}
         </div>
       </div>
     </section>
   );
 }
-
-export default Metrics;

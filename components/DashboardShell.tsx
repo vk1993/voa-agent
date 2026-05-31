@@ -1,9 +1,9 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import Sidebar from "./Sidebar";
-import { Bell, Sparkles, LogOut, Shield } from "lucide-react";
+import { Bell, Sparkles, LogOut, Shield, Menu } from "lucide-react";
 import { QueryClient, QueryClientProvider, useQuery } from "@tanstack/react-query";
 
 interface DashboardShellProps {
@@ -33,6 +33,27 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const pathname = usePathname() || "";
 
+  const [theme, setTheme] = useState<"light" | "dark">("light");
+  const [isMobileOpen, setIsMobileOpen] = useState(false);
+
+  useEffect(() => {
+    const stored = (localStorage.getItem("voxa-theme") as "light" | "dark") || "light";
+    setTheme(stored);
+    document.documentElement.dataset.theme = stored;
+  }, []);
+
+  const toggleTheme = () => {
+    const next = theme === "light" ? "dark" : "light";
+    setTheme(next);
+    document.documentElement.dataset.theme = next;
+    localStorage.setItem("voxa-theme", next);
+  };
+
+  // Close mobile sidebar automatically on pathname transition change
+  useEffect(() => {
+    setIsMobileOpen(false);
+  }, [pathname]);
+
   // Dynamic Edge-backed Session Profiler
   const { data: session, isLoading, error } = useQuery({
     queryKey: ["session"],
@@ -51,9 +72,21 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
         role: "ADMIN" | "SALES_AGENT" | "READ_ONLY";
         tenantId: string;
         tenantName: string;
+        tenant?: {
+          vertical: string | null;
+          config: any;
+          onboardingComplete: boolean;
+        };
       }>;
     },
   });
+
+  // Redirect un-onboarded tenants immediately to /onboarding setup wizard
+  useEffect(() => {
+    if (session && session.tenant && !session.tenant.onboardingComplete) {
+      router.push("/onboarding");
+    }
+  }, [session, router]);
 
   const handleSignOut = () => {
     if (typeof document !== "undefined") {
@@ -66,19 +99,19 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
   // 1. Loading State: Render elegant animated premium dashboard placeholder skeleton
   if (isLoading) {
     return (
-      <div style={{ minHeight: "100vh", background: "#07080B", display: "flex", alignItems: "center", justifyContent: "center" }}>
+      <div style={{ minHeight: "100vh", background: "var(--bg)", display: "flex", alignItems: "center", justifyContent: "center" }}>
         <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 16 }}>
           <div
             style={{
               width: 40,
               height: 40,
               borderRadius: "50%",
-              border: "3px solid rgba(255, 255, 255, 0.03)",
-              borderTopColor: "var(--gold, #c9a14a)",
+              border: "3px solid var(--border)",
+              borderTopColor: "var(--gold)",
               animation: "voxa-spin 1s linear infinite",
             }}
           />
-          <span style={{ fontSize: 12, color: "var(--txt3, #8a8a93)", fontFamily: "var(--font-mono)", letterSpacing: ".05em" }}>
+          <span style={{ fontSize: 12, color: "var(--txt3)", fontFamily: "var(--font-mono)", letterSpacing: ".05em" }}>
             VERIFYING ENCRYPTED SESSION GATEWAY...
           </span>
           <style>{`
@@ -107,7 +140,16 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
     return (
       <div style={{ minHeight: "100vh", background: "var(--bg)", color: "var(--txt)", display: "flex" }}>
         {/* Render fully functional Sidebar to enable safe pipeline return routes */}
-        <Sidebar role={role} userEmail={email} userName={name} tenantName={tenantName} />
+        <Sidebar
+          role={role}
+          userEmail={email}
+          userName={name}
+          tenantName={tenantName}
+          theme={theme}
+          onThemeToggle={toggleTheme}
+          isMobileOpen={isMobileOpen}
+          onMobileClose={() => setIsMobileOpen(false)}
+        />
         
         <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: 60, textAlign: "center" }}>
           <div
@@ -115,37 +157,24 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
               width: 96,
               height: 96,
               borderRadius: "50%",
-              background: "rgba(49, 130, 206, 0.1)",
-              border: "1px solid rgba(49, 130, 206, 0.25)",
+              background: "var(--blue-bg)",
+              border: "1px solid var(--border-strong)",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
               marginBottom: 24,
-              boxShadow: "0 0 24px rgba(49, 130, 206, 0.15)",
+              boxShadow: "var(--shadow-sm)",
             }}
           >
-            <Shield size={44} style={{ color: "#3182ce" }} />
+            <Shield size={44} style={{ color: "var(--blue)" }} />
           </div>
-          <h2 style={{ fontSize: 24, fontWeight: 700, marginBottom: 12, color: "var(--txt)" }}>Admin Access Required</h2>
+          <h2 style={{ fontSize: 24, fontWeight: 700, marginBottom: 12, color: "var(--txt)", fontFamily: "var(--font-display)" }}>Admin Access Required</h2>
           <p style={{ fontSize: 15, color: "var(--txt2)", marginBottom: 32, maxWidth: 400, lineHeight: 1.6 }}>
             You're signed in as a Sales Agent. This area is restricted to administrators only.
           </p>
           <button
             onClick={() => router.push("/sp/pipeline")}
-            style={{
-              padding: "12px 24px",
-              borderRadius: 8,
-              background: "linear-gradient(135deg, var(--gold, #c9a14a) 0%, #a87e2f 100%)",
-              border: "none",
-              color: "#07080B",
-              fontWeight: 600,
-              fontSize: 14,
-              cursor: "pointer",
-              boxShadow: "0 4px 12px rgba(201, 161, 74, 0.2)",
-              transition: "transform 0.15s ease",
-            }}
-            onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.02)")}
-            onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
+            className="btn btn-gold"
           >
             Back to my pipeline
           </button>
@@ -156,38 +185,74 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
 
   // 4. Main Authenticated Dashboard Shell Layout
   return (
-    <div style={{ minHeight: "100vh", background: "var(--bg)", color: "var(--txt)" }}>
+    <div style={{ minHeight: "100vh", background: "var(--bg)", color: "var(--txt)", display: "flex" }}>
       {/* Bound Sidebar with active verified B2B dynamic context */}
-      <Sidebar role={role} userEmail={email} userName={name} tenantName={tenantName} />
+      <Sidebar
+        role={role}
+        userEmail={email}
+        userName={name}
+        tenantName={tenantName}
+        theme={theme}
+        onThemeToggle={toggleTheme}
+        isMobileOpen={isMobileOpen}
+        onMobileClose={() => setIsMobileOpen(false)}
+      />
 
-      {/* Main Content Area */}
-      <div style={{ marginLeft: 260, minHeight: "100vh", display: "flex", flexDirection: "column" }}>
+      <style>{`
+        @media (min-width: 769px) {
+          .mobile-menu-btn {
+            display: none !important;
+          }
+        }
+      `}</style>
+
+      {/* Main Content Area using responsive layout styles */}
+      <main className="dashboard-content" style={{ flex: 1, display: "flex", flexDirection: "column", padding: 0 }}>
         
         {/* Top Navbar */}
         <header
           style={{
             height: 64,
-            borderBottom: "1px solid rgba(255, 255, 255, 0.05)",
-            padding: "0 40px",
+            borderBottom: "0.5px solid var(--border)",
+            padding: "0 32px",
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
-            background: "rgba(7, 8, 11, 0.7)",
+            background: "var(--bg-card)",
             backdropFilter: "blur(20px)",
             position: "sticky",
             top: 0,
             zIndex: 90,
           }}
         >
-          {/* Page Info */}
-          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-            <Sparkles size={15} style={{ color: "var(--gold)" }} />
-            <span style={{ fontSize: 13, fontWeight: 600, color: "var(--txt2)", letterSpacing: ".02em" }}>
-              {role === "ADMIN" 
-                ? `${tenantName} Admin Console` 
-                : `${tenantName} Outbound Agent Workspace`
+          {/* Mobile Menu Trigger & Page Info Container */}
+          <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+            <button
+              onClick={() => setIsMobileOpen(true)}
+              style={{
+                background: "transparent",
+                border: "none",
+                color: "var(--txt2)",
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                padding: 4,
+              }}
+              className="mobile-menu-btn"
+              aria-label="Open sidebar menu"
+            >
+              <Menu size={20} />
+            </button>
+            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              <Sparkles size={15} style={{ color: "var(--gold)" }} />
+              <span style={{ fontSize: 13, fontWeight: 600, color: "var(--txt2)", letterSpacing: ".02em" }}>
+                {role === "ADMIN" 
+                  ? `${tenantName} Admin Console` 
+                  : `${tenantName} Outbound Agent Workspace`
               }
-            </span>
+              </span>
+            </div>
           </div>
 
           {/* Action Row */}
@@ -199,8 +264,8 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
                 height: 30,
                 padding: "0 12px",
                 borderRadius: 8,
-                border: "1px solid rgba(255,255,255,0.06)",
-                background: "rgba(255,255,255,0.03)",
+                border: "1px solid var(--border)",
+                background: "var(--bg-subtle)",
                 color: role === "ADMIN" ? "var(--gold)" : "var(--blue)",
                 fontSize: 11.5,
                 fontWeight: 600,
@@ -210,16 +275,18 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
               }}
             >
               <Shield size={12} />
-              <span>{role === "ADMIN" ? "Administrator" : role === "SALES_AGENT" ? "Sales Agent" : "Read-Only Viewer"}</span>
+              <span style={{ fontFamily: "var(--font-sans)" }}>
+                {role === "ADMIN" ? "Administrator" : role === "SALES_AGENT" ? "Sales Agent" : "Read-Only Viewer"}
+              </span>
             </div>
 
             {/* Notification Indicator Icon */}
             <div
-              className="glass-panel"
+              className="card"
               style={{
                 width: 36,
                 height: 36,
-                borderRadius: 10,
+                borderRadius: "var(--radius)",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
@@ -242,7 +309,7 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
               />
             </div>
 
-            <div style={{ width: 1, height: 20, background: "rgba(255,255,255,0.08)" }} />
+            <div style={{ width: 1, height: 20, background: "var(--border)" }} />
 
             {/* Logout Action */}
             <button
@@ -270,11 +337,11 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
           </div>
         </header>
 
-        {/* Content Box with clean div wrapper supporting dynamic Route path animations */}
-        <div key={pathname} style={{ flex: 1, padding: 40, overflowY: "auto" }}>
+        {/* Content Box with clean div wrapper supporting dynamic Route path transitions */}
+        <div key={pathname} style={{ flex: 1, padding: "28px 32px", overflowY: "auto" }}>
           {children}
         </div>
-      </div>
+      </main>
     </div>
   );
 }

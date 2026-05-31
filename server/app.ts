@@ -8,6 +8,7 @@ import { PrismaClient } from "@prisma/client";
 import { getTenantClient } from "../lib/prisma-tenant";
 import { logAuditEvent } from "../lib/security/audit-logger";
 import { contactsRoutes } from "./routes/contacts.route";
+import { tenantRoutes } from "./routes/tenant.route";
 
 // Extends Fastify types with user identity & tenant-scoped Prisma clients
 declare module "fastify" {
@@ -37,10 +38,13 @@ export async function createServer(): Promise<FastifyInstance> {
     token: process.env.UPSTASH_REDIS_REST_TOKEN || "mock_token",
   });
 
-  // Cache JWKS in edge memory via Jose remote JWKSet
-  const JWKS = createRemoteJWKSet(
-    new URL(process.env.JWKS_URL || "https://auth.voxa.ai/.well-known/jwks.json")
-  );
+  // Cache JWKS in edge memory via Jose remote JWKSet if in production
+  const jwtSecret = process.env.JWT_SECRET;
+  const jwksUrl   = process.env.JWKS_URL; // set only in production with real Cognito
+  
+  const JWKS = jwksUrl
+    ? createRemoteJWKSet(new URL(jwksUrl))
+    : null;
 
   // =========================================================================
   // 1. SECURITY HEADERS MIDDLEWARE (@fastify/helmet)
@@ -64,12 +68,16 @@ export async function createServer(): Promise<FastifyInstance> {
   // =========================================================================
   await app.register(cors, {
     origin: (origin, cb) => {
-      // Allow requests from secure B2B domains and internal proxies
-      if (!origin || origin === "null" || origin === "https://voxa.ai" || /\.voxa\.ai$/.test(origin)) {
-        cb(null, true);
-      } else {
-        cb(new Error("CORS_NOT_ALLOWED"), false);
-      }
+      const IS_DEV = process.env.NODE_ENV !== "production";
+      const allowed = [
+        "https://voxa.ai",
+        /\.voxa\.ai$/,
+        ...(IS_DEV ? [/^http:\/\/localhost(:\d+)?$/] : []),
+      ];
+      const ok = !origin || allowed.some(p =>
+        typeof p === "string" ? p === origin : p.test(origin)
+      );
+      cb(ok ? null : new Error("CORS_NOT_ALLOWED"), ok);
     },
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
@@ -101,10 +109,24 @@ export async function createServer(): Promise<FastifyInstance> {
 
     const token = authHeader.split(" ")[1];
     try {
-      const { payload } = await jwtVerify(token, JWKS, {
-        issuer: "https://auth.voxa.ai",
-        audience: "https://voxa.ai/app",
-      });
+      let payload;
+      if (JWKS) {
+        const result = await jwtVerify(token, JWKS, {
+          issuer: "https://auth.voxa.ai",
+          audience: "https://voxa.ai/app",
+        });
+        payload = result.payload;
+      } else {
+        // HS256 dev mode
+        const { jwtVerify: verify } = await import("jose");
+        const secret = new TextEncoder().encode(jwtSecret || "");
+        const result = await verify(token, secret, {
+          issuer: "https://auth.voxa.ai",
+          audience: "https://voxa.ai/app",
+          algorithms: ["HS256"],
+        });
+        payload = result.payload;
+      }
 
       // Assert Blacklisted Session Tokens (JTI) for revoked access tokens
       const isRevoked = await redis.get(`blacklist:jti:${payload.jti}`);
@@ -216,7 +238,14 @@ export async function createServer(): Promise<FastifyInstance> {
   // =========================================================================
   // 8. ROUTE REGISTRATIONS
   // =========================================================================
+  app.get("/health", async () => ({
+    status: "ok",
+    service: "voxa-fastify",
+    timestamp: new Date().toISOString()
+  }));
+
   await app.register(contactsRoutes, { prefix: "/contacts" });
+  await app.register(tenantRoutes, { prefix: "/tenant" });
 
   return app;
 }

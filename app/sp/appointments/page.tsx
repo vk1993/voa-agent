@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import DashboardShell from "@/components/DashboardShell";
 import {
   Calendar,
@@ -63,8 +63,38 @@ const MOCK_APPOINTMENTS: Appointment[] = [
 ];
 
 export default function SalesAgentAppointments() {
-  const [appointments, setAppointments] = useState<Appointment[]>(MOCK_APPOINTMENTS);
+  const [appointments, setAppointments] = useState<Appointment[]>([]);
+  const [loading, setLoading] = useState(true);
   const [selectedApt, setSelectedApt] = useState<Appointment | null>(null);
+  
+  useEffect(() => {
+    async function fetchAppointments() {
+      try {
+        const res = await fetch("/api/appointments?limit=50");
+        const data = await res.json();
+        if (data.success && Array.isArray(data.appointments)) {
+          const mapped: Appointment[] = data.appointments.map((a: any) => ({
+            id: a.id,
+            name: a.contact?.name || "Unknown",
+            type: "Showroom Walkthrough" as const,
+            timestamp: a.contentSnapshot?.scheduledAt
+              ? new Date(a.contentSnapshot.scheduledAt).toLocaleString("en-IN", { dateStyle: "medium", timeStyle: "short" })
+              : new Date(a.createdAt).toLocaleString("en-IN", { dateStyle: "medium", timeStyle: "short" }),
+            location: a.contentSnapshot?.location || "TBD",
+            assignedAgent: a.contact?.assignedAgent?.name || "Unassigned",
+            status: "Confirmed" as const,
+            notes: a.callLog?.transcriptSummary || a.contentSnapshot?.notes || "",
+          }));
+          setAppointments(mapped);
+        }
+      } catch (err) {
+        console.error("Failed to load appointments:", err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchAppointments();
+  }, []);
   
   // WhatsApp reminder feedback state
   const [whatsappSentId, setWhatsappSentId] = useState<string | null>(null);

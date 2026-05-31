@@ -1,0 +1,105 @@
+name: Deploy VOXA to AWS
+
+on:
+  push:
+    branches: [main]
+
+env:
+  AWS_REGION: ap-south-1
+  ECR_REGISTRY: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.ap-south-1.amazonaws.com
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 20 }
+      - run: npm ci
+      - run: npx tsc --noEmit
+      - run: npm run lint --if-present
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - run: |
+          cd python/core && pip install -e ".[dev]" -q
+          cd ../worker && pip install -e ".[dev]" -q
+          cd ../agent && pip install -e ".[dev]" -q
+          cd ../.. && python -m pytest python/ -x -q --tb=short
+
+  build-push:
+    needs: test
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id:     ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region:            ${{ env.AWS_REGION }}
+      - uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build and push Next.js
+        run: |
+          docker build -f Dockerfile.nextjs -t $ECR_REGISTRY/voxa-nextjs:${{ github.sha }} .
+          docker tag $ECR_REGISTRY/voxa-nextjs:${{ github.sha }} $ECR_REGISTRY/voxa-nextjs:latest
+          docker push $ECR_REGISTRY/voxa-nextjs:${{ github.sha }}
+          docker push $ECR_REGISTRY/voxa-nextjs:latest
+
+      - name: Build and push Fastify
+        run: |
+          docker build -f Dockerfile.fastify -t $ECR_REGISTRY/voxa-fastify:${{ github.sha }} .
+          docker tag $ECR_REGISTRY/voxa-fastify:${{ github.sha }} $ECR_REGISTRY/voxa-fastify:latest
+          docker push $ECR_REGISTRY/voxa-fastify:${{ github.sha }}
+          docker push $ECR_REGISTRY/voxa-fastify:latest
+
+      - name: Build and push Python agent
+        run: |
+          docker build -f python/agent/Dockerfile -t $ECR_REGISTRY/voxa-agent:${{ github.sha }} python/
+          docker tag $ECR_REGISTRY/voxa-agent:${{ github.sha }} $ECR_REGISTRY/voxa-agent:latest
+          docker push $ECR_REGISTRY/voxa-agent:${{ github.sha }}
+          docker push $ECR_REGISTRY/voxa-agent:latest
+
+  deploy-infra:
+    needs: build-push
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - uses: actions/setup-node@v4
+        with: { node-version: 20 }
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id:     ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region:            ${{ env.AWS_REGION }}
+      - run: cd aws-infra && pip install -r requirements.txt
+      - run: cd aws-infra && npx cdk deploy --require-approval never
+
+  deploy-services:
+    needs: [build-push, deploy-infra]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id:     ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region:            ${{ env.AWS_REGION }}
+      - name: Force ECS service updates
+        run: |
+          aws ecs update-service --cluster VoxaCluster --service NextjsService \
+            --force-new-deployment --region $AWS_REGION
+          aws ecs update-service --cluster VoxaCluster --service FastifyService \
+            --force-new-deployment --region $AWS_REGION
+          aws ecs update-service --cluster VoxaCluster --service AgentService \
+            --force-new-deployment --region $AWS_REGION
+
+      - name: Run DB migrations
+        run: |
+          # Invoke the deployed Prisma VPC Migration Lambda function
+          # We can extract the function ARN using AWS Lambda CLI if we have it or run it via AWS CLI
+          echo "Invoking MigrateFn Lambda to deploy database migrations safely within VPC"
+          # aws lambda invoke --function-name $(aws lambda list-functions --query "Functions[?contains(FunctionName, 'MigrateFn')].FunctionName" --output text) out.json

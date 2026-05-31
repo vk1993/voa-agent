@@ -15,6 +15,7 @@ const eslintConfig = defineConfig([
     "aws-infra/cdk.out/**",
     "aws-infra/dist/**",
     "original/**",
+    "venv/**",
   ]),
   {
     rules: {

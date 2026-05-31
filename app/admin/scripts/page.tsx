@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import DashboardShell from "@/components/DashboardShell";
 import {
   FileText,
@@ -61,11 +61,42 @@ const MOCK_SCRIPTS: ScriptData[] = [
 ];
 
 export default function ObjectionScriptsPage() {
-  const [scripts, setScripts] = useState<ScriptData[]>(MOCK_SCRIPTS);
+  const [scripts, setScripts] = useState<ScriptData[]>([]);
+  const [loading, setLoading] = useState(true);
   const [selectedScript, setSelectedScript] = useState<ScriptData | null>(null);
   
+  // Fetch scripts from real API
+  useEffect(() => {
+    async function fetchScripts() {
+      try {
+        const res = await fetch("/api/scripts");
+        const data = await res.json();
+        if (data.success && Array.isArray(data.scripts)) {
+          // Map API Script to ScriptData UI shape
+          const mapped: ScriptData[] = data.scripts.map((s: any) => ({
+            id: s.id,
+            name: s.name,
+            category: (s.sections?.category as ScriptData["category"]) || "OBJECTION_PIVOT",
+            objectionTrigger: s.sections?.triggerKeywords || "",
+            systemPrompt: s.systemPrompt || "",
+            suggestedPivot: s.sections?.suggestedPivot || "",
+            successRate: s.sections?.successRate || 0,
+            status: s.isActive ? "ACTIVE" : "INACTIVE",
+          }));
+          setScripts(mapped);
+          if (mapped.length > 0) setSandboxPrompt(mapped[0].systemPrompt);
+        }
+      } catch (err) {
+        console.error("Failed to load scripts:", err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchScripts();
+  }, []);
+  
   // Prompt sandbox state
-  const [sandboxPrompt, setSandboxPrompt] = useState(MOCK_SCRIPTS[0].systemPrompt);
+  const [sandboxPrompt, setSandboxPrompt] = useState("");
   const [sandboxInput, setSandboxInput] = useState("Your packages are too expensive, I got a cheaper quote.");
   const [sandboxResponse, setSandboxResponse] = useState<string | null>(null);
   const [testing, setTesting] = useState(false);
@@ -76,24 +107,48 @@ export default function ObjectionScriptsPage() {
   const [newScriptPrompt, setNewScriptPrompt] = useState("");
   const [newScriptPivot, setNewScriptPivot] = useState("");
 
-  const handleCreateScript = (e: React.FormEvent) => {
+  const handleCreateScript = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newScriptName.trim()) return;
 
-    const newScript: ScriptData = {
-      id: `scr-${Date.now()}`,
-      name: newScriptName,
-      category: "OBJECTION_PIVOT",
-      objectionTrigger: newScriptTriggers,
-      systemPrompt: newScriptPrompt,
-      suggestedPivot: newScriptPivot,
-      successRate: 0,
-      status: "ACTIVE",
-    };
-
-    setScripts([newScript, ...scripts]);
-    setNewScriptName("");
-    setShowCreateModal(false);
+    try {
+      const res = await fetch("/api/scripts", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: newScriptName,
+          systemPrompt: newScriptPrompt,
+          sections: {
+            category: "OBJECTION_PIVOT",
+            triggerKeywords: newScriptTriggers,
+            suggestedPivot: newScriptPivot,
+            successRate: 0,
+          },
+          isActive: true,
+        }),
+      });
+      const data = await res.json();
+      if (data.success && data.script) {
+        const s = data.script;
+        setScripts((prev) => [{
+          id: s.id,
+          name: s.name,
+          category: "OBJECTION_PIVOT" as const,
+          objectionTrigger: newScriptTriggers,
+          systemPrompt: s.systemPrompt || "",
+          suggestedPivot: newScriptPivot,
+          successRate: 0,
+          status: "ACTIVE" as const,
+        }, ...prev]);
+        setNewScriptName("");
+        setNewScriptTriggers("");
+        setNewScriptPrompt("");
+        setNewScriptPivot("");
+        setShowCreateModal(false);
+      }
+    } catch (err) {
+      console.error("Failed to create script:", err);
+    }
   };
 
   const handleRunSandbox = () => {

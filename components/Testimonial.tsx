@@ -1,166 +1,97 @@
 "use client";
-
 import React from "react";
-import F from "./FadeIn";
 
-interface FunnelItem {
-  l: string;
-  w: number;
-  col: string;
-}
-
-interface TestimonialProps {
-  acc: string;
-}
-
-export function Testimonial({ acc }: TestimonialProps) {
-  const funnel: FunnelItem[] = [
-    { l: "5,200 calls", w: 100, col: acc },
-    { l: "3,120 answered", w: 60, col: "var(--blue)" },
-    { l: "250 booked", w: 25, col: "var(--teal)" },
-    { l: "187 showroom visits", w: 18, col: "var(--green)" },
+export default function Testimonial({ acc }: { acc: string }) {
+  const reviews = [
+    {
+      vertical: "Interior Design",
+      vColor: "#C9A14A",
+      quote: "VOXA's AI called 200 cold leads over a single weekend. By Monday morning we had 14 showroom visits booked. Our sales team would have spent two full weeks manually dials to get this result.",
+      initials: "PR",
+      name: "Priya Rajan",
+      company: "Prestige Interiors",
+    },
+    {
+      vertical: "Real Estate",
+      vColor: "#1D9E75",
+      quote: "We were highly skeptical about how an AI would handle detailed property negotiations. But VOXA qualified interest and booked 31 site visits in our first month. The CRM integration is bulletproof.",
+      initials: "AK",
+      name: "Ankit Kulkarni",
+      company: "Apex Properties",
+    },
+    {
+      vertical: "Product Sales",
+      vColor: "#8B5CF6",
+      quote: "Objection handling was our biggest bottleneck. VOXA is trained on our exact SaaS playbook and handles comparisons smoothly. Our cost per product demo dropped by 60% compared to SDRs.",
+      initials: "SS",
+      name: "Saurabh Sharma",
+      company: "TechCorp Systems",
+    },
   ];
 
   return (
-    <section style={{ padding: "100px 0" }}>
-      <div className="wrap">
-        <F>
-          <div style={{ display: "flex", gap: 32, alignItems: "stretch" }}>
-            {/* Quote card */}
-            <div
-              style={{
-                flex: "0 0 56%",
-                background: "#15151A",
-                borderLeft: `3px solid ${acc}`,
-                borderRadius: "0 14px 14px 0",
-                padding: "36px 40px",
-                display: "flex",
-                flexDirection: "column",
-                gap: 22,
-              }}
-            >
-              <svg width="30" height="22" viewBox="0 0 30 22" fill="none">
-                <path
-                  d="M0 14C0 6 4.5 1.5 11 0L13 4C8.5 5.5 7 8.5 7 12H12V22H0V14ZM17 14C17 6 21.5 1.5 28 0L30 4C25.5 5.5 24 8.5 24 12H29V22H17V14Z"
-                  fill={acc}
-                  fillOpacity=".35"
-                />
-              </svg>
-              <blockquote
-                style={{
-                  fontSize: 19,
-                  fontWeight: 500,
-                  lineHeight: 1.5,
-                  color: "var(--txt)",
-                  letterSpacing: "-.01em",
-                  flex: 1,
-                }}
-              >
-                "We replaced our 4-person telecalling team with VOXA in one weekend. Cost dropped
-                61%. Appointments up 40%."
+    <section id="testimonials" style={{ background: "var(--abyss)", padding: "var(--space-section) 0" }}>
+      <div className="container">
+        {/* Section Header */}
+        <div style={{ textAlign: "center", marginBottom: 60 }}>
+          <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.1em",
+            textTransform: "uppercase", color: acc, marginBottom: 14 }}>
+            Customer Success
+          </p>
+          <h2 className="land-h2" style={{ color: "var(--warm-white)" }}>
+            Loved by fast-growing B2B sales teams.
+          </h2>
+        </div>
+
+        {/* Testimonial Grid */}
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 24 }}>
+          {reviews.map((r, i) => (
+            <div key={i} className="glass-panel" style={{
+              background: "rgba(255,255,255,0.02)", border: "0.5px solid rgba(255,255,255,0.08)",
+              borderRadius: 16, padding: 32, display: "flex", flexDirection: "column", justifyContent: "space-between"
+            }}>
+              {/* Vertical Badge */}
+              <div style={{ marginBottom: 20 }}>
+                <span style={{
+                  fontSize: 10, fontWeight: 600, padding: "4px 10px", borderRadius: 12,
+                  background: `${r.vColor}18`, color: r.vColor, border: `0.5px solid ${r.vColor}40`,
+                  letterSpacing: "0.04em", textTransform: "uppercase"
+                }}>
+                  {r.vertical}
+                </span>
+              </div>
+
+              {/* Quote text */}
+              <blockquote style={{
+                fontFamily: "var(--font-serif)", fontSize: 18, fontStyle: "italic",
+                color: "var(--warm-white)", lineHeight: 1.55, marginBottom: 28
+              }}>
+                "{r.quote}"
               </blockquote>
-              <div>
-                <div style={{ fontSize: 13.5, color: "var(--txt2)", marginBottom: 16 }}>
-                  — Priya Nair, Operations Lead · Prestige Interiors, Bangalore
+
+              {/* Author Profile */}
+              <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                <div style={{
+                  width: 40, height: 40, borderRadius: "50%",
+                  background: `${r.vColor}24`, color: r.vColor, border: `0.5px solid ${r.vColor}40`,
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                  fontSize: 13, fontWeight: 600
+                }}>
+                  {r.initials}
                 </div>
-                <div style={{ display: "flex", flexWrap: "wrap", gap: 7 }}>
-                  {[
-                    "41% more bookings",
-                    "61% cost reduction",
-                    "Interior Design skill pack",
-                    "India · Hindi + English",
-                  ].map((c) => (
-                    <span
-                      key={c}
-                      style={{
-                        fontFamily: "var(--font-mono)",
-                        fontSize: 10.5,
-                        color: "var(--txt2)",
-                        padding: "4px 10px",
-                        background: "rgba(255,255,255,.04)",
-                        border: "1px solid rgba(255,255,255,.08)",
-                        borderRadius: 20,
-                      }}
-                    >
-                      {c}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            </div>
-            {/* Funnel */}
-            <div
-              style={{
-                flex: 1,
-                background: "#15151A",
-                border: "1px solid rgba(255,255,255,.06)",
-                borderTop: `2px solid ${acc}`,
-                borderRadius: 14,
-                padding: "26px 30px",
-              }}
-            >
-              <div
-                style={{
-                  fontFamily: "var(--font-mono)",
-                  fontSize: 9.5,
-                  color: "var(--txt3)",
-                  letterSpacing: ".09em",
-                  marginBottom: 22,
-                }}
-              >
-                CONVERSION FUNNEL · LAST 30 DAYS
-              </div>
-              <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
-                {funnel.map((r, i) => (
-                  <div key={i}>
-                    <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 7 }}>
-                      <span style={{ fontSize: 13, color: "var(--txt2)" }}>{r.l}</span>
-                      <span style={{ fontFamily: "var(--font-mono)", fontSize: 11.5, color: r.col }}>
-                        {r.w}%
-                      </span>
-                    </div>
-                    <div
-                      style={{
-                        height: 5,
-                        background: "rgba(255,255,255,.06)",
-                        borderRadius: 3,
-                        overflow: "hidden",
-                      }}
-                    >
-                      <div
-                        style={{
-                          height: "100%",
-                          width: `${r.w}%`,
-                          background: r.col,
-                          borderRadius: 3,
-                        }}
-                      />
-                    </div>
+                <div>
+                  <div style={{ fontSize: 13.5, fontWeight: 600, color: "var(--warm-white)" }}>
+                    {r.name}
                   </div>
-                ))}
-              </div>
-              <div
-                style={{
-                  marginTop: 22,
-                  padding: "13px 15px",
-                  background: `${acc}0D`,
-                  borderRadius: 10,
-                  border: `1px solid ${acc}22`,
-                }}
-              >
-                <div style={{ fontFamily: "var(--font-mono)", fontSize: 11, color: acc }}>
-                  3.6% end-to-end conversion
-                </div>
-                <div style={{ fontFamily: "var(--font-mono)", fontSize: 10, color: "var(--txt3)", marginTop: 3 }}>
-                  Industry avg: 0.8% · 4.5× above benchmark
+                  <div style={{ fontSize: 12, color: "rgba(255,255,255,0.4)" }}>
+                    {r.company}
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-        </F>
+          ))}
+        </div>
       </div>
     </section>
   );
 }
-
-export default Testimonial;

@@ -126,11 +126,11 @@ export const contactsRoutes: FastifyPluginAsync = async (app) => {
         return str;
       };
 
-      const csvHeaders = "ID,Name,Phone,Email,Status,LeadScore,BHKType,BudgetMin,BudgetMax\n";
+      const csvHeaders = "ID,Name,Phone,Email,Status,LeadScore,DomainQualifier,BudgetMin,BudgetMax\n";
       const csvRows = contacts
         .map(
           (c) =>
-            `"${c.id}","${sanitizeCsvField(c.name)}","${sanitizeCsvField(c.phone)}","${sanitizeCsvField(c.email)}","${sanitizeCsvField(c.status)}",${c.leadScore},"${sanitizeCsvField(c.bhkType)}",${c.budgetMin || 0},${c.budgetMax || 0}`
+            `"${c.id}","${sanitizeCsvField(c.name)}","${sanitizeCsvField(c.phone)}","${sanitizeCsvField(c.email)}","${sanitizeCsvField(c.status)}",${c.leadScore},"${sanitizeCsvField(c.domainQualifier)}",${c.budgetMin || 0},${c.budgetMax || 0}`
         )
         .join("\n");
       const csvContent = csvHeaders + csvRows;
@@ -270,4 +270,57 @@ export const contactsRoutes: FastifyPluginAsync = async (app) => {
       return { phone: contact.phone };
     }
   );
+
+  // POST /calls — internal route used by Python worker post-call
+  app.post<{ Body: {
+    tenantId: string; contactId: string; callSid?: string;
+    durationSeconds: number; sentimentScore?: number;
+    outcomeType: string; transcript?: string;
+    transcriptSummary?: string; extractedEntities?: object;
+    objectionsRaised?: object; recordingS3Path?: string;
+  }}>("/calls", async (req, reply) => {
+    const apiKey = req.headers["x-internal-key"];
+    if (!apiKey || apiKey !== process.env.INTERNAL_API_KEY) {
+      reply.status(401).send({ error: "Unauthorized" });
+      return;
+    }
+    const b = req.body;
+    const VALID_OUTCOMES = [
+      "BOOKED","CALLBACK_REQUESTED","THINKING","NOT_INTERESTED",
+      "DND","NO_ANSWER","VOICEMAIL","ESCALATED","ERROR"
+    ];
+    const outcomeType = VALID_OUTCOMES.includes(b.outcomeType)
+      ? b.outcomeType : "NO_ANSWER";
+    const callLog = await req.db.callLog.create({
+      data: {
+        tenantId: b.tenantId,
+        contactId: b.contactId,
+        callSid: b.callSid,
+        durationSeconds: b.durationSeconds || 0,
+        sentimentScore: b.sentimentScore,
+        outcomeType: outcomeType as any,
+        transcript: b.transcript,
+        transcriptSummary: b.transcriptSummary,
+        extractedEntities: b.extractedEntities as any,
+        objectionsRaised: b.objectionsRaised as any,
+        recordingS3Path: b.recordingS3Path,
+      }
+    });
+    return { success: true, callLogId: callLog.id };
+  });
+
+  app.patch<{ Params: { id: string }, Body: { status: string }}>
+    ("/:id/status", async (req, reply) => {
+    const apiKey = req.headers["x-internal-key"];
+    if (!apiKey || apiKey !== process.env.INTERNAL_API_KEY) {
+      reply.status(401).send({ error: "Unauthorized" }); return;
+    }
+    const VALID = ["NEW","QUEUED","CALLED","BOOKED","CONVERTED","DND","ARCHIVED"];
+    const status = VALID.includes(req.body.status) ? req.body.status : "CALLED";
+    await req.db.contact.update({
+      where: { id: req.params.id },
+      data: { status: status as any }
+    });
+    return { success: true };
+  });
 };

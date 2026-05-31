@@ -1,10 +1,65 @@
 "use client";
-
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 
-interface NavProps {
-  acc: string;
+export default function Nav({ acc = "#C9A14A" }: { acc?: string }) {
+  const [scrolled, setScrolled] = useState(false);
+  useEffect(() => {
+    const fn = () => setScrolled(window.scrollY > 20);
+    window.addEventListener("scroll", fn, { passive: true });
+    return () => window.removeEventListener("scroll", fn);
+  }, []);
+
+  return (
+    <nav style={{
+      position: "fixed", top: 0, left: 0, right: 0, zIndex: 100,
+      transition: "all 0.3s ease",
+      backdropFilter: scrolled ? "blur(16px) saturate(180%)" : "none",
+      background: scrolled ? "rgba(7,8,11,0.85)" : "transparent",
+      borderBottom: scrolled ? "0.5px solid rgba(255,255,255,0.06)" : "none",
+    }}>
+      <div className="container" style={{ display: "flex", alignItems: "center",
+        justifyContent: "space-between", height: 64 }}>
+        {/* Logo mark */}
+        <Link href="/" style={{ display: "flex", alignItems: "center", gap: 9, textDecoration: "none" }}>
+          <div style={{ width: 30, height: 30, background: acc, borderRadius: 7,
+            display: "flex", alignItems: "center", justifyContent: "center",
+            fontSize: 15, fontWeight: 800, color: "#0F0F14",
+            fontFamily: "var(--font-display)" }}>V</div>
+          <span style={{ fontSize: 17, fontWeight: 700,
+            fontFamily: "var(--font-display)", color: "#F3F4F6",
+            letterSpacing: -0.02 }}>VOXA</span>
+        </Link>
+
+        {/* Nav links */}
+        <div style={{ display: "flex", gap: 36, fontSize: 14, fontWeight: 500 }}>
+          {[["#verticals","Industries"],["#how-it-works","How it works"],
+            ["#pricing","Pricing"]].map(([href, label]) => (
+            <a key={label} href={href} style={{ color: "rgba(255,255,255,0.6)",
+              textDecoration: "none", transition: "color 0.15s" }}
+              onMouseOver={e => (e.currentTarget.style.color = "#F3F4F6")}
+              onMouseOut={e => (e.currentTarget.style.color = "rgba(255,255,255,0.6)")}>{label}</a>
+          ))}
+        </div>
+
+        {/* CTA group */}
+        <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
+          <Link href="/login" style={{ fontSize: 13, fontWeight: 500,
+            color: "rgba(255,255,255,0.6)", textDecoration: "none", padding: "8px 14px" }}>
+            Sign in
+          </Link>
+          <Link href="/signup" style={{ fontSize: 13, fontWeight: 600,
+            background: acc, color: "#0F0F14",
+            padding: "9px 20px", borderRadius: 8, textDecoration: "none",
+            transition: "opacity 0.15s" }}
+            onMouseOver={e => (e.currentTarget.style.opacity = "0.88")}
+            onMouseOut={e => (e.currentTarget.style.opacity = "1")}>
+            Start free trial
+          </Link>
+        </div>
+      </div>
+    </nav>
+  );
 }
 
 export function NavLink({ href, children }: { href: string; children: React.ReactNode }) {
@@ -28,17 +83,7 @@ export function NavLink({ href, children }: { href: string; children: React.Reac
   );
 }
 
-interface BtnProps {
-  acc: string;
-  children: React.ReactNode;
-  ghost?: boolean;
-  size?: "sm" | "md";
-  onClick?: () => void;
-  href?: string;
-  transitionTypes?: string[];
-}
-
-export function Btn({ acc, children, ghost = false, size = "md", onClick, href, transitionTypes }: BtnProps) {
+export function Btn({ acc, children, ghost = false, size = "md", onClick, href }: any) {
   const [h, setH] = useState(false);
   const p = size === "sm" ? "0 18px" : "0 24px";
   const height = size === "sm" ? 38 : 46;
@@ -68,7 +113,7 @@ export function Btn({ acc, children, ghost = false, size = "md", onClick, href, 
 
   if (href) {
     return (
-      <Link href={href} transitionTypes={transitionTypes} style={{ textDecoration: "none" }}>
+      <Link href={href} style={{ textDecoration: "none" }}>
         <button
           type="button"
           onMouseEnter={() => setH(true)}
@@ -93,97 +138,3 @@ export function Btn({ acc, children, ghost = false, size = "md", onClick, href, 
     </button>
   );
 }
-
-export function Nav({ acc }: NavProps) {
-  const [scrolled, setScrolled] = useState(false);
-
-  useEffect(() => {
-    const handleScroll = () => setScrolled(window.scrollY > 30);
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
-
-  return (
-    <nav
-      style={{
-        position: "fixed",
-        top: 0,
-        left: 0,
-        right: 0,
-        zIndex: 200,
-        background: scrolled ? "rgba(7, 8, 11, 0.85)" : "transparent",
-        backdropFilter: scrolled ? "blur(20px)" : "none",
-        WebkitBackdropFilter: scrolled ? "blur(20px)" : "none",
-        borderBottom: scrolled ? "1px solid rgba(255, 255, 255, 0.05)" : "1px solid transparent",
-        transition: "all 0.3s cubic-bezier(0.16, 1, 0.3, 1)",
-        viewTransitionName: "site-header", // Anchored static site header across transitions
-      }}
-    >
-      <div
-        className="wrap"
-        style={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          height: 70,
-        }}
-      >
-        {/* Brand Logo with home link */}
-        <Link
-          href="/"
-          transitionTypes={["nav-back"]}
-          style={{ display: "flex", alignItems: "center", gap: 11, textDecoration: "none" }}
-        >
-            <div
-              style={{
-                width: 34,
-                height: 34,
-                borderRadius: 8,
-                background: `linear-gradient(135deg, ${acc} 0%, rgba(255,255,255,0.1) 100%)`,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                color: "#07080B",
-                fontFamily: "var(--font-mono)",
-                fontWeight: 800,
-                fontSize: 16,
-                flexShrink: 0,
-                boxShadow: scrolled ? `0 4px 12px ${acc}22` : "none",
-              }}
-            >
-              V
-            </div>
-          <span
-            style={{
-              fontFamily: "var(--font-sans)",
-              fontWeight: 800,
-              fontSize: 18,
-              letterSpacing: "-.02em",
-              color: "var(--txt)",
-            }}
-          >
-            VOXA
-          </span>
-        </Link>
-
-        {/* Navigation Links */}
-        <div style={{ display: "flex", gap: 32, alignItems: "center" }}>
-          <NavLink href="/#skillpacks">Skill Packs</NavLink>
-          <NavLink href="/#howitworks">How It Works</NavLink>
-          <NavLink href="/#pricing">Pricing</NavLink>
-          <NavLink href="/admin/contacts">Admin Contacts</NavLink>
-        </div>
-
-        {/* Action Buttons */}
-        <div style={{ display: "flex", gap: 16, alignItems: "center" }}>
-          <NavLink href="/login">Sign in</NavLink>
-          <Btn acc={acc} size="sm" href="/login" transitionTypes={["nav-forward"]}>
-            Get started
-          </Btn>
-        </div>
-      </div>
-    </nav>
-  );
-}
-
-export default Nav;

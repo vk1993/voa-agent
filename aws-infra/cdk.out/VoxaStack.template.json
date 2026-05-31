@@ -597,14 +597,20 @@
   "VoxaPostgres82F83C76": {
    "Type": "AWS::RDS::DBInstance",
    "Properties": {
-    "AllocatedStorage": "100",
+    "AllocatedStorage": "200",
+    "BackupRetentionPeriod": 7,
     "CopyTagsToSnapshot": true,
-    "DBInstanceClass": "db.t4g.micro",
+    "DBInstanceClass": "db.t4g.small",
     "DBName": "voxa_prod",
     "DBSubnetGroupName": {
      "Ref": "VoxaPostgresSubnetGroup79476868"
     },
-    "DeletionProtection": false,
+    "DeletionProtection": true,
+    "EnableCloudwatchLogsExports": [
+     "postgresql",
+     "upgrade"
+    ],
+    "EnableIAMDatabaseAuthentication": true,
     "Engine": "postgres",
     "EngineVersion": "16",
     "MasterUserPassword": {
@@ -620,10 +626,12 @@
      ]
     },
     "MasterUsername": "voxa_admin",
-    "MultiAZ": false,
+    "MultiAZ": true,
+    "PreferredBackupWindow": "01:00-02:00",
+    "PreferredMaintenanceWindow": "Mon:03:00-Mon:04:00",
     "PubliclyAccessible": false,
     "StorageEncrypted": true,
-    "StorageType": "gp2",
+    "StorageType": "gp3",
     "VPCSecurityGroups": [
      {
       "Fn::GetAtt": [
@@ -639,10 +647,1157 @@
     "aws:cdk:path": "VoxaStack/VoxaPostgres/Resource"
    }
   },
+  "NextjsRepo60B2D8A4": {
+   "Type": "AWS::ECR::Repository",
+   "Properties": {
+    "LifecyclePolicy": {
+     "LifecyclePolicyText": "{\"rules\":[{\"rulePriority\":1,\"selection\":{\"tagStatus\":\"any\",\"countType\":\"imageCountMoreThan\",\"countNumber\":10},\"action\":{\"type\":\"expire\"}}]}"
+    },
+    "RepositoryName": "voxa-nextjs"
+   },
+   "UpdateReplacePolicy": "Retain",
+   "DeletionPolicy": "Retain",
+   "Metadata": {
+    "aws:cdk:path": "VoxaStack/NextjsRepo/Resource"
+   }
+  },
+  "FastifyRepoF9AED764": {
+   "Type": "AWS::ECR::Repository",
+   "Properties": {
+    "LifecyclePolicy": {
+     "LifecyclePolicyText": "{\"rules\":[{\"rulePriority\":1,\"selection\":{\"tagStatus\":\"any\",\"countType\":\"imageCountMoreThan\",\"countNumber\":10},\"action\":{\"type\":\"expire\"}}]}"
+    },
+    "RepositoryName": "voxa-fastify"
+   },
+   "UpdateReplacePolicy": "Retain",
+   "DeletionPolicy": "Retain",
+   "Metadata": {
+    "aws:cdk:path": "VoxaStack/FastifyRepo/Resource"
+   }
+  },
+  "AgentRepo85A4923D": {
+   "Type": "AWS::ECR::Repository",
+   "Properties": {
+    "LifecyclePolicy": {
+     "LifecyclePolicyText": "{\"rules\":[{\"rulePriority\":1,\"selection\":{\"tagStatus\":\"any\",\"countType\":\"imageCountMoreThan\",\"countNumber\":10},\"action\":{\"type\":\"expire\"}}]}"
+    },
+    "RepositoryName": "voxa-agent"
+   },
+   "UpdateReplacePolicy": "Retain",
+   "DeletionPolicy": "Retain",
+   "Metadata": {
+    "aws:cdk:path": "VoxaStack/AgentRepo/Resource"
+   }
+  },
+  "VoxaUserPool9A11D7B0": {
+   "Type": "AWS::Cognito::UserPool",
+   "Properties": {
+    "AccountRecoverySetting": {
+     "RecoveryMechanisms": [
+      {
+       "Name": "verified_email",
+       "Priority": 1
+      }
+     ]
+    },
+    "AdminCreateUserConfig": {
+     "AllowAdminCreateUserOnly": true
+    },
+    "AutoVerifiedAttributes": [
+     "email"
+    ],
+    "EmailVerificationMessage": "The verification code to your new account is {####}",
+    "EmailVerificationSubject": "Verify your new account",
+    "Policies": {
+     "PasswordPolicy": {
+      "MinimumLength": 8,
+      "RequireNumbers": true,
+      "RequireSymbols": false,
+      "RequireUppercase": true
+     }
+    },
+    "Schema": [
+     {
+      "Mutable": true,
+      "Name": "email",
+      "Required": true
+     },
+     {
+      "AttributeDataType": "String",
+      "Mutable": true,
+      "Name": "role"
+     },
+     {
+      "AttributeDataType": "String",
+      "Mutable": true,
+      "Name": "tenantId"
+     }
+    ],
+    "SmsVerificationMessage": "The verification code to your new account is {####}",
+    "UserPoolName": "voxa-users",
+    "UsernameAttributes": [
+     "email"
+    ],
+    "VerificationMessageTemplate": {
+     "DefaultEmailOption": "CONFIRM_WITH_CODE",
+     "EmailMessage": "The verification code to your new account is {####}",
+     "EmailSubject": "Verify your new account",
+     "SmsMessage": "The verification code to your new account is {####}"
+    }
+   },
+   "UpdateReplacePolicy": "Retain",
+   "DeletionPolicy": "Retain",
+   "Metadata": {
+    "aws:cdk:path": "VoxaStack/VoxaUserPool/Resource"
+   }
+  },
+  "VoxaUserPoolVoxaAppClientA466E27E": {
+   "Type": "AWS::Cognito::UserPoolClient",
+   "Properties": {
+    "AllowedOAuthFlows": [
+     "implicit",
+     "code"
+    ],
+    "AllowedOAuthFlowsUserPoolClient": true,
+    "AllowedOAuthScopes": [
+     "profile",
+     "phone",
+     "email",
+     "openid",
+     "aws.cognito.signin.user.admin"
+    ],
+    "CallbackURLs": [
+     "https://example.com"
+    ],
+    "ClientName": "voxa-web",
+    "ExplicitAuthFlows": [
+     "ALLOW_USER_PASSWORD_AUTH",
+     "ALLOW_USER_SRP_AUTH",
+     "ALLOW_REFRESH_TOKEN_AUTH"
+    ],
+    "GenerateSecret": false,
+    "SupportedIdentityProviders": [
+     "COGNITO"
+    ],
+    "UserPoolId": {
+     "Ref": "VoxaUserPool9A11D7B0"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "VoxaStack/VoxaUserPool/VoxaAppClient/Resource"
+   }
+  },
   "VoxaCluster8E2FC62F": {
    "Type": "AWS::ECS::Cluster",
    "Metadata": {
     "aws:cdk:path": "VoxaStack/VoxaCluster/Resource"
+   }
+  },
+  "VoxaNamespace722A1DB0": {
+   "Type": "AWS::ServiceDiscovery::PrivateDnsNamespace",
+   "Properties": {
+    "Name": "voxa.internal",
+    "Vpc": {
+     "Ref": "VoxaVpc0488284C"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "VoxaStack/VoxaNamespace/Resource"
+   }
+  },
+  "PostCallQueue4A9FCE73": {
+   "Type": "AWS::SQS::Queue",
+   "Properties": {
+    "MessageRetentionPeriod": 1209600,
+    "QueueName": "voxa-post-call-queue",
+    "VisibilityTimeout": 300
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "VoxaStack/PostCallQueue/Resource"
+   }
+  },
+  "FastifyTaskTaskRole1B3353DC": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "Service": "ecs-tasks.amazonaws.com"
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "VoxaStack/FastifyTask/TaskRole/Resource"
+   }
+  },
+  "FastifyTaskTaskRoleDefaultPolicyC7AA68B5": {
+   "Type": "AWS::IAM::Policy",
+   "Properties": {
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": [
+        "secretsmanager:DescribeSecret",
+        "secretsmanager:GetSecretValue"
+       ],
+       "Effect": "Allow",
+       "Resource": {
+        "Ref": "VoxaSecretsF28BAE34"
+       }
+      },
+      {
+       "Action": [
+        "s3:Abort*",
+        "s3:DeleteObject*",
+        "s3:GetBucket*",
+        "s3:GetObject*",
+        "s3:List*",
+        "s3:PutObject",
+        "s3:PutObjectLegalHold",
+        "s3:PutObjectRetention",
+        "s3:PutObjectTagging",
+        "s3:PutObjectVersionTagging"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "RecordingsBucketAA52F499",
+          "Arn"
+         ]
+        },
+        {
+         "Fn::Join": [
+          "",
+          [
+           {
+            "Fn::GetAtt": [
+             "RecordingsBucketAA52F499",
+             "Arn"
+            ]
+           },
+           "/*"
+          ]
+         ]
+        }
+       ]
+      },
+      {
+       "Action": "rds-db:connect",
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::Join": [
+         "",
+         [
+          "arn:aws:rds-db:us-east-1:",
+          {
+           "Ref": "AWS::AccountId"
+          },
+          ":dbuser:",
+          {
+           "Fn::GetAtt": [
+            "VoxaPostgres82F83C76",
+            "DbiResourceId"
+           ]
+          },
+          "/{{resolve:secretsmanager:",
+          {
+           "Ref": "VoxaPostgresSecretAttachment6AF26F8F"
+          },
+          ":SecretString:username::}}"
+         ]
+        ]
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "PolicyName": "FastifyTaskTaskRoleDefaultPolicyC7AA68B5",
+    "Roles": [
+     {
+      "Ref": "FastifyTaskTaskRole1B3353DC"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "VoxaStack/FastifyTask/TaskRole/DefaultPolicy/Resource"
+   }
+  },
+  "FastifyTask464CBB6B": {
+   "Type": "AWS::ECS::TaskDefinition",
+   "Properties": {
+    "ContainerDefinitions": [
+     {
+      "Environment": [
+       {
+        "Name": "NODE_ENV",
+        "Value": "production"
+       },
+       {
+        "Name": "SERVER_PORT",
+        "Value": "8080"
+       },
+       {
+        "Name": "VOXA_SECRETS_ARN",
+        "Value": {
+         "Ref": "VoxaSecretsF28BAE34"
+        }
+       },
+       {
+        "Name": "AWS_REGION",
+        "Value": "us-east-1"
+       },
+       {
+        "Name": "INTERNAL_API_KEY",
+        "Value": "{{resolve:secretsmanager:VOXA_SECRETS:SecretString:INTERNAL_API_KEY}}"
+       },
+       {
+        "Name": "RECORDINGS_BUCKET_NAME",
+        "Value": {
+         "Ref": "RecordingsBucketAA52F499"
+        }
+       },
+       {
+        "Name": "DATABASE_URL",
+        "Value": {
+         "Fn::Join": [
+          "",
+          [
+           "postgresql://voxa_admin:{{resolve:secretsmanager:",
+           {
+            "Ref": "VoxaPostgresSecretAttachment6AF26F8F"
+           },
+           ":SecretString:password::}}@",
+           {
+            "Fn::GetAtt": [
+             "VoxaPostgres82F83C76",
+             "Endpoint.Address"
+            ]
+           },
+           ":5432/voxa_prod"
+          ]
+         ]
+        }
+       }
+      ],
+      "Essential": true,
+      "HealthCheck": {
+       "Command": [
+        "CMD-SHELL",
+        "curl -f http://localhost:8080/health || exit 1"
+       ],
+       "Interval": 30,
+       "Retries": 3,
+       "Timeout": 10
+      },
+      "Image": {
+       "Fn::Join": [
+        "",
+        [
+         {
+          "Fn::Select": [
+           4,
+           {
+            "Fn::Split": [
+             ":",
+             {
+              "Fn::GetAtt": [
+               "FastifyRepoF9AED764",
+               "Arn"
+              ]
+             }
+            ]
+           }
+          ]
+         },
+         ".dkr.ecr.",
+         {
+          "Fn::Select": [
+           3,
+           {
+            "Fn::Split": [
+             ":",
+             {
+              "Fn::GetAtt": [
+               "FastifyRepoF9AED764",
+               "Arn"
+              ]
+             }
+            ]
+           }
+          ]
+         },
+         ".",
+         {
+          "Ref": "AWS::URLSuffix"
+         },
+         "/",
+         {
+          "Ref": "FastifyRepoF9AED764"
+         },
+         ":latest"
+        ]
+       ]
+      },
+      "LogConfiguration": {
+       "LogDriver": "awslogs",
+       "Options": {
+        "awslogs-group": {
+         "Ref": "FastifyTaskFastifyContainerLogGroup8E5E55EC"
+        },
+        "awslogs-stream-prefix": "Fastify",
+        "awslogs-region": "us-east-1"
+       }
+      },
+      "Name": "FastifyContainer",
+      "PortMappings": [
+       {
+        "ContainerPort": 8080,
+        "Protocol": "tcp"
+       }
+      ]
+     }
+    ],
+    "Cpu": "512",
+    "ExecutionRoleArn": {
+     "Fn::GetAtt": [
+      "FastifyTaskExecutionRole47D9DDDA",
+      "Arn"
+     ]
+    },
+    "Family": "VoxaStackFastifyTaskF93961D6",
+    "Memory": "1024",
+    "NetworkMode": "awsvpc",
+    "RequiresCompatibilities": [
+     "FARGATE"
+    ],
+    "TaskRoleArn": {
+     "Fn::GetAtt": [
+      "FastifyTaskTaskRole1B3353DC",
+      "Arn"
+     ]
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "VoxaStack/FastifyTask/Resource"
+   }
+  },
+  "FastifyTaskFastifyContainerLogGroup8E5E55EC": {
+   "Type": "AWS::Logs::LogGroup",
+   "UpdateReplacePolicy": "Retain",
+   "DeletionPolicy": "Retain",
+   "Metadata": {
+    "aws:cdk:path": "VoxaStack/FastifyTask/FastifyContainer/LogGroup/Resource"
+   }
+  },
+  "FastifyTaskExecutionRole47D9DDDA": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "Service": "ecs-tasks.amazonaws.com"
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "VoxaStack/FastifyTask/ExecutionRole/Resource"
+   }
+  },
+  "FastifyTaskExecutionRoleDefaultPolicyFB6E072D": {
+   "Type": "AWS::IAM::Policy",
+   "Properties": {
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": [
+        "ecr:BatchCheckLayerAvailability",
+        "ecr:BatchGetImage",
+        "ecr:GetDownloadUrlForLayer"
+       ],
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::GetAtt": [
+         "FastifyRepoF9AED764",
+         "Arn"
+        ]
+       }
+      },
+      {
+       "Action": "ecr:GetAuthorizationToken",
+       "Effect": "Allow",
+       "Resource": "*"
+      },
+      {
+       "Action": [
+        "logs:CreateLogStream",
+        "logs:PutLogEvents"
+       ],
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::GetAtt": [
+         "FastifyTaskFastifyContainerLogGroup8E5E55EC",
+         "Arn"
+        ]
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "PolicyName": "FastifyTaskExecutionRoleDefaultPolicyFB6E072D",
+    "Roles": [
+     {
+      "Ref": "FastifyTaskExecutionRole47D9DDDA"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "VoxaStack/FastifyTask/ExecutionRole/DefaultPolicy/Resource"
+   }
+  },
+  "FastifyServiceAFBA75DB": {
+   "Type": "AWS::ECS::Service",
+   "Properties": {
+    "Cluster": {
+     "Ref": "VoxaCluster8E2FC62F"
+    },
+    "DeploymentConfiguration": {
+     "Alarms": {
+      "AlarmNames": [],
+      "Enable": false,
+      "Rollback": false
+     },
+     "MaximumPercent": 200,
+     "MinimumHealthyPercent": 50
+    },
+    "DesiredCount": 2,
+    "EnableECSManagedTags": false,
+    "HealthCheckGracePeriodSeconds": 60,
+    "LaunchType": "FARGATE",
+    "LoadBalancers": [
+     {
+      "ContainerName": "FastifyContainer",
+      "ContainerPort": 8080,
+      "TargetGroupArn": {
+       "Ref": "FastifyTGBD5CE956"
+      }
+     }
+    ],
+    "NetworkConfiguration": {
+     "AwsvpcConfiguration": {
+      "AssignPublicIp": "DISABLED",
+      "SecurityGroups": [
+       {
+        "Fn::GetAtt": [
+         "FastifyServiceSecurityGroup5B0BD181",
+         "GroupId"
+        ]
+       }
+      ],
+      "Subnets": [
+       {
+        "Ref": "VoxaVpcPrivateSubnet1SubnetDDDC8E99"
+       },
+       {
+        "Ref": "VoxaVpcPrivateSubnet2SubnetE4829619"
+       }
+      ]
+     }
+    },
+    "ServiceRegistries": [
+     {
+      "RegistryArn": {
+       "Fn::GetAtt": [
+        "FastifyServiceCloudmapService4AE836B6",
+        "Arn"
+       ]
+      }
+     }
+    ],
+    "TaskDefinition": {
+     "Ref": "FastifyTask464CBB6B"
+    }
+   },
+   "DependsOn": [
+    "FastifyTaskTaskRoleDefaultPolicyC7AA68B5",
+    "FastifyTaskTaskRole1B3353DC",
+    "VoxaALBMainListenerFastifyRuleRuleE8241927"
+   ],
+   "Metadata": {
+    "aws:cdk:path": "VoxaStack/FastifyService/Service"
+   }
+  },
+  "FastifyServiceSecurityGroup5B0BD181": {
+   "Type": "AWS::EC2::SecurityGroup",
+   "Properties": {
+    "GroupDescription": "VoxaStack/FastifyService/SecurityGroup",
+    "SecurityGroupEgress": [
+     {
+      "CidrIp": "0.0.0.0/0",
+      "Description": "Allow all outbound traffic by default",
+      "IpProtocol": "-1"
+     }
+    ],
+    "VpcId": {
+     "Ref": "VoxaVpc0488284C"
+    }
+   },
+   "DependsOn": [
+    "FastifyTaskTaskRoleDefaultPolicyC7AA68B5",
+    "FastifyTaskTaskRole1B3353DC"
+   ],
+   "Metadata": {
+    "aws:cdk:path": "VoxaStack/FastifyService/SecurityGroup/Resource"
+   }
+  },
+  "FastifyServiceSecurityGroupfromVoxaStackVoxaALBSecurityGroupAA0225C180807560813C": {
+   "Type": "AWS::EC2::SecurityGroupIngress",
+   "Properties": {
+    "Description": "Load balancer to target",
+    "FromPort": 8080,
+    "GroupId": {
+     "Fn::GetAtt": [
+      "FastifyServiceSecurityGroup5B0BD181",
+      "GroupId"
+     ]
+    },
+    "IpProtocol": "tcp",
+    "SourceSecurityGroupId": {
+     "Fn::GetAtt": [
+      "VoxaALBSecurityGroup108F8F3B",
+      "GroupId"
+     ]
+    },
+    "ToPort": 8080
+   },
+   "DependsOn": [
+    "FastifyTaskTaskRoleDefaultPolicyC7AA68B5",
+    "FastifyTaskTaskRole1B3353DC"
+   ],
+   "Metadata": {
+    "aws:cdk:path": "VoxaStack/FastifyService/SecurityGroup/from VoxaStackVoxaALBSecurityGroupAA0225C1:8080"
+   }
+  },
+  "FastifyServiceCloudmapService4AE836B6": {
+   "Type": "AWS::ServiceDiscovery::Service",
+   "Properties": {
+    "DnsConfig": {
+     "DnsRecords": [
+      {
+       "TTL": 60,
+       "Type": "A"
+      }
+     ],
+     "NamespaceId": {
+      "Fn::GetAtt": [
+       "VoxaNamespace722A1DB0",
+       "Id"
+      ]
+     },
+     "RoutingPolicy": "MULTIVALUE"
+    },
+    "HealthCheckCustomConfig": {
+     "FailureThreshold": 1
+    },
+    "Name": "fastify",
+    "NamespaceId": {
+     "Fn::GetAtt": [
+      "VoxaNamespace722A1DB0",
+      "Id"
+     ]
+    }
+   },
+   "DependsOn": [
+    "FastifyTaskTaskRoleDefaultPolicyC7AA68B5",
+    "FastifyTaskTaskRole1B3353DC"
+   ],
+   "Metadata": {
+    "aws:cdk:path": "VoxaStack/FastifyService/CloudmapService/Resource"
+   }
+  },
+  "NextjsTaskTaskRoleBCD83D2B": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "Service": "ecs-tasks.amazonaws.com"
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "VoxaStack/NextjsTask/TaskRole/Resource"
+   }
+  },
+  "NextjsTaskTaskRoleDefaultPolicyB3BD6883": {
+   "Type": "AWS::IAM::Policy",
+   "Properties": {
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": [
+        "secretsmanager:DescribeSecret",
+        "secretsmanager:GetSecretValue"
+       ],
+       "Effect": "Allow",
+       "Resource": {
+        "Ref": "VoxaSecretsF28BAE34"
+       }
+      },
+      {
+       "Action": [
+        "s3:Abort*",
+        "s3:DeleteObject*",
+        "s3:GetBucket*",
+        "s3:GetObject*",
+        "s3:List*",
+        "s3:PutObject",
+        "s3:PutObjectLegalHold",
+        "s3:PutObjectRetention",
+        "s3:PutObjectTagging",
+        "s3:PutObjectVersionTagging"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "RecordingsBucketAA52F499",
+          "Arn"
+         ]
+        },
+        {
+         "Fn::Join": [
+          "",
+          [
+           {
+            "Fn::GetAtt": [
+             "RecordingsBucketAA52F499",
+             "Arn"
+            ]
+           },
+           "/*"
+          ]
+         ]
+        }
+       ]
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "PolicyName": "NextjsTaskTaskRoleDefaultPolicyB3BD6883",
+    "Roles": [
+     {
+      "Ref": "NextjsTaskTaskRoleBCD83D2B"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "VoxaStack/NextjsTask/TaskRole/DefaultPolicy/Resource"
+   }
+  },
+  "NextjsTaskE8B6DE60": {
+   "Type": "AWS::ECS::TaskDefinition",
+   "Properties": {
+    "ContainerDefinitions": [
+     {
+      "Environment": [
+       {
+        "Name": "NODE_ENV",
+        "Value": "production"
+       },
+       {
+        "Name": "PORT",
+        "Value": "3000"
+       },
+       {
+        "Name": "VOXA_SECRETS_ARN",
+        "Value": {
+         "Ref": "VoxaSecretsF28BAE34"
+        }
+       },
+       {
+        "Name": "AWS_REGION",
+        "Value": "us-east-1"
+       },
+       {
+        "Name": "FASTIFY_INTERNAL_URL",
+        "Value": "http://fastify.voxa.internal:8080"
+       },
+       {
+        "Name": "UPSTASH_REDIS_REST_URL",
+        "Value": "{{resolve:secretsmanager:VOXA_SECRETS:SecretString:UPSTASH_REDIS_REST_URL}}"
+       },
+       {
+        "Name": "UPSTASH_REDIS_REST_TOKEN",
+        "Value": "{{resolve:secretsmanager:VOXA_SECRETS:SecretString:UPSTASH_REDIS_REST_TOKEN}}"
+       },
+       {
+        "Name": "JWT_SECRET",
+        "Value": "{{resolve:secretsmanager:VOXA_SECRETS:SecretString:JWT_SECRET}}"
+       },
+       {
+        "Name": "COGNITO_USER_POOL_ID",
+        "Value": "{{resolve:secretsmanager:VOXA_SECRETS:SecretString:COGNITO_USER_POOL_ID}}"
+       },
+       {
+        "Name": "COGNITO_CLIENT_ID",
+        "Value": "{{resolve:secretsmanager:VOXA_SECRETS:SecretString:COGNITO_CLIENT_ID}}"
+       },
+       {
+        "Name": "NEXT_PUBLIC_APP_URL",
+        "Value": "https://app.voxa.ai"
+       },
+       {
+        "Name": "RECORDINGS_BUCKET_NAME",
+        "Value": {
+         "Ref": "RecordingsBucketAA52F499"
+        }
+       },
+       {
+        "Name": "AWS_SES_REGION",
+        "Value": "ap-south-1"
+       },
+       {
+        "Name": "SES_FROM_EMAIL",
+        "Value": "noreply@voxa.ai"
+       },
+       {
+        "Name": "DATABASE_URL",
+        "Value": {
+         "Fn::Join": [
+          "",
+          [
+           "postgresql://voxa_admin:{{resolve:secretsmanager:",
+           {
+            "Ref": "VoxaPostgresSecretAttachment6AF26F8F"
+           },
+           ":SecretString:password::}}@",
+           {
+            "Fn::GetAtt": [
+             "VoxaPostgres82F83C76",
+             "Endpoint.Address"
+            ]
+           },
+           ":5432/voxa_prod"
+          ]
+         ]
+        }
+       }
+      ],
+      "Essential": true,
+      "HealthCheck": {
+       "Command": [
+        "CMD-SHELL",
+        "curl -f http://localhost:3000/api/health || exit 1"
+       ],
+       "Interval": 30,
+       "Retries": 3,
+       "Timeout": 10
+      },
+      "Image": {
+       "Fn::Join": [
+        "",
+        [
+         {
+          "Fn::Select": [
+           4,
+           {
+            "Fn::Split": [
+             ":",
+             {
+              "Fn::GetAtt": [
+               "NextjsRepo60B2D8A4",
+               "Arn"
+              ]
+             }
+            ]
+           }
+          ]
+         },
+         ".dkr.ecr.",
+         {
+          "Fn::Select": [
+           3,
+           {
+            "Fn::Split": [
+             ":",
+             {
+              "Fn::GetAtt": [
+               "NextjsRepo60B2D8A4",
+               "Arn"
+              ]
+             }
+            ]
+           }
+          ]
+         },
+         ".",
+         {
+          "Ref": "AWS::URLSuffix"
+         },
+         "/",
+         {
+          "Ref": "NextjsRepo60B2D8A4"
+         },
+         ":latest"
+        ]
+       ]
+      },
+      "LogConfiguration": {
+       "LogDriver": "awslogs",
+       "Options": {
+        "awslogs-group": {
+         "Ref": "NextjsTaskNextjsContainerLogGroup67C16F20"
+        },
+        "awslogs-stream-prefix": "Nextjs",
+        "awslogs-region": "us-east-1"
+       }
+      },
+      "Name": "NextjsContainer",
+      "PortMappings": [
+       {
+        "ContainerPort": 3000,
+        "Protocol": "tcp"
+       }
+      ]
+     }
+    ],
+    "Cpu": "1024",
+    "ExecutionRoleArn": {
+     "Fn::GetAtt": [
+      "NextjsTaskExecutionRole76617A1F",
+      "Arn"
+     ]
+    },
+    "Family": "VoxaStackNextjsTask913F8F9D",
+    "Memory": "2048",
+    "NetworkMode": "awsvpc",
+    "RequiresCompatibilities": [
+     "FARGATE"
+    ],
+    "TaskRoleArn": {
+     "Fn::GetAtt": [
+      "NextjsTaskTaskRoleBCD83D2B",
+      "Arn"
+     ]
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "VoxaStack/NextjsTask/Resource"
+   }
+  },
+  "NextjsTaskNextjsContainerLogGroup67C16F20": {
+   "Type": "AWS::Logs::LogGroup",
+   "UpdateReplacePolicy": "Retain",
+   "DeletionPolicy": "Retain",
+   "Metadata": {
+    "aws:cdk:path": "VoxaStack/NextjsTask/NextjsContainer/LogGroup/Resource"
+   }
+  },
+  "NextjsTaskExecutionRole76617A1F": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "Service": "ecs-tasks.amazonaws.com"
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "VoxaStack/NextjsTask/ExecutionRole/Resource"
+   }
+  },
+  "NextjsTaskExecutionRoleDefaultPolicyA316AD9F": {
+   "Type": "AWS::IAM::Policy",
+   "Properties": {
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": [
+        "ecr:BatchCheckLayerAvailability",
+        "ecr:BatchGetImage",
+        "ecr:GetDownloadUrlForLayer"
+       ],
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::GetAtt": [
+         "NextjsRepo60B2D8A4",
+         "Arn"
+        ]
+       }
+      },
+      {
+       "Action": "ecr:GetAuthorizationToken",
+       "Effect": "Allow",
+       "Resource": "*"
+      },
+      {
+       "Action": [
+        "logs:CreateLogStream",
+        "logs:PutLogEvents"
+       ],
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::GetAtt": [
+         "NextjsTaskNextjsContainerLogGroup67C16F20",
+         "Arn"
+        ]
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "PolicyName": "NextjsTaskExecutionRoleDefaultPolicyA316AD9F",
+    "Roles": [
+     {
+      "Ref": "NextjsTaskExecutionRole76617A1F"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "VoxaStack/NextjsTask/ExecutionRole/DefaultPolicy/Resource"
+   }
+  },
+  "NextjsServiceFAD4A517": {
+   "Type": "AWS::ECS::Service",
+   "Properties": {
+    "Cluster": {
+     "Ref": "VoxaCluster8E2FC62F"
+    },
+    "DeploymentConfiguration": {
+     "Alarms": {
+      "AlarmNames": [],
+      "Enable": false,
+      "Rollback": false
+     },
+     "MaximumPercent": 200,
+     "MinimumHealthyPercent": 50
+    },
+    "DesiredCount": 2,
+    "EnableECSManagedTags": false,
+    "HealthCheckGracePeriodSeconds": 60,
+    "LaunchType": "FARGATE",
+    "LoadBalancers": [
+     {
+      "ContainerName": "NextjsContainer",
+      "ContainerPort": 3000,
+      "TargetGroupArn": {
+       "Ref": "NextjsTG7999A3DE"
+      }
+     }
+    ],
+    "NetworkConfiguration": {
+     "AwsvpcConfiguration": {
+      "AssignPublicIp": "DISABLED",
+      "SecurityGroups": [
+       {
+        "Fn::GetAtt": [
+         "NextjsServiceSecurityGroup02FE416E",
+         "GroupId"
+        ]
+       }
+      ],
+      "Subnets": [
+       {
+        "Ref": "VoxaVpcPrivateSubnet1SubnetDDDC8E99"
+       },
+       {
+        "Ref": "VoxaVpcPrivateSubnet2SubnetE4829619"
+       }
+      ]
+     }
+    },
+    "TaskDefinition": {
+     "Ref": "NextjsTaskE8B6DE60"
+    }
+   },
+   "DependsOn": [
+    "NextjsTaskTaskRoleDefaultPolicyB3BD6883",
+    "NextjsTaskTaskRoleBCD83D2B",
+    "VoxaALBMainListenerAgentRuleRuleC76FA797",
+    "VoxaALBMainListenerFastifyRuleRuleE8241927",
+    "VoxaALBMainListener5F2F3997"
+   ],
+   "Metadata": {
+    "aws:cdk:path": "VoxaStack/NextjsService/Service"
+   }
+  },
+  "NextjsServiceSecurityGroup02FE416E": {
+   "Type": "AWS::EC2::SecurityGroup",
+   "Properties": {
+    "GroupDescription": "VoxaStack/NextjsService/SecurityGroup",
+    "SecurityGroupEgress": [
+     {
+      "CidrIp": "0.0.0.0/0",
+      "Description": "Allow all outbound traffic by default",
+      "IpProtocol": "-1"
+     }
+    ],
+    "VpcId": {
+     "Ref": "VoxaVpc0488284C"
+    }
+   },
+   "DependsOn": [
+    "NextjsTaskTaskRoleDefaultPolicyB3BD6883",
+    "NextjsTaskTaskRoleBCD83D2B"
+   ],
+   "Metadata": {
+    "aws:cdk:path": "VoxaStack/NextjsService/SecurityGroup/Resource"
+   }
+  },
+  "NextjsServiceSecurityGroupfromVoxaStackVoxaALBSecurityGroupAA0225C130004B61FC11": {
+   "Type": "AWS::EC2::SecurityGroupIngress",
+   "Properties": {
+    "Description": "Load balancer to target",
+    "FromPort": 3000,
+    "GroupId": {
+     "Fn::GetAtt": [
+      "NextjsServiceSecurityGroup02FE416E",
+      "GroupId"
+     ]
+    },
+    "IpProtocol": "tcp",
+    "SourceSecurityGroupId": {
+     "Fn::GetAtt": [
+      "VoxaALBSecurityGroup108F8F3B",
+      "GroupId"
+     ]
+    },
+    "ToPort": 3000
+   },
+   "DependsOn": [
+    "NextjsTaskTaskRoleDefaultPolicyB3BD6883",
+    "NextjsTaskTaskRoleBCD83D2B"
+   ],
+   "Metadata": {
+    "aws:cdk:path": "VoxaStack/NextjsService/SecurityGroup/from VoxaStackVoxaALBSecurityGroupAA0225C1:3000"
    }
   },
   "AgentTaskTaskRoleDB9648F7": {
@@ -679,6 +1834,33 @@
        "Resource": {
         "Ref": "VoxaSecretsF28BAE34"
        }
+      },
+      {
+       "Action": "rds-db:connect",
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::Join": [
+         "",
+         [
+          "arn:aws:rds-db:us-east-1:",
+          {
+           "Ref": "AWS::AccountId"
+          },
+          ":dbuser:",
+          {
+           "Fn::GetAtt": [
+            "VoxaPostgres82F83C76",
+            "DbiResourceId"
+           ]
+          },
+          "/{{resolve:secretsmanager:",
+          {
+           "Ref": "VoxaPostgresSecretAttachment6AF26F8F"
+          },
+          ":SecretString:username::}}"
+         ]
+        ]
+       }
       }
      ],
      "Version": "2012-10-17"
@@ -709,11 +1891,93 @@
        {
         "Name": "PINECONE_INDEX",
         "Value": "voxa-index"
+       },
+       {
+        "Name": "POST_CALL_QUEUE_URL",
+        "Value": {
+         "Ref": "PostCallQueue4A9FCE73"
+        }
+       },
+       {
+        "Name": "AWS_REGION",
+        "Value": "us-east-1"
+       },
+       {
+        "Name": "FASTIFY_INTERNAL_URL",
+        "Value": "http://fastify.voxa.internal:8080"
+       },
+       {
+        "Name": "DATABASE_URL",
+        "Value": {
+         "Fn::Join": [
+          "",
+          [
+           "postgresql://voxa_admin:{{resolve:secretsmanager:",
+           {
+            "Ref": "VoxaPostgresSecretAttachment6AF26F8F"
+           },
+           ":SecretString:password::}}@",
+           {
+            "Fn::GetAtt": [
+             "VoxaPostgres82F83C76",
+             "Endpoint.Address"
+            ]
+           },
+           ":5432/voxa_prod"
+          ]
+         ]
+        }
        }
       ],
       "Essential": true,
       "Image": {
-       "Fn::Sub": "${AWS::AccountId}.dkr.ecr.us-east-1.${AWS::URLSuffix}/cdk-hnb659fds-container-assets-${AWS::AccountId}-us-east-1:8924d09ed475cd0b45e5fe6d9141aa6b241cfd95e79c541a1931c8ddad49574c"
+       "Fn::Join": [
+        "",
+        [
+         {
+          "Fn::Select": [
+           4,
+           {
+            "Fn::Split": [
+             ":",
+             {
+              "Fn::GetAtt": [
+               "AgentRepo85A4923D",
+               "Arn"
+              ]
+             }
+            ]
+           }
+          ]
+         },
+         ".dkr.ecr.",
+         {
+          "Fn::Select": [
+           3,
+           {
+            "Fn::Split": [
+             ":",
+             {
+              "Fn::GetAtt": [
+               "AgentRepo85A4923D",
+               "Arn"
+              ]
+             }
+            ]
+           }
+          ]
+         },
+         ".",
+         {
+          "Ref": "AWS::URLSuffix"
+         },
+         "/",
+         {
+          "Ref": "AgentRepo85A4923D"
+         },
+         ":latest"
+        ]
+       ]
       },
       "LogConfiguration": {
        "LogDriver": "awslogs",
@@ -799,18 +2063,9 @@
        ],
        "Effect": "Allow",
        "Resource": {
-        "Fn::Join": [
-         "",
-         [
-          "arn:aws:ecr:us-east-1:",
-          {
-           "Ref": "AWS::AccountId"
-          },
-          ":repository/",
-          {
-           "Fn::Sub": "cdk-hnb659fds-container-assets-${AWS::AccountId}-us-east-1"
-          }
-         ]
+        "Fn::GetAtt": [
+         "AgentRepo85A4923D",
+         "Arn"
         ]
        }
       },
@@ -855,7 +2110,7 @@
       "Value": "false"
      }
     ],
-    "Scheme": "internet-facing",
+    "Scheme": "internal",
     "SecurityGroups": [
      {
       "Fn::GetAtt": [
@@ -866,20 +2121,14 @@
     ],
     "Subnets": [
      {
-      "Ref": "VoxaVpcPublicSubnet1SubnetFC406401"
+      "Ref": "VoxaVpcPrivateSubnet1SubnetDDDC8E99"
      },
      {
-      "Ref": "VoxaVpcPublicSubnet2Subnet8FBAB9BA"
+      "Ref": "VoxaVpcPrivateSubnet2SubnetE4829619"
      }
     ],
     "Type": "application"
    },
-   "DependsOn": [
-    "VoxaVpcPublicSubnet1DefaultRouteC6057F0C",
-    "VoxaVpcPublicSubnet1RouteTableAssociation63F7952F",
-    "VoxaVpcPublicSubnet2DefaultRoute30589868",
-    "VoxaVpcPublicSubnet2RouteTableAssociation800FEFF9"
-   ],
    "Metadata": {
     "aws:cdk:path": "VoxaStack/AgentService/LB/Resource"
    }
@@ -995,6 +2244,13 @@
       "TargetGroupArn": {
        "Ref": "AgentServiceLBPublicListenerECSGroup22B2C396"
       }
+     },
+     {
+      "ContainerName": "AgentContainer",
+      "ContainerPort": 8000,
+      "TargetGroupArn": {
+       "Ref": "AgentTG50D1FE37"
+      }
      }
     ],
     "NetworkConfiguration": {
@@ -1018,6 +2274,16 @@
       ]
      }
     },
+    "ServiceRegistries": [
+     {
+      "RegistryArn": {
+       "Fn::GetAtt": [
+        "AgentServiceCloudmapService037FC9B5",
+        "Arn"
+       ]
+      }
+     }
+    ],
     "TaskDefinition": {
      "Ref": "AgentTask285670E7"
     }
@@ -1026,7 +2292,8 @@
     "AgentServiceLBPublicListenerECSGroup22B2C396",
     "AgentServiceLBPublicListener01E17E1A",
     "AgentTaskTaskRoleDefaultPolicyFCEB1767",
-    "AgentTaskTaskRoleDB9648F7"
+    "AgentTaskTaskRoleDB9648F7",
+    "VoxaALBMainListenerAgentRuleRuleC76FA797"
    ],
    "Metadata": {
     "aws:cdk:path": "VoxaStack/AgentService/Service/Service"
@@ -1083,17 +2350,429 @@
     "aws:cdk:path": "VoxaStack/AgentService/Service/SecurityGroup/from VoxaStackAgentServiceLBSecurityGroup0E887E4F:8000"
    }
   },
-  "PostCallQueue4A9FCE73": {
-   "Type": "AWS::SQS::Queue",
+  "AgentServiceSecurityGroupfromVoxaStackVoxaALBSecurityGroupAA0225C18000F4993136": {
+   "Type": "AWS::EC2::SecurityGroupIngress",
    "Properties": {
-    "MessageRetentionPeriod": 1209600,
-    "QueueName": "voxa-post-call-queue",
-    "VisibilityTimeout": 300
+    "Description": "Load balancer to target",
+    "FromPort": 8000,
+    "GroupId": {
+     "Fn::GetAtt": [
+      "AgentServiceSecurityGroup99812D64",
+      "GroupId"
+     ]
+    },
+    "IpProtocol": "tcp",
+    "SourceSecurityGroupId": {
+     "Fn::GetAtt": [
+      "VoxaALBSecurityGroup108F8F3B",
+      "GroupId"
+     ]
+    },
+    "ToPort": 8000
    },
-   "UpdateReplacePolicy": "Delete",
-   "DeletionPolicy": "Delete",
+   "DependsOn": [
+    "AgentTaskTaskRoleDefaultPolicyFCEB1767",
+    "AgentTaskTaskRoleDB9648F7"
+   ],
    "Metadata": {
-    "aws:cdk:path": "VoxaStack/PostCallQueue/Resource"
+    "aws:cdk:path": "VoxaStack/AgentService/Service/SecurityGroup/from VoxaStackVoxaALBSecurityGroupAA0225C1:8000"
+   }
+  },
+  "AgentServiceCloudmapService037FC9B5": {
+   "Type": "AWS::ServiceDiscovery::Service",
+   "Properties": {
+    "DnsConfig": {
+     "DnsRecords": [
+      {
+       "TTL": 60,
+       "Type": "A"
+      }
+     ],
+     "NamespaceId": {
+      "Fn::GetAtt": [
+       "VoxaNamespace722A1DB0",
+       "Id"
+      ]
+     },
+     "RoutingPolicy": "MULTIVALUE"
+    },
+    "HealthCheckCustomConfig": {
+     "FailureThreshold": 1
+    },
+    "Name": "agent",
+    "NamespaceId": {
+     "Fn::GetAtt": [
+      "VoxaNamespace722A1DB0",
+      "Id"
+     ]
+    }
+   },
+   "DependsOn": [
+    "AgentTaskTaskRoleDefaultPolicyFCEB1767",
+    "AgentTaskTaskRoleDB9648F7"
+   ],
+   "Metadata": {
+    "aws:cdk:path": "VoxaStack/AgentService/Service/CloudmapService/Resource"
+   }
+  },
+  "VoxaALB143C7BDF": {
+   "Type": "AWS::ElasticLoadBalancingV2::LoadBalancer",
+   "Properties": {
+    "LoadBalancerAttributes": [
+     {
+      "Key": "deletion_protection.enabled",
+      "Value": "false"
+     }
+    ],
+    "Scheme": "internet-facing",
+    "SecurityGroups": [
+     {
+      "Fn::GetAtt": [
+       "VoxaALBSecurityGroup108F8F3B",
+       "GroupId"
+      ]
+     }
+    ],
+    "Subnets": [
+     {
+      "Ref": "VoxaVpcPublicSubnet1SubnetFC406401"
+     },
+     {
+      "Ref": "VoxaVpcPublicSubnet2Subnet8FBAB9BA"
+     }
+    ],
+    "Type": "application"
+   },
+   "DependsOn": [
+    "VoxaVpcPublicSubnet1DefaultRouteC6057F0C",
+    "VoxaVpcPublicSubnet1RouteTableAssociation63F7952F",
+    "VoxaVpcPublicSubnet2DefaultRoute30589868",
+    "VoxaVpcPublicSubnet2RouteTableAssociation800FEFF9"
+   ],
+   "Metadata": {
+    "aws:cdk:path": "VoxaStack/VoxaALB/Resource"
+   }
+  },
+  "VoxaALBSecurityGroup108F8F3B": {
+   "Type": "AWS::EC2::SecurityGroup",
+   "Properties": {
+    "GroupDescription": "Automatically created Security Group for ELB VoxaStackVoxaALB737AD036",
+    "SecurityGroupIngress": [
+     {
+      "CidrIp": "0.0.0.0/0",
+      "Description": "Allow from anyone on port 80",
+      "FromPort": 80,
+      "IpProtocol": "tcp",
+      "ToPort": 80
+     }
+    ],
+    "VpcId": {
+     "Ref": "VoxaVpc0488284C"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "VoxaStack/VoxaALB/SecurityGroup/Resource"
+   }
+  },
+  "VoxaALBSecurityGrouptoVoxaStackNextjsServiceSecurityGroup3647D27530005C02781D": {
+   "Type": "AWS::EC2::SecurityGroupEgress",
+   "Properties": {
+    "Description": "Load balancer to target",
+    "DestinationSecurityGroupId": {
+     "Fn::GetAtt": [
+      "NextjsServiceSecurityGroup02FE416E",
+      "GroupId"
+     ]
+    },
+    "FromPort": 3000,
+    "GroupId": {
+     "Fn::GetAtt": [
+      "VoxaALBSecurityGroup108F8F3B",
+      "GroupId"
+     ]
+    },
+    "IpProtocol": "tcp",
+    "ToPort": 3000
+   },
+   "Metadata": {
+    "aws:cdk:path": "VoxaStack/VoxaALB/SecurityGroup/to VoxaStackNextjsServiceSecurityGroup3647D275:3000"
+   }
+  },
+  "VoxaALBSecurityGrouptoVoxaStackFastifyServiceSecurityGroupB1641B778080ECA45858": {
+   "Type": "AWS::EC2::SecurityGroupEgress",
+   "Properties": {
+    "Description": "Load balancer to target",
+    "DestinationSecurityGroupId": {
+     "Fn::GetAtt": [
+      "FastifyServiceSecurityGroup5B0BD181",
+      "GroupId"
+     ]
+    },
+    "FromPort": 8080,
+    "GroupId": {
+     "Fn::GetAtt": [
+      "VoxaALBSecurityGroup108F8F3B",
+      "GroupId"
+     ]
+    },
+    "IpProtocol": "tcp",
+    "ToPort": 8080
+   },
+   "Metadata": {
+    "aws:cdk:path": "VoxaStack/VoxaALB/SecurityGroup/to VoxaStackFastifyServiceSecurityGroupB1641B77:8080"
+   }
+  },
+  "VoxaALBSecurityGrouptoVoxaStackAgentServiceSecurityGroup42BCC00480007325A5A2": {
+   "Type": "AWS::EC2::SecurityGroupEgress",
+   "Properties": {
+    "Description": "Load balancer to target",
+    "DestinationSecurityGroupId": {
+     "Fn::GetAtt": [
+      "AgentServiceSecurityGroup99812D64",
+      "GroupId"
+     ]
+    },
+    "FromPort": 8000,
+    "GroupId": {
+     "Fn::GetAtt": [
+      "VoxaALBSecurityGroup108F8F3B",
+      "GroupId"
+     ]
+    },
+    "IpProtocol": "tcp",
+    "ToPort": 8000
+   },
+   "Metadata": {
+    "aws:cdk:path": "VoxaStack/VoxaALB/SecurityGroup/to VoxaStackAgentServiceSecurityGroup42BCC004:8000"
+   }
+  },
+  "VoxaALBMainListener5F2F3997": {
+   "Type": "AWS::ElasticLoadBalancingV2::Listener",
+   "Properties": {
+    "DefaultActions": [
+     {
+      "TargetGroupArn": {
+       "Ref": "NextjsTG7999A3DE"
+      },
+      "Type": "forward"
+     }
+    ],
+    "LoadBalancerArn": {
+     "Ref": "VoxaALB143C7BDF"
+    },
+    "Port": 80,
+    "Protocol": "HTTP"
+   },
+   "Metadata": {
+    "aws:cdk:path": "VoxaStack/VoxaALB/MainListener/Resource"
+   }
+  },
+  "VoxaALBMainListenerFastifyRuleRuleE8241927": {
+   "Type": "AWS::ElasticLoadBalancingV2::ListenerRule",
+   "Properties": {
+    "Actions": [
+     {
+      "TargetGroupArn": {
+       "Ref": "FastifyTGBD5CE956"
+      },
+      "Type": "forward"
+     }
+    ],
+    "Conditions": [
+     {
+      "Field": "path-pattern",
+      "PathPatternConfig": {
+       "Values": [
+        "/contacts*",
+        "/tenant*"
+       ]
+      }
+     }
+    ],
+    "ListenerArn": {
+     "Ref": "VoxaALBMainListener5F2F3997"
+    },
+    "Priority": 10
+   },
+   "Metadata": {
+    "aws:cdk:path": "VoxaStack/VoxaALB/MainListener/FastifyRuleRule/Resource"
+   }
+  },
+  "VoxaALBMainListenerAgentRuleRuleC76FA797": {
+   "Type": "AWS::ElasticLoadBalancingV2::ListenerRule",
+   "Properties": {
+    "Actions": [
+     {
+      "TargetGroupArn": {
+       "Ref": "AgentTG50D1FE37"
+      },
+      "Type": "forward"
+     }
+    ],
+    "Conditions": [
+     {
+      "Field": "path-pattern",
+      "PathPatternConfig": {
+       "Values": [
+        "/webhook*",
+        "/turn*",
+        "/outbound*"
+       ]
+      }
+     }
+    ],
+    "ListenerArn": {
+     "Ref": "VoxaALBMainListener5F2F3997"
+    },
+    "Priority": 20
+   },
+   "Metadata": {
+    "aws:cdk:path": "VoxaStack/VoxaALB/MainListener/AgentRuleRule/Resource"
+   }
+  },
+  "NextjsTG7999A3DE": {
+   "Type": "AWS::ElasticLoadBalancingV2::TargetGroup",
+   "Properties": {
+    "HealthCheckPath": "/api/health",
+    "Matcher": {
+     "HttpCode": "200"
+    },
+    "Port": 3000,
+    "Protocol": "HTTP",
+    "TargetGroupAttributes": [
+     {
+      "Key": "stickiness.enabled",
+      "Value": "false"
+     }
+    ],
+    "TargetType": "ip",
+    "VpcId": {
+     "Ref": "VoxaVpc0488284C"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "VoxaStack/NextjsTG/Resource"
+   }
+  },
+  "FastifyTGBD5CE956": {
+   "Type": "AWS::ElasticLoadBalancingV2::TargetGroup",
+   "Properties": {
+    "HealthCheckPath": "/health",
+    "Matcher": {
+     "HttpCode": "200"
+    },
+    "Port": 8080,
+    "Protocol": "HTTP",
+    "TargetGroupAttributes": [
+     {
+      "Key": "stickiness.enabled",
+      "Value": "false"
+     }
+    ],
+    "TargetType": "ip",
+    "VpcId": {
+     "Ref": "VoxaVpc0488284C"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "VoxaStack/FastifyTG/Resource"
+   }
+  },
+  "AgentTG50D1FE37": {
+   "Type": "AWS::ElasticLoadBalancingV2::TargetGroup",
+   "Properties": {
+    "HealthCheckPath": "/health",
+    "Matcher": {
+     "HttpCode": "200"
+    },
+    "Port": 8000,
+    "Protocol": "HTTP",
+    "TargetGroupAttributes": [
+     {
+      "Key": "stickiness.enabled",
+      "Value": "false"
+     }
+    ],
+    "TargetType": "ip",
+    "VpcId": {
+     "Ref": "VoxaVpc0488284C"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "VoxaStack/AgentTG/Resource"
+   }
+  },
+  "VoxaCdnC244DC40": {
+   "Type": "AWS::CloudFront::Distribution",
+   "Properties": {
+    "DistributionConfig": {
+     "CacheBehaviors": [
+      {
+       "CachePolicyId": "658327ea-f89d-4fab-a63d-7e88639e58f6",
+       "Compress": true,
+       "PathPattern": "/_next/static/*",
+       "TargetOriginId": "VoxaStackVoxaCdnOrigin23AC5BC95",
+       "ViewerProtocolPolicy": "https-only"
+      }
+     ],
+     "Comment": "VOXA platform CDN",
+     "DefaultCacheBehavior": {
+      "AllowedMethods": [
+       "GET",
+       "HEAD",
+       "OPTIONS",
+       "PUT",
+       "PATCH",
+       "POST",
+       "DELETE"
+      ],
+      "CachePolicyId": "4135ea2d-6df8-44a3-9df3-4b5a84be39ad",
+      "Compress": true,
+      "OriginRequestPolicyId": "216adef6-5c7f-47e4-b989-5492eafa07d3",
+      "TargetOriginId": "VoxaStackVoxaCdnOrigin10EDD9CFA",
+      "ViewerProtocolPolicy": "redirect-to-https"
+     },
+     "Enabled": true,
+     "HttpVersion": "http2",
+     "IPV6Enabled": true,
+     "Origins": [
+      {
+       "CustomOriginConfig": {
+        "HTTPPort": 80,
+        "OriginProtocolPolicy": "http-only",
+        "OriginSSLProtocols": [
+         "TLSv1.2"
+        ]
+       },
+       "DomainName": {
+        "Fn::GetAtt": [
+         "VoxaALB143C7BDF",
+         "DNSName"
+        ]
+       },
+       "Id": "VoxaStackVoxaCdnOrigin10EDD9CFA"
+      },
+      {
+       "CustomOriginConfig": {
+        "OriginProtocolPolicy": "http-only",
+        "OriginSSLProtocols": [
+         "TLSv1.2"
+        ]
+       },
+       "DomainName": {
+        "Fn::GetAtt": [
+         "VoxaALB143C7BDF",
+         "DNSName"
+        ]
+       },
+       "Id": "VoxaStackVoxaCdnOrigin23AC5BC95"
+      }
+     ],
+     "PriceClass": "PriceClass_200"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "VoxaStack/VoxaCdn/Resource"
    }
   },
   "WorkerLambdaServiceRole33A0380F": {
@@ -1183,6 +2862,33 @@
        "Resource": {
         "Ref": "VoxaSecretsF28BAE34"
        }
+      },
+      {
+       "Action": "rds-db:connect",
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::Join": [
+         "",
+         [
+          "arn:aws:rds-db:us-east-1:",
+          {
+           "Ref": "AWS::AccountId"
+          },
+          ":dbuser:",
+          {
+           "Fn::GetAtt": [
+            "VoxaPostgres82F83C76",
+            "DbiResourceId"
+           ]
+          },
+          "/{{resolve:secretsmanager:",
+          {
+           "Ref": "VoxaPostgresSecretAttachment6AF26F8F"
+          },
+          ":SecretString:username::}}"
+         ]
+        ]
+       }
       }
      ],
      "Version": "2012-10-17"
@@ -1203,7 +2909,7 @@
    "Properties": {
     "Code": {
      "ImageUri": {
-      "Fn::Sub": "${AWS::AccountId}.dkr.ecr.us-east-1.${AWS::URLSuffix}/cdk-hnb659fds-container-assets-${AWS::AccountId}-us-east-1:d5eda1b0316cb18f58a0519443f575c4150935df446ebed1d2b38c2cb86ce452"
+      "Fn::Sub": "${AWS::AccountId}.dkr.ecr.us-east-1.${AWS::URLSuffix}/cdk-hnb659fds-container-assets-${AWS::AccountId}-us-east-1:b31a8a59da870d9aa4205d4eb7915879f06fd97da4e964577ed6e443b4e46d67"
      }
     },
     "Environment": {
@@ -1211,7 +2917,26 @@
       "VOXA_SECRETS_ARN": {
        "Ref": "VoxaSecretsF28BAE34"
       },
-      "PINECONE_INDEX": "voxa-index"
+      "PINECONE_INDEX": "voxa-index",
+      "DATABASE_URL": {
+       "Fn::Join": [
+        "",
+        [
+         "postgresql://voxa_admin:{{resolve:secretsmanager:",
+         {
+          "Ref": "VoxaPostgresSecretAttachment6AF26F8F"
+         },
+         ":SecretString:password::}}@",
+         {
+          "Fn::GetAtt": [
+           "VoxaPostgres82F83C76",
+           "Endpoint.Address"
+          ]
+         },
+         ":5432/voxa_prod"
+        ]
+       ]
+      }
      }
     },
     "ImageConfig": {
@@ -1235,7 +2960,7 @@
    ],
    "Metadata": {
     "aws:cdk:path": "VoxaStack/WorkerLambda/Resource",
-    "aws:asset:path": "asset.d5eda1b0316cb18f58a0519443f575c4150935df446ebed1d2b38c2cb86ce452",
+    "aws:asset:path": "asset.b31a8a59da870d9aa4205d4eb7915879f06fd97da4e964577ed6e443b4e46d67",
     "aws:asset:dockerfile-path": "worker/Dockerfile",
     "aws:asset:property": "Code.ImageUri"
    }
@@ -1358,6 +3083,33 @@
        "Resource": {
         "Ref": "VoxaSecretsF28BAE34"
        }
+      },
+      {
+       "Action": "rds-db:connect",
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::Join": [
+         "",
+         [
+          "arn:aws:rds-db:us-east-1:",
+          {
+           "Ref": "AWS::AccountId"
+          },
+          ":dbuser:",
+          {
+           "Fn::GetAtt": [
+            "VoxaPostgres82F83C76",
+            "DbiResourceId"
+           ]
+          },
+          "/{{resolve:secretsmanager:",
+          {
+           "Ref": "VoxaPostgresSecretAttachment6AF26F8F"
+          },
+          ":SecretString:username::}}"
+         ]
+        ]
+       }
       }
      ],
      "Version": "2012-10-17"
@@ -1378,7 +3130,7 @@
    "Properties": {
     "Code": {
      "ImageUri": {
-      "Fn::Sub": "${AWS::AccountId}.dkr.ecr.us-east-1.${AWS::URLSuffix}/cdk-hnb659fds-container-assets-${AWS::AccountId}-us-east-1:d5eda1b0316cb18f58a0519443f575c4150935df446ebed1d2b38c2cb86ce452"
+      "Fn::Sub": "${AWS::AccountId}.dkr.ecr.us-east-1.${AWS::URLSuffix}/cdk-hnb659fds-container-assets-${AWS::AccountId}-us-east-1:b31a8a59da870d9aa4205d4eb7915879f06fd97da4e964577ed6e443b4e46d67"
      }
     },
     "Environment": {
@@ -1388,6 +3140,25 @@
       },
       "RECORDINGS_BUCKET": {
        "Ref": "RecordingsBucketAA52F499"
+      },
+      "DATABASE_URL": {
+       "Fn::Join": [
+        "",
+        [
+         "postgresql://voxa_admin:{{resolve:secretsmanager:",
+         {
+          "Ref": "VoxaPostgresSecretAttachment6AF26F8F"
+         },
+         ":SecretString:password::}}@",
+         {
+          "Fn::GetAtt": [
+           "VoxaPostgres82F83C76",
+           "Endpoint.Address"
+          ]
+         },
+         ":5432/voxa_prod"
+        ]
+       ]
       }
      }
     },
@@ -1412,7 +3183,7 @@
    ],
    "Metadata": {
     "aws:cdk:path": "VoxaStack/FineTuningLambda/Resource",
-    "aws:asset:path": "asset.d5eda1b0316cb18f58a0519443f575c4150935df446ebed1d2b38c2cb86ce452",
+    "aws:asset:path": "asset.b31a8a59da870d9aa4205d4eb7915879f06fd97da4e964577ed6e443b4e46d67",
     "aws:asset:dockerfile-path": "worker/Dockerfile",
     "aws:asset:property": "Code.ImageUri"
    }
@@ -1460,10 +3231,209 @@
     "aws:cdk:path": "VoxaStack/WeeklyFineTuningRule/AllowEventRuleVoxaStackFineTuningLambdaD279CAAA"
    }
   },
+  "MigrateFnServiceRole1E09F297": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "Service": "lambda.amazonaws.com"
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "ManagedPolicyArns": [
+     {
+      "Fn::Join": [
+       "",
+       [
+        "arn:",
+        {
+         "Ref": "AWS::Partition"
+        },
+        ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+       ]
+      ]
+     },
+     {
+      "Fn::Join": [
+       "",
+       [
+        "arn:",
+        {
+         "Ref": "AWS::Partition"
+        },
+        ":iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole"
+       ]
+      ]
+     }
+    ]
+   },
+   "DependsOn": [
+    "VoxaVpcPrivateSubnet1DefaultRoute5B479E43",
+    "VoxaVpcPrivateSubnet1RouteTableAssociation8AED79D1",
+    "VoxaVpcPrivateSubnet2DefaultRoute5CC12A1C",
+    "VoxaVpcPrivateSubnet2RouteTableAssociationF7D36BBB"
+   ],
+   "Metadata": {
+    "aws:cdk:path": "VoxaStack/MigrateFn/ServiceRole/Resource"
+   }
+  },
+  "MigrateFnServiceRoleDefaultPolicyEB329C71": {
+   "Type": "AWS::IAM::Policy",
+   "Properties": {
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": "rds-db:connect",
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::Join": [
+         "",
+         [
+          "arn:aws:rds-db:us-east-1:",
+          {
+           "Ref": "AWS::AccountId"
+          },
+          ":dbuser:",
+          {
+           "Fn::GetAtt": [
+            "VoxaPostgres82F83C76",
+            "DbiResourceId"
+           ]
+          },
+          "/{{resolve:secretsmanager:",
+          {
+           "Ref": "VoxaPostgresSecretAttachment6AF26F8F"
+          },
+          ":SecretString:username::}}"
+         ]
+        ]
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "PolicyName": "MigrateFnServiceRoleDefaultPolicyEB329C71",
+    "Roles": [
+     {
+      "Ref": "MigrateFnServiceRole1E09F297"
+     }
+    ]
+   },
+   "DependsOn": [
+    "VoxaVpcPrivateSubnet1DefaultRoute5B479E43",
+    "VoxaVpcPrivateSubnet1RouteTableAssociation8AED79D1",
+    "VoxaVpcPrivateSubnet2DefaultRoute5CC12A1C",
+    "VoxaVpcPrivateSubnet2RouteTableAssociationF7D36BBB"
+   ],
+   "Metadata": {
+    "aws:cdk:path": "VoxaStack/MigrateFn/ServiceRole/DefaultPolicy/Resource"
+   }
+  },
+  "MigrateFnSecurityGroup365CF67F": {
+   "Type": "AWS::EC2::SecurityGroup",
+   "Properties": {
+    "GroupDescription": "Automatic security group for Lambda Function VoxaStackMigrateFnADE00AA4",
+    "SecurityGroupEgress": [
+     {
+      "CidrIp": "0.0.0.0/0",
+      "Description": "Allow all outbound traffic by default",
+      "IpProtocol": "-1"
+     }
+    ],
+    "VpcId": {
+     "Ref": "VoxaVpc0488284C"
+    }
+   },
+   "DependsOn": [
+    "VoxaVpcPrivateSubnet1DefaultRoute5B479E43",
+    "VoxaVpcPrivateSubnet1RouteTableAssociation8AED79D1",
+    "VoxaVpcPrivateSubnet2DefaultRoute5CC12A1C",
+    "VoxaVpcPrivateSubnet2RouteTableAssociationF7D36BBB"
+   ],
+   "Metadata": {
+    "aws:cdk:path": "VoxaStack/MigrateFn/SecurityGroup/Resource"
+   }
+  },
+  "MigrateFnD91AE9F5": {
+   "Type": "AWS::Lambda::Function",
+   "Properties": {
+    "Code": {
+     "ZipFile": "\nconst { execSync } = require(\"child_process\");\nexports.handler = async () => {\n  execSync(\"npx prisma migrate deploy\", { stdio: \"inherit\",\n    env: { ...process.env, DATABASE_URL: process.env.DATABASE_URL } });\n  return { statusCode: 200, body: \"Migrations complete\" };\n};\n"
+    },
+    "Environment": {
+     "Variables": {
+      "DATABASE_URL": {
+       "Fn::Join": [
+        "",
+        [
+         "postgresql://voxa_admin:{{resolve:secretsmanager:",
+         {
+          "Ref": "VoxaPostgresSecretAttachment6AF26F8F"
+         },
+         ":SecretString:password::}}@",
+         {
+          "Fn::GetAtt": [
+           "VoxaPostgres82F83C76",
+           "Endpoint.Address"
+          ]
+         },
+         ":5432/voxa_prod"
+        ]
+       ]
+      }
+     }
+    },
+    "Handler": "index.handler",
+    "MemorySize": 512,
+    "Role": {
+     "Fn::GetAtt": [
+      "MigrateFnServiceRole1E09F297",
+      "Arn"
+     ]
+    },
+    "Runtime": "nodejs20.x",
+    "Timeout": 300,
+    "VpcConfig": {
+     "SecurityGroupIds": [
+      {
+       "Fn::GetAtt": [
+        "MigrateFnSecurityGroup365CF67F",
+        "GroupId"
+       ]
+      }
+     ],
+     "SubnetIds": [
+      {
+       "Ref": "VoxaVpcPrivateSubnet1SubnetDDDC8E99"
+      },
+      {
+       "Ref": "VoxaVpcPrivateSubnet2SubnetE4829619"
+      }
+     ]
+    }
+   },
+   "DependsOn": [
+    "MigrateFnServiceRoleDefaultPolicyEB329C71",
+    "MigrateFnServiceRole1E09F297",
+    "VoxaVpcPrivateSubnet1DefaultRoute5B479E43",
+    "VoxaVpcPrivateSubnet1RouteTableAssociation8AED79D1",
+    "VoxaVpcPrivateSubnet2DefaultRoute5CC12A1C",
+    "VoxaVpcPrivateSubnet2RouteTableAssociationF7D36BBB"
+   ],
+   "Metadata": {
+    "aws:cdk:path": "VoxaStack/MigrateFn/Resource"
+   }
+  },
   "CDKMetadata": {
    "Type": "AWS::CDK::Metadata",
    "Properties": {
-    "Analytics": "v2:deflate64:H4sIAAAAAAAA/31Uy27bMBD8ltxptrVRFD36lcBA2qpykKuxojYKa4lU+XBgGPr3LklJFpygJw6Hw+Xu7EpzPv/6jX++gzc7E+VxVsuCX/YOxJERdbiUZwWNLol8gqJGtn5REXTMLvhl5cURXSATIhaFQWcbUFChoVBxHxQ9SssTmArd0tFDrw2qieD2pGMo5vzy3Iqgec7WLPNFLcXeF6oPPKJce4djnom/cktrtZDgpFajOIDtLgvLT3AP4PANziwz8kTwGninHBrCgyBl0u8mVVAJ3kh3fjDat31N/yG2lUFr39E7FfmOmdLyywYcFGBxp6wDJZCltMaIm9WUGNRX3zer4WawkgKua2+pnHA2wHsyHYJN9rjBF6nkYNIto5UDqdBMuP7uHs1JimR8gh2T0PBLrlM74pppal30L6GQkjmAtTQzfKNphsyuoclZBiac8RxbbaXT5ryislitKyrhUVdj/QOO1R1acKFVli/blh6I3X7UUK6gDhaUN9liDdZJUZOiiAqpqhON28e3TXpvsp/qJFmpes2AJ+dpsMe0J1v6av5SUb89+uhUBB2roSlKoAG42nLvlRhaM+LtiUZvr70R+APaliqIU/0hm6FppLV0jewKCno3932DaO06lqONtwL1y7vWOxa7QT+FiqJ0LDu7V60+LfiXBf9+98dKOTNeOdkgz9P6D2jJDc5VBAAA"
+    "Analytics": "v2:deflate64:H4sIAAAAAAAA/31UyW7bMBD9ltwZto1RFD16S2AgTVU7zTUYUWOFtUSqXBwYgv69Q1KSVdfoiW8e3ww5C3nH7z5/4R9v4N3eiuJwW8mctzsH4sCIem2Lk4JaF0Q+Q14hW+5VBB2zM94uvDigC2RCxKIw6GwNCko0FCraQdGjtDyDKdHNHR30VqOaCC53OobijrcvjQial2zJMp9XUux8rvrAI9pq73C8Z+LP3NxaLSQ4qdUoDmC9ycLyBO4BHL7DiWVGHgmeA2+UQ0N4EKSb9NYkC0rBG+lOD0b7ps/pP8RGlQat/YdfR7pjprC8XYGDHCxulHWgBLJ0rTHiajElBvW57qvF4BlKSS3ZYqOtdNrEPCbWGS4oQseELhWZvP1p0WRaV0E/4gEsK9k38G8mnEbXX1beUvHC/gDvqcUQmmIPK9xLOqNvySWjlQOp0Ey43neH5ihFanOCYfQiKKQV+ojmxNu+jytln6BG20DyuEZfDfib7v/Do490BB2TUFMJdRqxuGaaxjHWMqGOVbokz0ddjk0acCzKawMuzJPl86YhjziSjxqKBVShT8VFkliBdVJUpMijQqrySG/iurdJ503sqU5SB1SvGfBkP72+8dpT80qUrU9lmNo0NpX2xd5Q82h4acfI3A8dntpUJ6jzAkil6fMwm5q+jHuvxCAe8fpI87TT3gj8Bk1D6cd3e5XN0NTS2jgrvX+c+1ewlj4mPjlrHhiGIQy1a0gmJtHRY7AxdKC+e9d4x6Ke/saSjupYdnJvWn2Y8U8z/vXml5Xy1njlZI18m9Y/gPLgBlwFAAA="
    },
    "Metadata": {
     "aws:cdk:path": "VoxaStack/CDKMetadata/Default"
@@ -1477,6 +3447,188 @@
     "Fn::GetAtt": [
      "VoxaPostgres82F83C76",
      "Endpoint.Address"
+    ]
+   }
+  },
+  "NextjsRepoUri": {
+   "Value": {
+    "Fn::Join": [
+     "",
+     [
+      {
+       "Fn::Select": [
+        4,
+        {
+         "Fn::Split": [
+          ":",
+          {
+           "Fn::GetAtt": [
+            "NextjsRepo60B2D8A4",
+            "Arn"
+           ]
+          }
+         ]
+        }
+       ]
+      },
+      ".dkr.ecr.",
+      {
+       "Fn::Select": [
+        3,
+        {
+         "Fn::Split": [
+          ":",
+          {
+           "Fn::GetAtt": [
+            "NextjsRepo60B2D8A4",
+            "Arn"
+           ]
+          }
+         ]
+        }
+       ]
+      },
+      ".",
+      {
+       "Ref": "AWS::URLSuffix"
+      },
+      "/",
+      {
+       "Ref": "NextjsRepo60B2D8A4"
+      }
+     ]
+    ]
+   }
+  },
+  "FastifyRepoUri": {
+   "Value": {
+    "Fn::Join": [
+     "",
+     [
+      {
+       "Fn::Select": [
+        4,
+        {
+         "Fn::Split": [
+          ":",
+          {
+           "Fn::GetAtt": [
+            "FastifyRepoF9AED764",
+            "Arn"
+           ]
+          }
+         ]
+        }
+       ]
+      },
+      ".dkr.ecr.",
+      {
+       "Fn::Select": [
+        3,
+        {
+         "Fn::Split": [
+          ":",
+          {
+           "Fn::GetAtt": [
+            "FastifyRepoF9AED764",
+            "Arn"
+           ]
+          }
+         ]
+        }
+       ]
+      },
+      ".",
+      {
+       "Ref": "AWS::URLSuffix"
+      },
+      "/",
+      {
+       "Ref": "FastifyRepoF9AED764"
+      }
+     ]
+    ]
+   }
+  },
+  "AgentRepoUri": {
+   "Value": {
+    "Fn::Join": [
+     "",
+     [
+      {
+       "Fn::Select": [
+        4,
+        {
+         "Fn::Split": [
+          ":",
+          {
+           "Fn::GetAtt": [
+            "AgentRepo85A4923D",
+            "Arn"
+           ]
+          }
+         ]
+        }
+       ]
+      },
+      ".dkr.ecr.",
+      {
+       "Fn::Select": [
+        3,
+        {
+         "Fn::Split": [
+          ":",
+          {
+           "Fn::GetAtt": [
+            "AgentRepo85A4923D",
+            "Arn"
+           ]
+          }
+         ]
+        }
+       ]
+      },
+      ".",
+      {
+       "Ref": "AWS::URLSuffix"
+      },
+      "/",
+      {
+       "Ref": "AgentRepo85A4923D"
+      }
+     ]
+    ]
+   }
+  },
+  "UserPoolId": {
+   "Value": {
+    "Ref": "VoxaUserPool9A11D7B0"
+   }
+  },
+  "UserPoolArn": {
+   "Value": {
+    "Fn::GetAtt": [
+     "VoxaUserPool9A11D7B0",
+     "Arn"
+    ]
+   }
+  },
+  "AppClientId": {
+   "Value": {
+    "Ref": "VoxaUserPoolVoxaAppClientA466E27E"
+   }
+  },
+  "JwksUrl": {
+   "Value": {
+    "Fn::Join": [
+     "",
+     [
+      "https://cognito-idp.us-east-1.amazonaws.com/",
+      {
+       "Ref": "VoxaUserPool9A11D7B0"
+      },
+      "/.well-known/jwks.json"
+     ]
     ]
    }
   },
@@ -1501,6 +3653,38 @@
        ]
       }
      ]
+    ]
+   }
+  },
+  "AlbDns": {
+   "Value": {
+    "Fn::GetAtt": [
+     "VoxaALB143C7BDF",
+     "DNSName"
+    ]
+   }
+  },
+  "CloudFrontUrl": {
+   "Value": {
+    "Fn::Join": [
+     "",
+     [
+      "https://",
+      {
+       "Fn::GetAtt": [
+        "VoxaCdnC244DC40",
+        "DomainName"
+       ]
+      }
+     ]
+    ]
+   }
+  },
+  "MigrateFnArn": {
+   "Value": {
+    "Fn::GetAtt": [
+     "MigrateFnD91AE9F5",
+     "Arn"
     ]
    }
   }

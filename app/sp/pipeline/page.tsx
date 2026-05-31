@@ -1,7 +1,8 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import DashboardShell from "@/components/DashboardShell";
+import { useTenantContext } from "@/hooks/useTenantContext";
 import {
   Flame,
   PhoneCall,
@@ -35,97 +36,69 @@ interface LeadData {
   };
 }
 
-const MOCK_LEADS: LeadData[] = [
-  {
-    id: "c1",
-    name: "Priya Nair",
-    phone: "+91 98450 12345",
-    email: "priya.nair@gmail.com",
-    status: "Hot",
-    requirements: "3BHK Premium Design & Wardrobes",
-    location: "Whitefield",
-    budget: "8-10L",
-    assignedAgent: "Visal Kumar",
-    lastCallDate: "Today, 11:30 AM",
-    callLog: {
-      duration: "02:47",
-      sentimentScore: 0.85,
-      intentExtracted: "Ready for site visit next Sunday. Needs modular kitchen customization.",
-      transcript: [
-        { role: "AI", text: "Hi Priya — I saw you enquired about our 3BHK design package. Are you still looking?" },
-        { role: "USER", text: "Yes, we just got possession last week actually in Whitefield." },
-        { role: "AI", text: "Perfect timing! Most clients in Whitefield budget around 8-10 lakhs for a full interior. Does that range work?" },
-        { role: "USER", text: "Yes, that is in our budget. I am particularly concerned about modular kitchen layouts though." },
-        { role: "AI", text: "We have a dedicated modular kitchen expert who can draw custom layouts. Can we schedule a showroom walk-through next Sunday?" },
-        { role: "USER", text: "Sunday works. 11:00 AM works best." }
-      ]
-    }
-  },
-  {
-    id: "c2",
-    name: "Arjun Reddy",
-    phone: "+91 99000 87654",
-    email: "arjun.reddy@yahoo.com",
-    status: "Warm",
-    requirements: "Modular Kitchen Overhaul & Living Room",
-    location: "Indiranagar",
-    budget: "3-5L",
-    assignedAgent: "Visal Kumar",
-    lastCallDate: "Yesterday, 4:15 PM",
-    callLog: {
-      duration: "01:50",
-      sentimentScore: 0.68,
-      intentExtracted: "Evaluating modular kitchen materials. Will visit the showroom once quotes are shared.",
-      transcript: [
-        { role: "AI", text: "Hello Arjun, this is VOXA calling from Prestige Interiors. You requested info about Modular Kitchen designs." },
-        { role: "USER", text: "Hi, yes. I need to remodel my kitchen in Indiranagar. I need high-gloss acrylic finishes." },
-        { role: "AI", text: "Excellent choice! Acrylic is extremely durable. For an Indiranagar kitchen and living room setup, our packages usually range from 3 to 5 lakhs. How does that sound?" },
-        { role: "USER", text: "The range is fine. Can you send me some material samples and pricing on WhatsApp?" },
-        { role: "AI", text: "Absolutely, I am triggering an automated WhatsApp with our catalog right away." }
-      ]
-    }
-  },
-  {
-    id: "c4",
-    name: "Rahul Hegde",
-    phone: "+91 97410 44321",
-    email: "rahul.hegde@hotmail.com",
-    status: "Warm",
-    requirements: "2BHK Compact Interior Package",
-    location: "Electronic City",
-    budget: "6-8L",
-    assignedAgent: "Visal Kumar",
-    lastCallDate: "May 24, 10:00 AM",
-    callLog: {
-      duration: "02:15",
-      sentimentScore: 0.6,
-      intentExtracted: "Comparing quotes with competitors. Needs space-saving multi-functional beds.",
-      transcript: [
-        { role: "AI", text: "Hi Rahul, VOXA calling. You enquired about our E-City 2BHK space-saving packages." },
-        { role: "USER", text: "Yes, I am comparing a few interior startups right now. Budget is tight around 6 to 8 lakhs." },
-        { role: "AI", text: "We specialize in space-optimization! We bundle multi-functional wall beds and study units that fit perfectly in this range." },
-        { role: "USER", text: "Okay, send me the E-City catalog. If I like the designs, I will book a designer consult." }
-      ]
-    }
-  }
-];
 
 export default function SalesPipeline() {
+  const { meetingLabel } = useTenantContext();
+  const [leads, setLeads] = useState<LeadData[]>([]);
+  const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedLead, setSelectedLead] = useState<LeadData | null>(null);
 
-  // Pre-filter leads showing only those assigned to the logged-in agent (Visal Kumar)
-  const filteredLeads = MOCK_LEADS.filter((l) => {
-    const matchesAgent = l.assignedAgent === "Visal Kumar";
-    const matchesQuery =
+  useEffect(() => {
+    async function fetchContacts() {
+      try {
+        // Fetch Fastify contacts via the Next.js proxy path
+        const res = await fetch("/api/contacts?limit=50");
+        const data = await res.json();
+        if (data.success && Array.isArray(data.contacts)) {
+          const mapped: LeadData[] = data.contacts.map((c: any) => {
+            const lastLog = c.callLogs?.[0];
+            const statusMap: Record<string, LeadData["status"]> = {
+              NEW: "Warm", CALLED: "Warm", BOOKED: "Booked", DND: "DND", CONVERTED: "Booked",
+            };
+            return {
+              id: c.id,
+              name: c.name,
+              phone: c.phone,
+              email: c.email || "",
+              status: statusMap[c.status] || "Warm",
+              requirements: c.domainQualifier || c.notes || "—",
+              location: c.location || "—",
+              budget: c.budgetMin && c.budgetMax
+                ? `${Math.round(c.budgetMin / 100000)}–${Math.round(c.budgetMax / 100000)}L`
+                : "—",
+              assignedAgent: c.assignedAgent?.name || "Unassigned",
+              lastCallDate: lastLog
+                ? new Date(lastLog.createdAt).toLocaleString("en-IN", { dateStyle: "medium", timeStyle: "short" })
+                : "Never called",
+              callLog: {
+                duration: lastLog ? `${Math.floor((lastLog.durationSeconds || 0) / 60).toString().padStart(2, "0")}:${((lastLog.durationSeconds || 0) % 60).toString().padStart(2, "0")}` : "—",
+                sentimentScore: lastLog?.sentimentScore || 0,
+                intentExtracted: lastLog?.transcriptSummary || "No AI summary yet.",
+                transcript: [],
+              },
+            };
+          });
+          setLeads(mapped);
+        }
+      } catch (err) {
+        console.error("Failed to load contacts:", err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchContacts();
+  }, []);
+
+  const filteredLeads = leads.filter((l) => {
+    return (
       l.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       l.location.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      l.requirements.toLowerCase().includes(searchQuery.toLowerCase());
-    return matchesAgent && matchesQuery;
+      l.requirements.toLowerCase().includes(searchQuery.toLowerCase())
+    );
   });
 
-  // Calculate quick metrics based on Visal's leads
-  const hotLeadsCount = MOCK_LEADS.filter((l) => l.status === "Hot" && l.assignedAgent === "Visal Kumar").length;
+  const hotLeadsCount = leads.filter((l) => l.status === "Booked").length;
 
   return (
     <DashboardShell>
@@ -135,7 +108,7 @@ export default function SalesPipeline() {
         <div>
           <h1 style={{ fontSize: 28, fontWeight: 700, letterSpacing: "-.02em" }}>My Pipeline</h1>
           <p style={{ fontSize: 14, color: "var(--txt2)", marginTop: 4 }}>
-            Welcome back, Visal. Focus on high-converting luxury design prospects and trigger outbound calls.
+            Welcome back. Focus on high-converting prospects and trigger outbound conversational sequences.
           </p>
         </div>
 
@@ -226,13 +199,13 @@ export default function SalesPipeline() {
           >
             <div>
               <span style={{ fontSize: 12, color: "var(--txt3)", fontFamily: "var(--font-mono)", fontWeight: 600 }}>
-                APPOINTMENTS BOOKED
+                {meetingLabel ? `${meetingLabel.toUpperCase()}S BOOKED` : "APPOINTMENTS BOOKED"}
               </span>
               <div style={{ fontSize: 32, fontWeight: 700, color: "var(--green)", marginTop: 6 }}>
                 2
               </div>
               <div style={{ fontSize: 11, color: "var(--txt2)", marginTop: 6 }}>
-                📅 HSR & Indiranagar visits
+                📅 Recent {meetingLabel ? meetingLabel.toLowerCase() : "meeting"} bookings
               </div>
             </div>
             <div
@@ -279,7 +252,7 @@ export default function SalesPipeline() {
             />
             <input
               type="text"
-              placeholder="Search my leads by name, layout type, location (e.g. Indiranagar, kitchen finishes)..."
+              placeholder="Search my leads by name, requirements, or location..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="glass-input"

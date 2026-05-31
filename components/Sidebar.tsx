@@ -10,15 +10,17 @@ import {
   FolderKanban,
   PhoneCall,
   Calendar,
-  User,
   Users,
   Shield,
-  PhoneForwarded,
   Home,
   Activity,
   Layers,
   BarChart2,
   Award,
+  LogOut,
+  Moon,
+  Sun,
+  X
 } from "lucide-react";
 
 interface SidebarProps {
@@ -26,6 +28,10 @@ interface SidebarProps {
   userEmail: string;
   userName: string;
   tenantName: string;
+  theme: "light" | "dark";
+  onThemeToggle: () => void;
+  isMobileOpen?: boolean;
+  onMobileClose?: () => void;
 }
 
 interface MenuItem {
@@ -34,7 +40,16 @@ interface MenuItem {
   icon: React.ComponentType<any>;
 }
 
-export function Sidebar({ role, userEmail, userName, tenantName }: SidebarProps) {
+export function Sidebar({
+  role,
+  userEmail,
+  userName,
+  tenantName,
+  theme,
+  onThemeToggle,
+  isMobileOpen = false,
+  onMobileClose
+}: SidebarProps) {
   const pathname = usePathname() || "";
 
   // Menu lists based on user role
@@ -71,177 +86,279 @@ export function Sidebar({ role, userEmail, userName, tenantName }: SidebarProps)
       ? agentMenu
       : readOnlyMenu;
 
+  const initials = userName
+    ? userName
+        .split(" ")
+        .map((n) => n[0])
+        .join("")
+        .slice(0, 2)
+        .toUpperCase()
+    : "VX";
+
   return (
-    <aside
-      style={{
-        width: 260,
-        height: "100vh",
-        background: "rgba(21, 21, 26, 0.85)",
-        borderRight: "1px solid rgba(255, 255, 255, 0.05)",
-        display: "flex",
-        flexDirection: "column",
-        position: "fixed",
-        top: 0,
-        left: 0,
-        zIndex: 100,
-        backdropFilter: "blur(20px)",
-      }}
-    >
-      {/* Sidebar Header */}
-      <Link
-        href="/"
-        style={{
-          height: 64,
-          padding: "0 24px",
-          display: "flex",
-          alignItems: "center",
-          gap: 10,
-          borderBottom: "1px solid rgba(255, 255, 255, 0.03)",
-          textDecoration: "none",
-          transition: "opacity 0.2s ease",
-        }}
-        onMouseEnter={(e) => (e.currentTarget.style.opacity = "0.85")}
-        onMouseLeave={(e) => (e.currentTarget.style.opacity = "1")}
-      >
-        <div
+    <aside className={`sidebar ${isMobileOpen ? "open" : ""}`}>
+      {/* Mobile Close Button */}
+      {onMobileClose && (
+        <button
+          onClick={onMobileClose}
           style={{
-            width: 32,
-            height: 32,
-            borderRadius: 8,
-            background: role === "ADMIN" ? "var(--gold)" : "var(--blue)",
+            position: "absolute",
+            top: 18,
+            right: 18,
+            background: "transparent",
+            border: "none",
+            color: "var(--txt3)",
+            cursor: "pointer",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
-            color: "#0F0F12",
-            fontFamily: "var(--font-mono)",
-            fontWeight: 700,
-            fontSize: 16,
+            padding: 4,
           }}
+          aria-label="Close sidebar"
         >
-          V
-        </div>
-        <div style={{ display: "flex", flexDirection: "column" }}>
-          <span
+          <X size={18} />
+        </button>
+      )}
+
+      {/* Sidebar Header / Logo */}
+      <div className="sidebar-logo">
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <div
             style={{
-              fontFamily: "var(--font-mono)",
-              fontWeight: 700,
+              width: 28,
+              height: 28,
+              background: "var(--gold)",
+              borderRadius: 6,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
               fontSize: 14,
-              letterSpacing: ".06em",
-              color: "var(--txt)",
+              fontWeight: 700,
+              color: "var(--abyss)",
+              fontFamily: "var(--font-display)",
             }}
           >
-            VOXA PANEL
-          </span>
-          <span style={{ fontSize: 9, color: "var(--txt3)", fontWeight: 500, display: "flex", alignItems: "center", gap: 3 }}>
-            <Shield size={9} style={{ color: role === "ADMIN" ? "var(--gold)" : "var(--blue)" }} />
-            {role === "ADMIN" ? "ADMIN MODE" : role === "SALES_AGENT" ? "SALES AGENT" : "READ ONLY"}
-          </span>
+            V
+          </div>
+          <div>
+            <div
+              style={{
+                fontSize: 15,
+                fontWeight: 700,
+                fontFamily: "var(--font-display)",
+                color: "var(--txt)",
+                letterSpacing: -0.02,
+              }}
+            >
+              VOXA
+            </div>
+            <div
+              style={{
+                fontSize: 10,
+                color: "var(--txt3)",
+                letterSpacing: "0.06em",
+                textTransform: "uppercase",
+                fontWeight: 500,
+              }}
+            >
+              AI Sales
+            </div>
+          </div>
         </div>
-      </Link>
+      </div>
 
       {/* Sidebar Navigation */}
-      <nav style={{ flex: 1, padding: "24px 16px", display: "flex", flexDirection: "column", gap: 6, overflowY: "auto" }}>
-        <div
-          style={{
-            fontFamily: "var(--font-mono)",
-            fontSize: 9,
-            color: "var(--txt3)",
-            letterSpacing: ".1em",
-            marginBottom: 10,
-            paddingLeft: 8,
-          }}
-        >
-          NAVIGATION
-        </div>
+      <nav
+        style={{
+          flex: 1,
+          display: "flex",
+          flexDirection: "column",
+          gap: 2,
+          overflowY: "auto",
+          marginTop: 12,
+        }}
+      >
+        <div className="nav-section-label">Navigation</div>
         {currentMenu.map((item) => {
           const Icon = item.icon;
-          // Clean, dynamic active path validation covering nested routing
-          const isActive = pathname === item.href || pathname.startsWith(item.href + "/");
+          const isActive =
+            pathname === item.href || pathname.startsWith(item.href + "/");
 
           return (
             <Link
               key={item.name}
               href={item.href}
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: 12,
-                padding: "10px 14px",
-                borderRadius: 10,
-                textDecoration: "none",
-                fontSize: 13,
-                fontWeight: isActive ? 600 : 500,
-                color: isActive ? "var(--txt)" : "var(--txt2)",
-                background: isActive ? "rgba(255, 255, 255, 0.05)" : "transparent",
-                border: isActive
-                  ? `1px solid rgba(255, 255, 255, 0.06)`
-                  : "1px solid transparent",
-                transition: "all 0.2s ease",
-              }}
-              className="group"
+              className={`nav-item ${isActive ? "active" : ""}`}
             >
-              <Icon
-                size={16}
-                style={{
-                  color: isActive ? (role === "ADMIN" ? "var(--gold)" : "var(--blue)") : "var(--txt3)",
-                  transition: "color 0.2s ease",
-                }}
-              />
+              <Icon size={16} />
               <span>{item.name}</span>
             </Link>
           );
         })}
       </nav>
 
-      {/* Sidebar Footer User Info */}
+      {/* Sidebar Bottom Info Drawer */}
       <div
         style={{
-          padding: "16px 20px",
-          borderTop: "1px solid rgba(255, 255, 255, 0.03)",
-          background: "rgba(0,0,0,0.15)",
+          marginTop: "auto",
+          paddingTop: 16,
+          borderTop: "0.5px solid var(--border)",
           display: "flex",
           flexDirection: "column",
           gap: 12,
         }}
       >
-        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+        {/* Theme Toggle */}
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            padding: "4px 8px",
+          }}
+        >
+          <span
+            style={{
+              fontSize: 12,
+              color: "var(--txt2)",
+              fontWeight: 500,
+              display: "flex",
+              alignItems: "center",
+              gap: 6,
+            }}
+          >
+            {theme === "dark" ? (
+              <Moon size={14} style={{ color: "var(--gold)" }} />
+            ) : (
+              <Sun size={14} style={{ color: "var(--txt3)" }} />
+            )}
+            <span>{theme === "dark" ? "Dark Mode" : "Light Mode"}</span>
+          </span>
+          <button
+            className="theme-toggle"
+            role="switch"
+            aria-checked={theme === "dark"}
+            onClick={onThemeToggle}
+            aria-label="Toggle dark mode"
+          />
+        </div>
+
+        {/* User Card */}
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 10,
+            padding: "4px 8px",
+          }}
+        >
           <div
             style={{
               width: 32,
               height: 32,
               borderRadius: "50%",
-              background: "rgba(255,255,255,0.04)",
-              border: "1px solid rgba(255,255,255,0.08)",
+              background: "var(--gold-muted)",
+              border: "0.5px solid var(--gold)",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
+              color: "var(--gold)",
+              fontWeight: 600,
+              fontSize: 12,
+              fontFamily: "var(--font-display)",
               flexShrink: 0,
             }}
           >
-            <User size={14} style={{ color: "var(--txt2)" }} />
+            {initials}
           </div>
-          <div style={{ display: "flex", flexDirection: "column", minWidth: 0 }}>
-            <span style={{ fontSize: 11.5, fontWeight: 600, color: "var(--txt)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+          <div
+            style={{ display: "flex", flexDirection: "column", minWidth: 0, flex: 1 }}
+          >
+            <span
+              style={{
+                fontSize: 12,
+                fontWeight: 600,
+                color: "var(--txt)",
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+                whiteSpace: "nowrap",
+              }}
+            >
               {userName}
             </span>
             <span
               style={{
-                fontSize: 10,
+                fontSize: 11,
                 color: "var(--txt3)",
-                fontFamily: "var(--font-mono)",
-                whiteSpace: "nowrap",
                 overflow: "hidden",
                 textOverflow: "ellipsis",
+                whiteSpace: "nowrap",
+                fontFamily: "var(--font-mono)",
               }}
             >
               {userEmail}
             </span>
           </div>
         </div>
-        
-        {/* Active Tenant Label */}
-        <div style={{ fontSize: 9, color: "var(--gold)", fontWeight: 600, fontFamily: "var(--font-mono)", display: "flex", alignItems: "center", gap: 4, paddingLeft: 4 }}>
-          🏢 {tenantName.toUpperCase()}
+
+        {/* Dynamic Tenant and Sign Out Button */}
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            gap: 8,
+            padding: "0 8px 4px",
+          }}
+        >
+          <div
+            style={{
+              fontSize: 10,
+              color: "var(--gold)",
+              fontWeight: 600,
+              fontFamily: "var(--font-mono)",
+              display: "flex",
+              alignItems: "center",
+              gap: 4,
+            }}
+          >
+            🏢 {tenantName.toUpperCase()}
+          </div>
+          <button
+            onClick={() => {
+              if (typeof document !== "undefined") {
+                document.cookie =
+                  "session=; path=/; max-age=0; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Lax";
+                window.location.href = "/";
+              }
+            }}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: 6,
+              padding: "6px 10px",
+              borderRadius: "var(--radius-sm)",
+              background: "var(--bg-subtle)",
+              border: "0.5px solid var(--border)",
+              color: "var(--txt2)",
+              fontSize: 12,
+              fontWeight: 500,
+              cursor: "pointer",
+              transition: "all 0.12s",
+              width: "100%",
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = "var(--border-strong)";
+              e.currentTarget.style.color = "var(--txt)";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = "var(--bg-subtle)";
+              e.currentTarget.style.color = "var(--txt2)";
+            }}
+          >
+            <LogOut size={12} />
+            <span>Sign Out</span>
+          </button>
         </div>
       </div>
     </aside>

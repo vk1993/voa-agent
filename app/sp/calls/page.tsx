@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import DashboardShell from "@/components/DashboardShell";
 import {
   PhoneCall,
@@ -22,68 +22,61 @@ interface CallRecord {
   name: string;
   phone: string;
   status: "Completed" | "Failed" | "Ongoing";
-  duration: number; // in seconds
-  sentiment: number; // percentage
+  duration: number;
+  sentiment: number;
   timestamp: string;
   intent: string;
   transcript: { role: "AI" | "USER"; text: string }[];
 }
 
-const MOCK_CALLS: CallRecord[] = [
-  {
-    id: "call-1",
-    name: "Priya Nair",
-    phone: "+91 98450 12345",
-    status: "Completed",
-    duration: 167,
-    sentiment: 85,
-    timestamp: "Today, 11:30 AM",
-    intent: "Modular kitchen walk-through booked. Whitefield 3BHK package.",
-    transcript: [
-      { role: "AI", text: "Hi Priya — I saw you enquired about our 3BHK design package. Are you still looking?" },
-      { role: "USER", text: "Yes, we just got possession last week actually in Whitefield." },
-      { role: "AI", text: "Perfect timing! Most clients in Whitefield budget around 8-10 lakhs for a full interior. Does that range work?" },
-      { role: "USER", text: "Yes, that is in our budget. I am particularly concerned about modular kitchen layouts though." }
-    ]
-  },
-  {
-    id: "call-2",
-    name: "Arjun Reddy",
-    phone: "+91 99000 87654",
-    status: "Completed",
-    duration: 110,
-    sentiment: 68,
-    timestamp: "Yesterday, 4:15 PM",
-    intent: "Triggered WhatsApp catalog with modular kitchen samples.",
-    transcript: [
-      { role: "AI", text: "Hello Arjun, this is VOXA calling. You requested info about Modular Kitchen designs." },
-      { role: "USER", text: "Hi, yes. I need to remodel my kitchen in Indiranagar. High-gloss acrylic finishes." }
-    ]
-  },
-  {
-    id: "call-3",
-    name: "Rahul Hegde",
-    phone: "+91 97410 44321",
-    status: "Completed",
-    duration: 135,
-    sentiment: 60,
-    timestamp: "May 24, 10:00 AM",
-    intent: "Tight budget 6-8L. Wants space-saving multi-functional beds.",
-    transcript: [
-      { role: "AI", text: "Hi Rahul, VOXA calling. You enquired about our E-City 2BHK space-saving packages." },
-      { role: "USER", text: "Yes, I am comparing a few interior startups right now." }
-    ]
-  }
-];
 
 export default function SalesAgentCalls() {
-  const [calls, setCalls] = useState<CallRecord[]>(MOCK_CALLS);
+  const [calls, setCalls] = useState<CallRecord[]>([]);
   const [selectedCall, setSelectedCall] = useState<CallRecord | null>(null);
+  const [loading, setLoading] = useState(true);
   
   // Interactive Dialer State
   const [dialNumber, setDialNumber] = useState("");
   const [dialing, setDialing] = useState(false);
   const [activeCallId, setActiveCallId] = useState<string | null>(null);
+
+  useEffect(() => {
+    async function fetchCalls() {
+      try {
+        // Resolve the current agent's ID
+        const meRes = await fetch("/api/auth/me");
+        const meData = await meRes.json();
+        const agentId = meData.userId;
+
+        const url = agentId
+          ? `/api/call-logs?limit=50&agentId=${agentId}`
+          : `/api/call-logs?limit=50`;
+
+        const res = await fetch(url);
+        const data = await res.json();
+        if (data.success && Array.isArray(data.callLogs)) {
+          // Map API shape to CallRecord shape
+          const mapped: CallRecord[] = data.callLogs.map((cl: any) => ({
+            id: cl.id,
+            name: cl.contact?.name || "Unknown",
+            phone: cl.contact?.phone || "",
+            status: cl.outcomeType === "NO_ANSWER" ? "Failed" : "Completed",
+            duration: cl.durationSeconds || 0,
+            sentiment: cl.sentimentScore ? Math.round(cl.sentimentScore * 100) : 0,
+            timestamp: new Date(cl.createdAt).toLocaleString("en-IN", { dateStyle: "medium", timeStyle: "short" }),
+            intent: cl.transcriptSummary || cl.outcomeType || "—",
+            transcript: [],
+          }));
+          setCalls(mapped);
+        }
+      } catch (err) {
+        console.error("Failed to load call logs:", err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchCalls();
+  }, []);
 
   const handleKeyPress = (num: string) => {
     setDialNumber((prev) => prev + num);
@@ -109,7 +102,7 @@ export default function SalesAgentCalls() {
         timestamp: "Just Now",
         intent: "Ongoing active voice dialer conversation...",
         transcript: [
-          { role: "AI", text: "Hello, this is the VOXA AI sales agent. How can we assist with your home design project today?" }
+          { role: "AI", text: "Hello, this is the VOXA AI sales agent. How can we assist you today?" }
         ]
       };
       setCalls([newCall, ...calls]);
@@ -124,7 +117,7 @@ export default function SalesAgentCalls() {
     setCalls((prev) =>
       prev.map((c) => {
         if (c.id === activeCallId) {
-          return { ...c, status: "Completed", duration: 42, sentiment: 75, intent: "Qualified modular project callback." };
+          return { ...c, status: "Completed", duration: 42, sentiment: 75, intent: "Qualified prospect conversation." };
         }
         return c;
       })

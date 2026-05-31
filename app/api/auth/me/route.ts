@@ -19,12 +19,19 @@ export async function GET(request: NextRequest) {
 
     // Query the tenant from the database
     let tenantName: string | null = null;
+    let onboardingComplete = true;
+    let vertical: string | null = null;
+    let config: any = null;
+
     try {
       const tenant = await prisma.tenant.findUnique({
         where: { id: payload.tenantId },
       });
       if (tenant) {
         tenantName = tenant.name;
+        onboardingComplete = tenant.onboardingComplete;
+        vertical = tenant.vertical;
+        config = tenant.config;
       }
     } catch (dbError) {
       console.warn("Database lookup for tenant name failed:", dbError);
@@ -53,6 +60,11 @@ export async function GET(request: NextRequest) {
       role: payload.role,
       tenantId: payload.tenantId,
       tenantName,
+      tenant: {
+        vertical,
+        config,
+        onboardingComplete,
+      },
     });
   } catch (error) {
     console.error("GET /api/auth/me failed:", error);

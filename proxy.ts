@@ -292,11 +292,36 @@ export async function proxy(request: NextRequest) {
     }
   }
 
+  // 5.5 Check onboardingComplete status for authenticated UI requests
+  if (userPayload && !pathname.startsWith("/api/") && pathname !== "/onboarding") {
+    try {
+      const onboardingComplete = await redis.get<string>(`tenant:onboarding:${userPayload.tenantId}`);
+      if (onboardingComplete === "false") {
+        const url = request.nextUrl.clone();
+        url.pathname = "/onboarding";
+        return addSecurityHeaders(NextResponse.redirect(url), slug);
+      }
+    } catch (err) {
+      console.error("[EDGE] Failed to fetch onboarding status from Redis:", err);
+    }
+  }
+
   // 6. Access Control & Authorization Matrix Checking
   const isApiRoute = pathname.startsWith("/api/");
 
-  // A. Guard Login Route
-  if (pathname.startsWith("/login")) {
+  if (pathname.startsWith("/onboarding")) {
+    if (!userPayload) {
+      const url = request.nextUrl.clone();
+      url.pathname = "/login";
+      url.searchParams.set("callbackUrl", pathname);
+      return addSecurityHeaders(NextResponse.redirect(url), slug);
+    }
+    const res = NextResponse.next();
+    return addSecurityHeaders(res, slug);
+  }
+
+  // A. Guard Login Route & Invite Acceptance
+  if (pathname.startsWith("/login") || pathname.startsWith("/accept-invite")) {
     if (userPayload) {
       const url = request.nextUrl.clone();
       url.pathname = "/";
@@ -309,7 +334,7 @@ export async function proxy(request: NextRequest) {
   // Authentication Guards
   // NOTE: /api/auth/* routes are public — they ARE the login flow itself.
   if (!userPayload) {
-    if (pathname.startsWith("/api/auth/")) {
+    if (pathname.startsWith("/api/auth/") || pathname === "/api/accept-invite") {
       const res = NextResponse.next();
       return addSecurityHeaders(res, slug);
     }
@@ -406,5 +431,7 @@ export const config = {
     "/sp/:path*",
     "/api/:path*",
     "/login",
+    "/accept-invite",
+    "/onboarding",
   ],
 };

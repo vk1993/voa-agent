@@ -12,24 +12,29 @@ datasource db {
 
 // ─── TENANT ─────────────────────────────────────
 model Tenant {
-  id           String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  name         String
-  slug         String       @unique
-  plan         Plan         @default(STARTER)
-  status       TenantStatus @default(PROVISIONING)
-  customDomain String?      @unique
-  config       Json?
-  createdAt    DateTime     @default(now())
-  updatedAt    DateTime     @updatedAt
+  id              String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name            String
+  slug            String         @unique
+  plan            Plan           @default(STARTER)
+  vertical        DomainVertical @default(CUSTOM)
+  status          TenantStatus   @default(PROVISIONING)
+  customDomain    String?        @unique
+  config          Json?
+  vapiAssistantId String? // Vapi assistant ID for this tenant
+  vapiPhoneNumber String? // Dedicated Vapi phone number (optional)
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+  onboardingComplete Boolean     @default(false)
+  onboardingStep      Int         @default(0)
 
-  users        User[]
-  campaigns    Campaign[]
-  contacts     Contact[]
-  apiKeys      ApiKey[]
-  scripts      Script[]
-  showrooms    Showroom[]
-  skillPacks   TenantSkillPack[]
-  usage        TenantUsage[]
+  users      User[]
+  campaigns  Campaign[]
+  contacts   Contact[]
+  apiKeys    ApiKey[]
+  scripts    Script[]
+  showrooms  Showroom[]
+  skillPacks TenantSkillPack[]
+  usage      TenantUsage[]
 
   @@map("tenants")
 }
@@ -48,26 +53,47 @@ enum Plan {
   ENTERPRISE
 }
 
+enum DomainVertical {
+  INTERIOR_DESIGN
+  REAL_ESTATE
+  CONSTRUCTION
+  PRODUCT_SALES
+  FINANCIAL_SERVICES
+  HEALTHCARE
+  EDUCATION
+  CUSTOM
+  GENERIC
+}
+
 // ─── USER ─────────────────────────────────────
 model User {
-  id           String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  cognitoSub   String    @unique
-  email        String    @unique
+  id           String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  cognitoSub   String     @unique
+  email        String     @unique
   name         String?
-  role         Role      @default(SALES_AGENT)
-  isActive     Boolean   @default(true)
-  tenantId     String    @db.Uuid
-  tenant       Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  role         Role       @default(SALES_AGENT)
+  isActive     Boolean    @default(true)
+  status       UserStatus @default(ACTIVE)
+  inviteToken  String?
+  inviteExpiry DateTime?
+  tenantId     String     @db.Uuid
+  tenant       Tenant     @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   lastLoginAt  DateTime?
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
 
-  assignedContacts Contact[] @relation("AssignedAgent")
-  auditLogs    AuditLog[]
+  assignedContacts Contact[]  @relation("AssignedAgent")
+  auditLogs        AuditLog[]
 
   @@index([tenantId])
   @@index([cognitoSub])
   @@map("users")
+}
+
+enum UserStatus {
+  ACTIVE
+  INVITED
+  SUSPENDED
 }
 
 enum Role {
@@ -79,31 +105,31 @@ enum Role {
 
 // ─── CONTACT ─────────────────────────────────────
 model Contact {
-  id                   String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  tenantId             String        @db.Uuid
-  tenant               Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  name                 String
-  phone                String
-  email                String?
-  status               ContactStatus @default(NEW)
-  leadScore            Int           @default(0)
-  location             String?
-  bhkType              String?
-  budgetMin            Int?
-  budgetMax            Int?
-  assignedAgentId      String?       @db.Uuid
-  assignedAgent        User?         @relation("AssignedAgent", fields: [assignedAgentId], references: [id], onDelete: SetNull)
-  assignedShowroomId   String?       @db.Uuid
-  assignedShowroom     Showroom?     @relation(fields: [assignedShowroomId], references: [id], onDelete: SetNull)
-  importedFrom         String?
-  notes                String?
-  createdAt            DateTime      @default(now())
-  updatedAt            DateTime      @updatedAt
+  id                 String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenantId           String        @db.Uuid
+  tenant             Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  name               String
+  phone              String
+  email              String?
+  status             ContactStatus @default(NEW)
+  leadScore          Int           @default(0)
+  location           String?
+  domainQualifier    String?
+  budgetMin          Int?
+  budgetMax          Int?
+  assignedAgentId    String?       @db.Uuid
+  assignedAgent      User?         @relation("AssignedAgent", fields: [assignedAgentId], references: [id], onDelete: SetNull)
+  assignedShowroomId String?       @db.Uuid
+  assignedShowroom   Showroom?     @relation(fields: [assignedShowroomId], references: [id], onDelete: SetNull)
+  importedFrom       String?
+  notes              String?
+  createdAt          DateTime      @default(now())
+  updatedAt          DateTime      @updatedAt
 
-  callLogs     CallLog[]
-  tags         ContactTag[]
-  actions      PostCallAction[]
-  vouchers     Voucher[]
+  callLogs CallLog[]
+  tags     ContactTag[]
+  actions  PostCallAction[]
+  vouchers Voucher[]
 
   @@index([tenantId])
   @@index([tenantId, status])
@@ -125,14 +151,14 @@ enum ContactStatus {
 
 // ─── CONTACT TAG ─────────────────────────────────────
 model ContactTag {
-  id         String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  contactId  String    @db.Uuid
-  contact    Contact   @relation(fields: [contactId], references: [id], onDelete: Cascade)
-  tenantId   String    @db.Uuid
-  tagKey     String
-  tagValue   String
-  source     TagSource @default(AI_EXTRACTED)
-  createdAt  DateTime  @default(now())
+  id        String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  contactId String    @db.Uuid
+  contact   Contact   @relation(fields: [contactId], references: [id], onDelete: Cascade)
+  tenantId  String    @db.Uuid
+  tagKey    String
+  tagValue  String
+  source    TagSource @default(AI_EXTRACTED)
+  createdAt DateTime  @default(now())
 
   @@unique([contactId, tagKey, tagValue])
   @@index([tenantId, tagKey, tagValue])
@@ -164,6 +190,7 @@ model CallLog {
   extractedEntities Json?
   objectionsRaised  Json?
   recordingS3Path   String?
+  qaScore           Json? // { criteria: string[], score: number, note: string, scoredAt: string, scoredBy: string }
   assignedAgentId   String?     @db.Uuid
   createdAt         DateTime    @default(now())
   updatedAt         DateTime    @updatedAt
@@ -191,18 +218,18 @@ enum CallOutcome {
 
 // ─── POST CALL ACTION ─────────────────────────────────────
 model PostCallAction {
-  id              String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  tenantId        String     @db.Uuid
-  contactId       String     @db.Uuid
-  contact         Contact    @relation(fields: [contactId], references: [id], onDelete: Cascade)
-  callLogId       String?    @db.Uuid
-  callLog         CallLog?   @relation(fields: [callLogId], references: [id], onDelete: SetNull)
+  id              String             @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenantId        String             @db.Uuid
+  contactId       String             @db.Uuid
+  contact         Contact            @relation(fields: [contactId], references: [id], onDelete: Cascade)
+  callLogId       String?            @db.Uuid
+  callLog         CallLog?           @relation(fields: [callLogId], references: [id], onDelete: SetNull)
   actionType      PostCallActionType
   channel         MessageChannel
   contentSnapshot Json?
   deliveredAt     DateTime?
   readAt          DateTime?
-  createdAt       DateTime   @default(now())
+  createdAt       DateTime           @default(now())
 
   @@index([tenantId, contactId])
   @@map("post_call_actions")
@@ -226,23 +253,23 @@ enum MessageChannel {
 
 // ─── CAMPAIGN ─────────────────────────────────────
 model Campaign {
-  id               String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  tenantId         String         @db.Uuid
-  tenant           Tenant         @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  name             String
-  status           CampaignStatus @default(DRAFT)
-  scriptId         String?        @db.Uuid
-  script           Script?        @relation(fields: [scriptId], references: [id], onDelete: SetNull)
-  skillPackId      String?        @db.Uuid
-  maxConcurrency   Int            @default(5)
-  dailyStartTime   String         @default("09:00")
-  dailyEndTime     String         @default("21:00")
-  retryUnanswered  Boolean        @default(true)
-  retryDelayHours  Int            @default(2)
-  scheduledStart   DateTime?
-  scheduledEnd     DateTime?
-  createdAt        DateTime       @default(now())
-  updatedAt        DateTime       @updatedAt
+  id              String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenantId        String         @db.Uuid
+  tenant          Tenant         @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  name            String
+  status          CampaignStatus @default(DRAFT)
+  scriptId        String?        @db.Uuid
+  script          Script?        @relation(fields: [scriptId], references: [id], onDelete: SetNull)
+  skillPackId     String?        @db.Uuid
+  maxConcurrency  Int            @default(5)
+  dailyStartTime  String         @default("09:00")
+  dailyEndTime    String         @default("21:00")
+  retryUnanswered Boolean        @default(true)
+  retryDelayHours Int            @default(2)
+  scheduledStart  DateTime?
+  scheduledEnd    DateTime?
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
 
   callLogs CallLog[]
 
@@ -262,17 +289,17 @@ enum CampaignStatus {
 
 // ─── SCRIPT ─────────────────────────────────────
 model Script {
-  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  tenantId    String   @db.Uuid
-  tenant      Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  name        String
-  version     Int      @default(1)
-  isActive    Boolean  @default(false)
-  sections    Json
+  id           String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenantId     String   @db.Uuid
+  tenant       Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  name         String
+  version      Int      @default(1)
+  isActive     Boolean  @default(false)
+  sections     Json
   systemPrompt String?
-  guardrails  Json?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  guardrails   Json?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 
   campaigns Campaign[]
 
@@ -282,18 +309,18 @@ model Script {
 
 // ─── SHOWROOM ─────────────────────────────────────
 model Showroom {
-  id           String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  tenantId     String   @db.Uuid
-  tenant       Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  name         String
-  address      String
-  lat          Float?
-  lng          Float?
-  phone        String?
-  operatingHours Json?
+  id              String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenantId        String   @db.Uuid
+  tenant          Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  name            String
+  address         String
+  lat             Float?
+  lng             Float?
+  phone           String?
+  operatingHours  Json?
   servicePincodes String[]
-  isActive     Boolean  @default(true)
-  createdAt    DateTime @default(now())
+  isActive        Boolean  @default(true)
+  createdAt       DateTime @default(now())
 
   assignedContacts Contact[]
 
@@ -303,19 +330,19 @@ model Showroom {
 
 // ─── VOUCHER ─────────────────────────────────────
 model Voucher {
-  id                    String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  tenantId              String    @db.Uuid
-  code                  String    @unique
-  contactId             String?   @db.Uuid
-  contact               Contact?  @relation(fields: [contactId], references: [id], onDelete: SetNull)
-  campaignId            String?   @db.Uuid
-  discountType          String
-  discountValue         Decimal   @db.Decimal(10, 2)
-  expiresAt             DateTime?
-  redeemedAt            DateTime?
-  redeemedByAgentId     String?   @db.Uuid
-  revenueAttributed     Decimal?  @db.Decimal(12, 2)
-  createdAt             DateTime  @default(now())
+  id                String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenantId          String    @db.Uuid
+  code              String    @unique
+  contactId         String?   @db.Uuid
+  contact           Contact?  @relation(fields: [contactId], references: [id], onDelete: SetNull)
+  campaignId        String?   @db.Uuid
+  discountType      String
+  discountValue     Decimal   @db.Decimal(10, 2)
+  expiresAt         DateTime?
+  redeemedAt        DateTime?
+  redeemedByAgentId String?   @db.Uuid
+  revenueAttributed Decimal?  @db.Decimal(12, 2)
+  createdAt         DateTime  @default(now())
 
   @@index([tenantId])
   @@index([code])
@@ -324,13 +351,16 @@ model Voucher {
 
 // ─── SKILL PACK ─────────────────────────────────────
 model SkillPack {
-  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  slug        String   @unique
-  name        String
-  description String?
-  isPublished Boolean  @default(false)
-  config      Json?
-  createdAt   DateTime @default(now())
+  id                String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  slug              String   @unique
+  name              String
+  description       String?
+  isPublished       Boolean  @default(false)
+  config            Json?
+  extractionSchema  Json?
+  qualitySignals    Json?
+  defaultPromptVars Json?
+  createdAt         DateTime @default(now())
 
   tenants TenantSkillPack[]
 
@@ -338,15 +368,15 @@ model SkillPack {
 }
 
 model TenantSkillPack {
-  tenantId    String    @db.Uuid
-  tenant      Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  skillPackId String    @db.Uuid
-  skillPack   SkillPack @relation(fields: [skillPackId], references: [id], onDelete: Cascade)
-  isActive    Boolean   @default(true)
+  tenantId     String    @db.Uuid
+  tenant       Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  skillPackId  String    @db.Uuid
+  skillPack    SkillPack @relation(fields: [skillPackId], references: [id], onDelete: Cascade)
+  isActive     Boolean   @default(true)
   customConfig Json?
-  indexedAt   DateTime?
-  vectorCount Int       @default(0)
-  activatedAt DateTime  @default(now())
+  indexedAt    DateTime?
+  vectorCount  Int       @default(0)
+  activatedAt  DateTime  @default(now())
 
   @@id([tenantId, skillPackId])
   @@index([tenantId])
@@ -436,36 +466,37 @@ enum AuditSeverity {
 
 // ─── TENANT USAGE ─────────────────────────────────────
 model TenantUsage {
-  id             String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  tenantId       String   @db.Uuid
-  tenant         Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  periodStart    DateTime
-  callMinutes    Decimal  @db.Decimal(10, 3)
-  costCogs       Decimal  @db.Decimal(10, 4)
-  costBilled     Decimal  @db.Decimal(10, 4)
-  inputTokens    BigInt   @default(0)
-  outputTokens   BigInt   @default(0)
-  cacheHits      Int      @default(0)
-  whatsappSent   Int      @default(0)
-  smsSent        Int      @default(0)
-  createdAt      DateTime @default(now())
+  id           String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenantId     String   @db.Uuid
+  tenant       Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  periodStart  DateTime
+  callMinutes  Decimal  @db.Decimal(10, 3)
+  costCogs     Decimal  @db.Decimal(10, 4)
+  costBilled   Decimal  @db.Decimal(10, 4)
+  inputTokens  BigInt   @default(0)
+  outputTokens BigInt   @default(0)
+  cacheHits    Int      @default(0)
+  whatsappSent Int      @default(0)
+  smsSent      Int      @default(0)
+  createdAt    DateTime @default(now())
 
+  @@unique([tenantId, periodStart])
   @@index([tenantId, periodStart])
   @@map("tenant_usage")
 }
 
 // ─── API KEY ─────────────────────────────────────
 model ApiKey {
-  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  name      String
-  keyHash   String   @unique
-  keyPrefix String
-  tenantId  String   @db.Uuid
-  tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  status    String   @default("ACTIVE")
+  id         String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name       String
+  keyHash    String    @unique
+  keyPrefix  String
+  tenantId   String    @db.Uuid
+  tenant     Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  status     String    @default("ACTIVE")
   lastUsedAt DateTime?
-  expiresAt DateTime?
-  createdAt DateTime @default(now())
+  expiresAt  DateTime?
+  createdAt  DateTime  @default(now())
 
   @@index([tenantId])
   @@map("api_keys")
