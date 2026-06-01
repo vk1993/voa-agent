@@ -1,13 +1,15 @@
 <h1 align="center">VOXA</h1>
 
 <p align="center">
-  <strong>Enterprise-Grade AI Voice Sales Agent for High-Ticket Industries</strong>
+  <strong>Enterprise-Grade Multi-Tenant AI Voice Sales Platform for High-Ticket Verticals</strong>
 </p>
 
 <p align="center">
   <img src="https://img.shields.io/github/actions/workflow/status/vk1993/voa-agent/deploy-frontend.yml?branch=main&style=for-the-badge&logo=github&label=Build%20Status" alt="Build Status" />
-  <img src="https://img.shields.io/badge/Next.js-15%20%2F%2016%20(App%20Router)-black?style=for-the-badge&logo=next.js" alt="Next.js Version" />
-  <img src="https://img.shields.io/badge/AWS-Serverless-orange?style=for-the-badge&logo=amazon-aws" alt="AWS Serverless Stack" />
+  <img src="https://img.shields.io/badge/Next.js-16%20(App%20Router)-black?style=for-the-badge&logo=next.js" alt="Next.js Version" />
+  <img src="https://img.shields.io/badge/Fastify-5-blue?style=for-the-badge&logo=fastify" alt="Fastify Version" />
+  <img src="https://img.shields.io/badge/Python-3.12-blue?style=for-the-badge&logo=python" alt="Python Version" />
+  <img src="https://img.shields.io/badge/AWS-ECS%20Fargate-orange?style=for-the-badge&logo=amazon-aws" alt="AWS Fargate Stack" />
   <img src="https://img.shields.io/badge/Pinecone-Hybrid%20RAG-blue?style=for-the-badge&logo=pinecone" alt="Pinecone RAG" />
   <img src="https://img.shields.io/badge/License-MIT-green?style=for-the-badge&logo=opensourceinitiative" alt="License" />
 </p>
@@ -16,102 +18,87 @@
 
 ## Overview
 
-VOXA is an advanced, enterprise-grade B2B conversational AI telephony platform purpose-built for high-ticket industries like luxury interior design. It orchestrates ultra-low-latency outbound sales campaigns, handles dynamic real-time customer queries via hybrid Retrieval-Augmented Generation (RAG), and integrates deeply with enterprise booking and messaging workflows. The platform automatically qualifies prospects, addresses complex objections chronologically using persistent lead timeline memory, and schedules design consultations directly into sales pipelines.
+**VOXA** is an advanced, enterprise-grade B2B conversational AI telephony and CRM orchestration platform. Built to support high-ticket business verticals—including luxury interior design, premium real estate, financial services, healthcare, and custom solutions—VOXA automates outbound sales campaigns, handles dynamic real-time objection-resolution via hybrid Retrieval-Augmented Generation (RAG), and initiates instant post-call follow-up channels.
 
-Built on an ultra-scalable AWS Serverless infrastructure coupled with a modern Next.js App Router frontend, VOXA is designed for zero-downtime high-throughput scenarios. By leveraging real-time semantic routing, a high-performance Pinecone vector database, and state-of-the-art LLMs (Anthropic Claude 3 Haiku and 3.5 Sonnet), VOXA delivers high business value: capturing customer intent mid-call, immediately firing rich post-call messaging follow-ups via WhatsApp, scheduling calendar events via Calendly, and maintaining an immutable, KMS Customer-Managed Key (CMK) encrypted audit trail of every interaction for compliance.
+By decoupling real-time stream ingestion from transactional backend APIs, VOXA delivers sub-800ms conversational turn latency alongside full data integrity:
+- **Tenant Context Gating**: Dynamic, onboarding-adaptive dashboard modules and sales wizards.
+- **Persistent Lead Timeline**: Immutable chronological event logging tracking customer preferences and objections.
+- **Multimodal Post-Call Workflows**: Instant, automated WhatsApp follow-ups and calendar booking synchronization.
+- **Row-Level Security (RLS)**: Enforced isolation at the database tier across all operational CRM tables.
 
 ---
 
-## Architecture
+## Architecture & Data Flow
 
-The following diagram illustrates the low-latency end-to-end data flow. It traces real-time voice streams and post-call analysis from the client interface through our AWS CloudFront and Application Load Balancer edge routers, into containerized service groups in AWS ECS Fargate, and down to the various data stores and integrations:
+VOXA utilizes a highly-available, fully-containerized architecture deployed on **AWS ECS Fargate**, isolated from third-party serverless hosting dependencies.
+
+### System Topology
 
 ```mermaid
 graph TD
-    %% Base Styling Definitions
     classDef client fill:#EBF3FF,stroke:#3182CE,stroke-width:2px,color:#2B6CB0;
     classDef edge fill:#EDFDF5,stroke:#38A169,stroke-width:2px,color:#276749;
-    classDef compute fill:#FFFDF0,stroke:#D69E2E,stroke-width:2px,color:#744210;
-    classDef storage fill:#FAF5FF,stroke:#805AD5,stroke-width:2px,color:#553C9A;
+    classDef alb fill:#FFFDF0,stroke:#D69E2E,stroke-width:2px,color:#744210;
+    classDef compute fill:#FAF5FF,stroke:#805AD5,stroke-width:2px,color:#553C9A;
+    classDef data fill:#FFF5F5,stroke:#E53E3E,stroke-width:2px,color:#9B2C2C;
     classDef integration fill:#FFF5F5,stroke:#E53E3E,stroke-width:2px,color:#9B2C2C;
 
-    %% Client and Telephony Nodes
-    subgraph Web_Client_Tier ["Client & Telephony Webhook Origin"]
-        Dashboard["Next.js Web Dashboard (Admin Panel)"]:::client
-        Telephony["Telephony Provider (Vapi / Retell AI)"]:::client
-    end
-
-    %% Ingress and Load Balancing
-    subgraph Ingress_Tier ["Ingress & CDN Tier"]
-        CF["CloudFront CDN Distribution"]:::edge
-        ALB["Application Load Balancer (ALB)"]:::edge
-        CF --> ALB
-    end
-
-    %% Container Compute Services (ECS Fargate)
-    subgraph Container_Compute ["AWS ECS Fargate Cluster"]
-        NextJS["Next.js Standalone App (Port 3000)"]:::compute
-        Fastify["Fastify Core APIs (Port 8080)"]:::compute
-        Agent["Python Voice Agent (Port 8000)"]:::compute
-    end
-
-    %% Decoupling SQS Messaging Queue Nodes
-    subgraph SQS_Messaging ["SQS Decoupling Queue Tier"]
-        activeQueue["SQS Queue (voxa-post-call-queue)"]:::storage
-    end
-
-    %% Background Processing
-    subgraph Background_Workers ["VPC Processing Lambdas"]
-        Worker["Post-Call Worker (WorkerLambda)"]:::compute
-    end
-
-    %% Storage & AI / Intelligence Nodes
-    subgraph Data_Intelligence_Store ["Data & AI Intelligence Tier"]
-        auditDb[("DynamoDB Table (VoxaAuditLogs)")]:::storage
-        memoryDb[("DynamoDB Table (LeadEvents)")]:::storage
-        rds[("PostgreSQL 16 Database (with RLS)")]:::storage
-        pinecone[("Pinecone (Vector DB - Hybrid RAG)")]:::storage
-        bedrock["Amazon Bedrock (Claude 3.5 Haiku / Sonnet)"]:::storage
-    end
-
-    %% Third-party Integrations
-    subgraph External_Integrations ["B2B Integrations"]
-        Calendar["Google Calendar API"]:::integration
-        WhatsApp["WhatsApp Cloud API (Messaging)"]:::integration
-    end
-
-    %% Data Flow Connections
-    Dashboard -->|HTTPS / WSS| CF
-    Telephony -->|POST Webhooks| CF
-
-    %% ALB Path Routing
-    ALB -->|/* default| NextJS
-    ALB -->|/contacts* & /tenant*| Fastify
-    ALB -->|/webhook*, /turn*, /outbound*| Agent
-
-    %% Service Discovery
+    Client[Web/Mobile Client]:::client -->|HTTPS| CF[CloudFront CDN Distribution]:::edge
+    CF -->|HTTP Origin Proxy| ALB[Application Load Balancer - ALB]:::alb
+    
+    %% ALB Path Rules
+    ALB -->|/* default| NextJS[Next.js SSR Frontend - Port 3000]:::compute
+    ALB -->|/contacts* & /tenant*| Fastify[Fastify Core Backend API - Port 8080]:::compute
+    ALB -->|/webhook*, /turn*, /outbound*| Agent[Python Voice Telephony Agent - Port 8000]:::compute
+    
+    %% Internal Connections & Service Discovery
     NextJS -.->|Private Cloud Map DNS: fastify.voxa.internal| Fastify
     Fastify -.->|Private Cloud Map DNS: agent.voxa.internal| Agent
-
-    %% Core Services DB Access
-    NextJS --> rds
-    Fastify --> rds
-    Agent --> rds
-    Worker --> rds
-
-    Agent -->|Publish Call Event| activeQueue
-    activeQueue -->|SQS Trigger| Worker
-
-    Agent -->|Query Context| pinecone
-    Agent -->|Resolve Current Objections| memoryDb
-    Agent -->|Inference via Bedrock Models| bedrock
-
-    Worker -->|Extract Lead Insights via Sonnet| bedrock
-    Worker -->|Immutable Event Record| auditDb
-    Worker -->|Chronological Timeline Update| memoryDb
-    Worker -->|Create Dynamic Appointment| Calendar
-    Worker -->|Trigger Rich Follow-up| WhatsApp
+    
+    %% Storage & Decoupling Queues
+    Agent -->|Publish Call Event| SQS[SQS Call-Ended Queue]:::data
+    SQS -->|SQS Trigger| Worker[Post-Call Worker Lambda]:::compute
+    
+    %% Database and Data Store Access
+    NextJS --> Postgres[(PostgreSQL DB with RLS)]:::data
+    Fastify --> Postgres
+    Agent --> Postgres
+    Worker --> Postgres
+    
+    NextJS --> DynamoDB[(DynamoDB Table - LeadEvents / Timeline)]:::data
+    Fastify --> DynamoDB
+    Agent --> DynamoDB
+    Worker --> DynamoDB
+    
+    NextJS --> Redis[(Upstash Redis Session Gating)]:::data
+    Fastify --> Redis
+    
+    Agent --> Pinecone[(Pinecone Vector DB - RAG)]:::data
+    Agent --> Bedrock[(Amazon Bedrock - LLM)]:::data
+    Worker --> Bedrock
+    
+    %% Integrations
+    Worker --> Calendar[Google Calendar API]:::integration
+    Worker --> WhatsApp[WhatsApp Cloud API]:::integration
 ```
+
+### Application Load Balancer Path Routing
+
+| Ingress Path | Target Container Service | Container Port | Purpose |
+| :--- | :--- | :--- | :--- |
+| `/*` (Default) | Next.js Frontend | `3000` | Server-Side Rendered dashboard, landing panels, and step-wizards |
+| `/contacts*` | Fastify core CRM | `8080` | High-throughput contacts lists, pagination, and bulk CRUD |
+| `/tenant*` | Fastify core CRM | `8080` | Multi-tenant profile configurations and domain settings |
+| `/webhook*` | Python Telephony Agent | `8000` | Real-time call streaming hooks and metadata ingress |
+| `/turn*` | Python Telephony Agent | `8000` | Conversation dialog routers (Vapi/Retell endpoints) |
+| `/outbound*` | Python Telephony Agent | `8000` | Campaign outbound dial triggers |
+
+### Internal Communication
+Container groups communicate privately within the VPC using **AWS Cloud Map** private DNS under the `voxa.internal` namespace:
+- **Fastify Backend URL**: `http://fastify.voxa.internal:8080`
+- **Python Agent URL**: `http://agent.voxa.internal:8000`
+
+Database migrations are executed securely within private subnets via a dedicated **Node.js Lambda Function (`MigrateFn`)** running `npx prisma migrate deploy` during deployment pipelines.
 
 ---
 
@@ -119,47 +106,45 @@ graph TD
 
 | Component | Technology | Description |
 | :--- | :--- | :--- |
-| **Frontend UI** | [Next.js 16 (App Router)](https://nextjs.org/) | Standalone production image serving server-side rendered (SSR) dashboards and APIs. |
-| | [Tailwind CSS v4](https://tailwindcss.com/) | Harmonies HSL palettes (premium gold accents `#C9A14A`) and custom glassmorphism panels. |
-| | [Prisma ORM](https://www.prisma.io/) | PostgreSQL connector for campanha, tenant mapping, and auditable B2B records. |
-| **Backend & Compute** | [Fastify](https://fastify.dev/) | High-performance TypeScript backend serving core CRM APIs on port 8080. |
-| | [FastAPI (Python 3.12)](https://fastapi.tiangolo.com/) | High-performance voice telephony gateway serving /turn webhooks on port 8000. |
-| | [AWS ECS Fargate](https://aws.amazon.com/fargate/) | Highly-available, auto-scaled container orchestration layer. |
-| **IaC & Infra** | [AWS CDK (Python)](https://aws.amazon.com/cdk/) | Python-based infrastructure deployment stack modeling ECR, ECS, ALB, and secure RDS instances. |
-| | [AWS DynamoDB](https://aws.amazon.com/dynamodb/) | Ledger storing session memories (`LeadEvents`) and compliance trails (`VoxaAuditLogs`). |
-| | [AWS SQS](https://aws.amazon.com/sqs/) | Highly reliable messaging queue decoupling core telephony from post-call processing workers. |
-| | [AWS Cognito](https://aws.amazon.com/cognito/) | Enterprise B2B identity management user pools with MFA and custom OIDC attributes. |
-| **AI & Intelligence** | [Pinecone DB](https://www.pinecone.io/) | Vector search database index handling semantic RAG extraction. |
-| | [Amazon Bedrock](https://aws.amazon.com/bedrock/) | In-VPC orchestrator for Anthropic Claude 3.5 Haiku and 3.5 Sonnet. |
-| **Testing** | [Vitest & Supertest](https://vitest.dev/) | High speed Unit and Integration tests for standard CRM routes. |
-| | [Pytest](https://pytest.org/) | Python test suite verifying voice processor pipelines. |
+| **Frontend UI** | Next.js 16 (App Router) | High-performance React framework. Handles dashboard views and secure edge routing. |
+| | Vanilla CSS & Tailwind v4 | Harmonies HSL palettes (accent gold `#C9A14A`), glassmorphism, and responsive screens. |
+| | Prisma ORM | Multi-tenant schema manager with Row-Level Security policy abstractions. |
+| **Compute / APIs** | Fastify 5 | High-speed TypeScript B2B API gateway serving port `8080`. |
+| | FastAPI (Python 3.12) | Real-time voice agent and objection processor serving port `8000`. |
+| | AWS ECS Fargate | Highly available, auto-scaled container orchestration tier. |
+| **Storage / Queuing**| PostgreSQL 16 | Relational core database with strict schema-level tenant boundaries. |
+| | AWS DynamoDB | Audit Ledger (`VoxaAuditLogs`) and AI persistent timeline memory (`LeadEvents`). |
+| | AWS SQS | Message queuing decoupling telephony from asynchronous worker pipelines. |
+| | Upstash Redis | Edge caching session validations for under-5ms status redirects. |
+| **AI / NLP** | Pinecone DB | Vector search database index handling semantic RAG extraction. |
+| | Amazon Bedrock | VPC-private LLM gateway running Anthropic Claude 3.5 Haiku and Sonnet. |
+| | SpaCy & Presidio | NLP pipeline executing real-time Hinglish-safe PII masking and redactions. |
+| **Testing** | Vitest & Supertest | High-performance unit and integration testing suite for CRM schemas. |
+| | Pytest | Async testing framework verifying python agent voice response pipelines. |
 
 ---
 
-## Folder Structure
-
-Below is the directory mapping of the VOXA multi-tenant container platform:
+## Directory Structure
 
 ```
 .
-├── app/                            # Next.js App Router (Pages, UI, and standalone dashboards)
-├── components/                     # Reusable React UI Elements
-├── server/                         # Fastify Core TypeScript CRM Backend
-│   ├── app.ts                      # Fastify core routing and security hooks
-│   └── routes/                     # CRM specific routes (contacts, tenants)
-├── python/                         # Voice Telephony Intelligence Services
-│   ├── core/                       # Shared modules (LLM bedrock handlers, Google Calendar, RAG)
-│   ├── agent/                      # Telephony endpoint container (/turn webhook ingress)
-│   └── worker/                     # Asynchronous SQS post-call workers and fine-tuning cron
-├── aws-infra/                      # Python AWS CDK container infrastructure project
-│   ├── app.py                      # CDK App declaration
-│   └── voxa_stack.py               # voxstack definition (ECR, ECS Fargate, Cognito, PostgreSQL GP3, CloudFront)
-├── prisma/                         # Prisma migrations and multi-tenant schema models
-├── scripts/                        # Automation & Local Stack local orchestration helpers
-├── tests/                          # E2E Security boundary tests
-├── docker-compose.yml              # Local database and localstack definitions
-├── next.config.ts                  # Standalone build settings and custom security headers
-└── README.md                       # Comprehensive guide
+├── app/                            # Next.js App Router UI, Onboarding step-wizard, and dashboards
+├── components/                     # Reusable UI elements (Hero, Nav, Waveform, Verticals showcase)
+├── hooks/                          # Custom React Hooks (e.g. useTenantContext domain-aware resolver)
+├── lib/                            # Shared utilities and configurations (domain-config.ts single source of truth)
+├── server/                         # Fastify Core TypeScript CRM Server
+│   ├── app.ts                      # Fastify initialization, CORS, and security hooks
+│   └── routes/                     # Tenant and Contacts database controllers
+├── python/                         # Telephony Voice Platform
+│   ├── core/                       # Shared modules (LLM Bedrock interfaces, Pinecone RAG, calendar/WhatsApp tools)
+│   ├── agent/                      # Telephony webhook receiver and response loop container (Port 8000)
+│   └── worker/                     # Asynchronous SQS post-call workers and cron fine-tuning handlers
+├── aws-infra/                      # Python AWS CDK infrastructure definitions
+├── prisma/                         # Prisma configurations, seed-superadmin, and migrations
+├── scripts/                        # Automation & Local Stack development mock helpers
+├── tests/                          # E2E Tenant Isolation & Row-Level Security (RLS) boundary tests
+├── docker-compose.yml              # Local databases (Postgres, Redis) and LocalStack simulator
+└── next.config.ts                  # Next.js standalone configurations and security headers
 ```
 
 ---
@@ -168,151 +153,218 @@ Below is the directory mapping of the VOXA multi-tenant container platform:
 
 VOXA provides a complete local development orchestration environment leveraging Docker Compose to mock local PostgreSQL, Redis, and AWS services.
 
-### Prerequisites
-- [Node.js 20.x or higher](https://nodejs.org/)
-- [Python 3.12 or higher](https://www.python.org/)
-- [Docker Desktop](https://www.docker.com/)
+### 1. Prerequisites
+- **Node.js 20.x or higher**
+- **Python 3.12 or higher**
+- **Docker Desktop**
 
-### Step-by-Step Installation
+### 2. Project Installation & Node Setup
+```bash
+# 1. Clone the repository
+git clone https://github.com/vk1993/voa-agent.git
+cd voa-agent
 
-1. **Clone the Repository:**
-   ```bash
-   git clone https://github.com/vk1993/voa-agent.git
-   cd voa-agent
-   ```
+# 2. Install TypeScript dependencies
+npm install
+```
 
-2. **Install Workspace Dependencies:**
-   ```bash
-   npm install
-   ```
+### 3. Orchestrate Local Infrastructure
+Spin up local databases and mock AWS endpoints (DynamoDB, SQS, Secrets Manager) using Docker:
+```bash
+# Start Docker containers
+docker compose up -d
 
-3. **Orchestrate Local Databases & LocalStack:**
-   Spin up LocalStack (DynamoDB, SQS, KMS, Secrets) alongside PostgreSQL and Redis:
-   ```bash
-   docker compose up -d
-   ```
+# Initialize local AWS queues, tables, and mock secrets
+chmod +x scripts/localstack-init.sh
+./scripts/localstack-init.sh
+```
 
-4. **Initialize Local AWS Simulation:**
-   ```bash
-   chmod +x scripts/localstack-init.sh
-   ./scripts/localstack-init.sh
-   ```
+### 4. Database Setup & RLS Migrations
+Apply PostgreSQL database schemas, initialize Row-Level Security rules, and seed the super-admin profile:
+```bash
+# Apply RLS schema migrations
+npx prisma migrate dev
 
-5. **Prisma Postgres Scaffolding:**
-   Create development database and deploy RLS migrations:
-   ```bash
-   npx prisma migrate dev
-   ```
+# Seed database with the Super-Admin user & global Tenant context
+npx tsx prisma/seed-superadmin.ts
+```
+*Note: Seeding creates the local user `superadmin@local.dev` linked to an active default tenant profile.*
 
-6. **Start All Local Compute Engines:**
-   Start all three services concurrently:
-   - **Next.js Dashboard**: `npm run dev` (Port 3000)
-   - **Fastify API Server**: `npm run dev:server` (Port 8080)
-   - **Python Telephony Agent**:
-     ```bash
-     source venv/bin/activate
-     cd python/agent && uvicorn main:app --port 8000
-     ```
+### 5. Python Virtual Environment & Dependency Installation
+Because Python services depend on the shared `voxa-core` module, dependencies must be installed in editable mode (`-e`):
+
+#### Option A: Using standard `venv` and `pip`
+```bash
+# 1. Create and activate virtual environment
+python -m venv venv
+source venv/bin/activate
+
+# 2. Install shared core, agent, and worker packages in editable mode
+pip install -e python/core
+pip install -e python/agent
+pip install -e python/worker
+```
+
+#### Option B: Using `uv` (Ultra-fast setup)
+```bash
+# 1. Create and activate virtual environment
+uv venv
+source .venv/bin/activate
+
+# 2. Install packages in editable mode
+uv pip install -e python/core
+uv pip install -e python/agent
+uv pip install -e python/worker
+```
+
+### 6. Start the Compute Engines
+Concurrently run the three primary engines locally:
+
+- **Next.js Dashboard UI** (Port `3000`):
+  ```bash
+  npm run dev
+  ```
+- **Fastify API Server** (Port `8080`):
+  ```bash
+  npm run dev:server
+  ```
+- **Python Telephony Agent** (Port `8000`):
+  ```bash
+  # Ensure your virtual environment is active
+  cd python/agent
+  uvicorn main:app --port 8000 --reload
+  ```
+
+Once all servers are running, access the local dashboard at `http://localhost:3000`. Log in with your seeded credentials (`superadmin@local.dev`).
 
 ---
 
-## Environment Variables
+## Environment Variables Reference
 
-Save this as `.env` at the root of the project to target local databases and Docker mock structures instantly:
+Create a `.env` file at the root of the project to bind all local compute layers and Docker mock targets:
 
 ```env
-# Relational Database Configuration
-DATABASE_URL="postgresql://voxa:voxa@localhost:5432/voxa_dev"
-DIRECT_DATABASE_URL="postgresql://voxa:voxa@localhost:5432/voxa_dev"
+# Database Connections
+DATABASE_URL="postgresql://voxa:voxa_password@localhost:5432/voxa_dev?schema=public"
+DIRECT_DATABASE_URL="postgresql://voxa:voxa_password@localhost:5432/voxa_dev?schema=public"
 
-# NextAuth & JWT Secrets
+# NextAuth & Session Credentials
 JWT_SECRET="f69ea6bc92040c1157bc1de15858cfd795b28d085ee5b31bf4e963bc15db642a"
 NEXTAUTH_SECRET="f69ea6bc92040c1157bc1de15858cfd795b28d085ee5b31bf4e963bc15db642a"
 
-# AWS Credentials (LocalStack target)
+# AWS LocalStack Target Configurations
 AWS_REGION="us-east-1"
 AWS_ACCESS_KEY_ID="mock_localstack_access_key"
 AWS_SECRET_ACCESS_KEY="mock_localstack_secret_key"
 AWS_ENDPOINT_URL="http://localhost:4566"
 LOCALSTACK_ENDPOINT="http://localhost:4566"
 
-# Vector Search (Pinecone RAG index)
+# Vector Search (Pinecone RAG index mocks)
 PINECONE_API_KEY="mock_pinecone_api_key"
 PINECONE_INDEX="voxa-sales-index"
 
-# Third-party tokens
+# Third-party Integrations
 WHATSAPP_TOKEN="mock_whatsapp_cloud_token"
 WHATSAPP_PHONE_ID="1234567890"
-```
-
-
-# Pinecone & Vector Search Configurations
-PINECONE_API_KEY="mock_pinecone_api_key"
-PINECONE_INDEX="voxa-sales-index"
-
-# Production API Integration Secrets (Mocked locally in Secrets Manager)
 CALENDLY_TOKEN="mock_calendly_pat_token"
-WHATSAPP_TOKEN="mock_whatsapp_cloud_token"
-WHATSAPP_PHONE_ID="1234567890"
 ```
 
 ---
 
-## Deployment
+## Operational Runbooks & Incident Playbooks
 
-### Container Deployments (AWS ECS Fargate & CDK)
-VOXA is fully containerized and deploys to highly-available AWS ECS Fargate clusters, removing Vercel dependencies entirely.
+Refer to [SECURITY-RUNBOOK.md](file:///Users/turbo/Developer/AntiGravity/voa-agent/docs/SECURITY-RUNBOOK.md) for full operational protocols. Key incident and maintenance procedures are summarized below:
 
-**Deploy Workflow**:
-Pushing to the `main` branch triggers a unified GitHub Actions pipeline:
-1. Builds Docker images (`Dockerfile.nextjs`, `Dockerfile.fastify`, `python/agent/Dockerfile`).
-2. Pushes built containers to Amazon ECR repositories (`voxa-nextjs`, `voxa-fastify`, `voxa-agent`).
-3. Deploys CDK infrastructure via `cdk deploy`.
-4. Forces ECS service updates for all container groups.
-5. Invokes VPC-private NodeJS Lambda (`MigrateFn`) to safely run Prisma schema migrations.
+### 1. Cross-Tenant Leak Ingress Resolution
+1. **Quarantine Connection Pools**: Limit connection counts or apply strict postgres security filters.
+2. **Scan Log Simulations**: Search the simulation logs for cross-tenant hijack events:
+   ```bash
+   jq '[.[] | select(.action == "CROSS_TENANT_HIJACK_ATTEMPT")]' prisma/audit-sim.json
+   ```
+3. **Verify PostgreSQL RLS Policies**: Check active row level security on relational tables:
+   ```sql
+   SELECT tablename, rowsecurity FROM pg_tables WHERE schemaname = 'public';
+   -- To enforce if disabled:
+   ALTER TABLE contacts ENABLE ROW LEVEL SECURITY;
+   ```
+4. **Invalidate Token Signatures**: Terminate the target user sessions instantly by inserting their JWT JTI into the Redis blacklist.
 
-### Required GitHub Repository Secrets
-Add these secrets in `Settings -> Secrets and Variables -> Actions` on your GitHub repository:
-- `AWS_ACCESS_KEY_ID`: IAM deployment access key
-- `AWS_SECRET_ACCESS_KEY`: IAM deployment secret key
-- `AWS_ACCOUNT_ID`: 12-digit AWS account identifier
-- `AWS_REGION`: target AWS region (`ap-south-1`)
-
-### Local Production Build Test
-To build and test production Docker containers locally:
+### 2. Purging Contaminated RAG Vectors
+If namespace cross-contamination is identified in Pinecone indexes, immediately purge the affected tenant namespace via the Pinecone REST API:
 ```bash
-docker compose up -d postgres localstack redis
-# Next.js frontend standalone
-docker build -f Dockerfile.nextjs -t voxa-nextjs:test .
-# Fastify API server
-docker build -f Dockerfile.fastify -t voxa-fastify:test .
-# Python telephony agent
-docker build -f python/agent/Dockerfile -t voxa-agent:test python/
+curl -i -X POST "https://<YOUR_PINECONE_INDEX_HOST>/vectors/delete" \
+  -H "Api-Key: <YOUR_PINECONE_API_KEY>" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "deleteAll": true,
+    "namespace": "tenant_<COMPROMISED_TENANT_ID>"
+  }'
+```
+
+### 3. Redriving Post-Call Failures from SQS DLQ
+If the `PostCallProcessor` encounters a bottleneck (such as a database pool exhaustion), message backlogs will accumulate in the Dead Letter Queue. Once resolved, redrive the queue to process pending schedule entries:
+```bash
+aws sqs start-message-move-tasks \
+  --source-arn arn:aws:sqs:ap-south-1:123456789012:voxa-call-ended-dlq \
+  --destination-arn arn:aws:sqs:ap-south-1:123456789012:voxa-call-ended-queue
+```
+
+### 4. Zero-Downtime JWT Secret Rotations
+1. Generate a new RS256 key pair (`openssl genpkey`).
+2. Format the new public key and append it as an active index inside the corporate JWKS array:
+   ```json
+   { "keys": [ { "kid": "key-2026-q2", ... }, { "kid": "key-old-expired", ... } ] }
+   ```
+3. Deploy JWKS file to `.well-known/jwks.json` distribution endpoints.
+4. Set authentication instances to sign new cookies with `key-2026-q2`.
+5. Wait exactly **1 hour** for old sessions to naturally expire, then delete the deprecated key from the active JWKS document.
+
+---
+
+## AWS SES Email Deliverability Setup
+
+To ensure system notifications and magic sign-in links consistently bypass spam filters and maintain high deliverability, the following DNS and AWS SES identity records are enforced (see [SES-DELIVERABILITY.md](file:///Users/turbo/Developer/AntiGravity/voa-agent/docs/SES-DELIVERABILITY.md) for details):
+
+### 1. SPF Record
+Authorize SES to send emails from your domain name. Add this standard `TXT` record to your DNS zone:
+```
+TXT @ "v=spf1 include:amazonses.com ~all"
+```
+
+### 2. DKIM Signature Setup
+1. In the AWS SES Console: navigate to **Verified Identities** ➔ **yourdomain.com** ➔ **DKIM** ➔ **Enable Easy DKIM**.
+2. Copy the three distinct CNAME records provided by AWS.
+3. Publish these CNAME entries to your DNS provider. Allow up to 24–48 hours for global propagation.
+
+### 3. DMARC Policy
+Enforce a quarantine policy for misaligned senders. Add this `TXT` record at the `_dmarc` subdomain:
+```
+TXT _dmarc "v=DMARC1; p=quarantine; rua=mailto:dmarc@yourdomain.com; pct=100"
+```
+
+### 4. Verification Check
+Query the status of active DKIM identities using the AWS CLI:
+```bash
+aws ses get-identity-dkim-attributes --identities yourdomain.com
+# Status must return "Success" before production traffic is activated.
 ```
 
 ---
 
-## Automated Testing
+## Automated Testing Suite
 
-VOXA features complete, automated backend integration and unit test suites across both the TypeScript CRM API layer and the Python telephony processor.
+VOXA features complete integration and unit tests validating multitenancy boundaries and transcription engines.
 
 ### Running TypeScript Integration Tests
-Verify CRM tenant isolation and role-based access security controls using Vitest:
+Verify PostgreSQL Row-Level Security, tenant boundary queries, and auth edge-proxy behaviors using Vitest:
 ```bash
-# Run Nest.js / Fastify integration specs
 npx vitest run tests/
 ```
 
-### Running Python Agent Telemetry & Processing Tests
-Verify the Hinglish-safe mid-call objection processor and worker calendar/message handlers using pytest:
+### Running Python Agent Telemetry & Objection Tests
+Validate voice-state pipelines, PII redactions, and Bedrock Haiku dialogue flows using pytest:
 ```bash
-# Activate virtual environment
-cd python && source venv/bin/activate
-# Run all Python core & worker tests
+# Activate your python virtual environment
+cd python
 python -m pytest -v --tb=short
 ```
-
-### Automated Integration Test Coverage
-- **Tenant Isolation Limits**: Asserts that requests from a logged-in agent strictly retrieve records matching their verified tenant database prefix (PostgreSQL Row-Level Security checks).
-- **Hinglish-Safe Transcripts**: Simulates mixed English and Hindi prospect questions to assert that Presidio PII is correctly masked and Bedrock Haiku returns standard B2B responses.
-- **SQS post-call hooks**: Mock events verify calendar scheduling, Pinecone RAG semantic extraction, and WhatsApp follow-up pipelines.
